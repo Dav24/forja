@@ -8,7 +8,6 @@ const { BottomSheetBackdrop, BottomSheetView } = BottomSheetModule;
 interface SheetProps {
   children: React.ReactNode;
   snapPoints?: (string | number)[];
-  [key: string]: React.ReactNode | (string | number)[] | undefined;
 }
 
 export const Sheet = forwardRef<unknown, SheetProps>(function Sheet(
