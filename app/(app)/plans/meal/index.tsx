@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
 import { useIsPremium } from '@/hooks/useSubscription';
+import { FREE_LIMITS } from '@/lib/limits';
 import { MacroBar } from '@/components/plans/MacroBar';
 import { MealPlanCard, type Meal } from '@/components/plans/MealPlanCard';
 
@@ -289,7 +290,7 @@ export default function MealPlansScreen() {
 
             {!isPremium && (
               <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, textAlign: 'center', marginTop: 12 }}>
-                Plan gratuito: 1 generación de por vida · Premium: ilimitadas
+                Plan gratuito: {FREE_LIMITS.MEAL_PLANS_LIFETIME} generación de por vida · Premium: ilimitadas
               </Text>
             )}
           </>
