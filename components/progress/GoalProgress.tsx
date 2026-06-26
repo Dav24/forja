@@ -23,13 +23,12 @@ export function GoalProgress() {
 
   if (!goal) {
     return (
-      <View style={{
-        backgroundColor: colors.surface, borderRadius: 16, padding: 16,
-        borderWidth: 1, borderColor: colors.border,
-        flexDirection: 'row', alignItems: 'center', gap: 12,
-      }}>
+      <View
+        className="rounded-2xl p-4 border flex-row items-center gap-3"
+        style={{ backgroundColor: colors.surface, borderColor: colors.border }}
+      >
         <Ionicons name="flag-outline" size={20} color={colors.textMuted} />
-        <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.textMuted, flex: 1 }}>
+        <Text className="flex-1" style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.textMuted }}>
           Define tu meta en Perfil para ver tu progreso
         </Text>
       </View>
@@ -56,11 +55,11 @@ export function GoalProgress() {
     : null;
 
   return (
-    <View style={{
-      backgroundColor: colors.surface, borderRadius: 16, padding: 16,
-      borderWidth: 1, borderColor: colors.border,
-    }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+    <View
+      className="rounded-2xl p-4 border"
+      style={{ backgroundColor: colors.surface, borderColor: colors.border }}
+    >
+      <View className="flex-row justify-between items-center mb-3">
         <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: colors.textMuted, letterSpacing: 0.5 }}>
           META ACTIVA
         </Text>
@@ -69,43 +68,43 @@ export function GoalProgress() {
 
       {showWeightProgress && currentWeight != null ? (
         <>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginBottom: 10 }}>
+          <View className="flex-row items-baseline gap-1.5 mb-2.5">
             <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: typography.sizes.stat, color: colors.text }}>
               {currentWeight.toFixed(1)}
             </Text>
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.textMuted }}>
               kg actuales
             </Text>
-            <View style={{ flex: 1 }} />
+            <View className="flex-1" />
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.textMuted }}>
-              Meta: {(goal.target_weight_kg as number).toFixed(1)} kg
+              Meta: {goal.target_weight_kg!.toFixed(1)} kg
             </Text>
           </View>
 
           <ProgressBar value={progressPct} />
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+          <View className="flex-row justify-between mt-2">
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.primary }}>
               {progressPct >= 100 ? '¡Meta alcanzada!' : `${progressPct.toFixed(0)}% completado`}
             </Text>
             {daysLeft !== null && (
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
-                {daysLeft > 0 ? `${daysLeft} días restantes` : 'Fecha meta superada'}
+                {daysLeft > 0 ? `${daysLeft} días restantes` : daysLeft === 0 ? 'Hoy es tu fecha meta' : 'Fecha meta superada'}
               </Text>
             )}
           </View>
         </>
       ) : (
-        <View style={{ gap: 6 }}>
+        <View className="gap-1.5">
           {!latest ? (
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
               Registra tu primera medida para ver tu avance
             </Text>
           ) : (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View className="flex-row items-center gap-1.5">
               <Ionicons name="checkmark-circle-outline" size={16} color={colors.success} />
               <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.textMuted }}>
-                {currentWeight?.toFixed(1)} kg registrados
+                {currentWeight != null ? `${currentWeight.toFixed(1)} kg registrados` : 'Medida registrada'}
               </Text>
             </View>
           )}
