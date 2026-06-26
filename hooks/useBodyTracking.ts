@@ -61,3 +61,22 @@ export function useLogBodyData() {
     },
   });
 }
+
+export function useFirstBodyData() {
+  const { user } = useAuthStore();
+  return useQuery({
+    queryKey: ['body_data', 'first', user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('body_data')
+        .select('weight_kg, recorded_at')
+        .eq('user_id', user!.id)
+        .order('recorded_at', { ascending: true })
+        .limit(1)
+        .single();
+      if (error && error.code !== 'PGRST116') throw error;
+      return data ?? null;
+    },
+  });
+}
