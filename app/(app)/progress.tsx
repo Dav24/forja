@@ -19,7 +19,7 @@ export default function ProgressScreen() {
     new Date(latestBodyData.recorded_at).toDateString() === new Date().toDateString();
 
   const recentRecords = (history ?? [])
-    .filter((r) => r.weight_kg != null)
+    .filter((r): r is typeof r & { weight_kg: number } => r.weight_kg != null)
     .slice(-5)
     .reverse();
 
@@ -42,12 +42,15 @@ export default function ProgressScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={{ marginBottom: 20 }}>
+        <View className="mb-5">
           <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: typography.sizes.h1, color: colors.text }}>
             Progreso
           </Text>
           {latestBodyData?.weight_kg && (
-            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.textMuted, marginTop: 2 }}>
+            <Text
+              className="mt-0.5 text-sm"
+              style={{ fontFamily: 'Inter-Regular', color: colors.textMuted }}
+            >
               Último registro: {latestBodyData.weight_kg.toFixed(1)} kg
             </Text>
           )}
@@ -56,21 +59,27 @@ export default function ProgressScreen() {
         {/* Meta */}
         <GoalProgress />
 
-        <View style={{ height: 16 }} />
+        <View className="h-4" />
 
         {/* Gráfica */}
         <WeightChart data={chartData} />
 
-        <View style={{ height: 16 }} />
+        <View className="h-4" />
 
         {/* Últimos registros */}
         {recentRecords.length > 0 && (
-          <View style={{
-            backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border,
-            overflow: 'hidden',
-          }}>
-            <View style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border }}>
-              <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 13, color: colors.textMuted, letterSpacing: 0.5 }}>
+          <View
+            className="rounded-2xl border overflow-hidden"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border }}
+          >
+            <View
+              className="px-4 py-3 border-b"
+              style={{ borderBottomColor: colors.border }}
+            >
+              <Text
+                className="text-[13px] tracking-[0.5px]"
+                style={{ fontFamily: 'SpaceGrotesk-Bold', color: colors.textMuted }}
+              >
                 ÚLTIMAS MEDIDAS
               </Text>
             </View>
@@ -81,21 +90,30 @@ export default function ProgressScreen() {
               return (
                 <View
                   key={record.id}
+                  className="flex-row justify-between items-center px-4 py-3"
                   style={{
-                    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-                    paddingHorizontal: 16, paddingVertical: 12,
-                    borderBottomWidth: isLast ? 0 : 1, borderBottomColor: colors.border,
+                    borderBottomWidth: isLast ? 0 : 1,
+                    borderBottomColor: colors.border,
                   }}
                 >
-                  <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.textMuted }}>
+                  <Text
+                    className="text-sm"
+                    style={{ fontFamily: 'Inter-Regular', color: colors.textMuted }}
+                  >
                     {dateStr}
                   </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 14, color: colors.text }}>
-                      {record.weight_kg?.toFixed(1)} kg
+                  <View className="flex-row items-center gap-3">
+                    <Text
+                      className="text-sm"
+                      style={{ fontFamily: 'JetBrainsMono-Medium', color: colors.text }}
+                    >
+                      {record.weight_kg.toFixed(1)} kg
                     </Text>
                     {record.body_fat_pct && (
-                      <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 12, color: colors.textMuted }}>
+                      <Text
+                        className="text-xs"
+                        style={{ fontFamily: 'JetBrainsMono-Medium', color: colors.textMuted }}
+                      >
                         {record.body_fat_pct.toFixed(1)}% grasa
                       </Text>
                     )}
@@ -111,16 +129,12 @@ export default function ProgressScreen() {
       <TouchableOpacity
         onPress={handleOpenSheet}
         activeOpacity={0.8}
+        className="w-14 h-14 rounded-full items-center justify-center"
         style={{
           position: 'absolute',
           bottom: 24,
           right: 24,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
           backgroundColor: colors.primary,
-          alignItems: 'center',
-          justifyContent: 'center',
           shadowColor: colors.primary,
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.4,
