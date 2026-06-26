@@ -324,6 +324,37 @@ meal_plans (
 )
 ```
 
+**Estructura del JSONB `meals`** (objeto completo del plan):
+```json
+{
+  "title": "Plan Nutrición Hipertrofia — 2800 kcal",
+  "description": "...",
+  "daily_calories": 2800,
+  "macros": { "protein_g": 210, "carbs_g": 280, "fat_g": 80 },
+  "days": [
+    {
+      "day_number": 1,
+      "day_name": "Lunes",
+      "total_calories": 2800,
+      "meals": [
+        {
+          "meal_type": "Desayuno",
+          "time_suggestion": "7:00–8:00",
+          "name": "Avena proteica con fruta",
+          "calories": 520,
+          "protein_g": 35,
+          "carbs_g": 65,
+          "fat_g": 10,
+          "ingredients": ["80g avena", "1 scoop proteína"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+7 días, 5 comidas por día (Desayuno, Media mañana, Almuerzo, Merienda, Cena).
+
 ---
 
 #### `subscriptions`
@@ -501,6 +532,18 @@ Las funciones viven en `supabase/functions/` y corren en Deno. Se despliegan con
 
 ---
 
+### `/functions/generate-meal-plan` — Generación de plan alimenticio
+
+**Propósito**: genera un plan alimenticio semanal de 7 días usando Claude Sonnet.
+
+**Flujo**: idéntico a `generate-plan` (valida JWT → límites → lee perfil → async_job → Sonnet → parsea JSON → guarda → job completed). **Diferencia clave**: recibe `{ allergies, diet_type, food_availability }` en el body (datos del form corto no persistidos en DB).
+
+**Límites**: Free = 1 plan de por vida (total); Premium = 10 planes/mes.
+
+**Modelo**: `claude-sonnet-4-6`, `max_tokens: 8192`.
+
+---
+
 ### `/functions/plan-worker` — Worker async
 
 > **Estado**: archivo creado, implementación pendiente (Paso 8+).
@@ -669,11 +712,17 @@ Pantalla del coach IA, completamente implementada.
 - **Límite de mensajes**: `MessageLimitBanner` aparece cuando `dailyCount` está a 5 o menos del límite (aviso amarillo) o cuando `limitReached` es `true` (banner rojo con CTA a Premium)
 - **Input**: `ChatInput` fijo al fondo, deshabilitado cuando `isLoading` o `limitReached`
 
-### Plans (`app/(app)/plans/`)
-Sección de planes de entrenamiento y alimentación. Incluye:
-- Listado de planes disponibles
-- Detalle de plan de entrenamiento: desglose por día y ejercicios
-- Detalle de plan alimenticio (Premium): macros y comidas del día
+### Plans (`app/(app)/plans/index.tsx`)
+Hub de navegación a planes de entrenamiento y alimentación.
+
+### Meal Plans (`app/(app)/plans/meal/index.tsx`)
+Pantalla de generación y visualización de planes alimenticios (Premium).
+
+- **Form de intake** (3 chips): tipo de dieta (Normal, Vegana, Keto), alergias (texto libre), disponibilidad (Casera, Gimnasio, Restaurante)
+- **Estado de generación**: mientras se genera, muestra `PlanGenerating` con animación
+- **Visualización 7 días**: navegador de días con flechas, cada día muestra comidas (Desayuno, Media mañana, Almuerzo, Merienda, Cena) con `MealPlanCard` colapsable
+- **Macros globales**: `MacroBar` a nivel de plan (distribución semanal o diaria)
+- **Interactividad**: cada `MealPlanCard` se expande para mostrar detalles de ingredientes, calorías y macros
 
 ### Progress (`app/(app)/progress.tsx`)
 Pantalla de seguimiento corporal. Permite registrar mediciones (peso, grasa corporal, etc.) y muestra:
@@ -727,8 +776,8 @@ Nivel de fitness (casual → élite) y modalidad (flexible / estricto). Al confi
 |---|---|
 | `WorkoutPlanCard` | Card resumen de plan de entrenamiento |
 | `ExerciseItem` | Fila de ejercicio con sets, reps, descanso y notas |
-| `MealPlanCard` | Card resumen de plan alimenticio |
-| `MacroBar` | Barra visual de distribución de macronutrientes |
+| `MealPlanCard` | Card colapsable de comida individual con nombre, calorías, macros e ingredientes. Integra `MacroBar` para visualización de nutrientes |
+| `MacroBar` | Barra horizontal de 3 segmentos (proteína=verde, carbs=índigo, grasa=ámbar) que muestra distribución de macronutrientes. Prop `compact` para versión reducida |
 | `PlanGenerating` | Pantalla de espera mientras se genera el plan (animación) |
 
 ### `components/premium/`
@@ -827,6 +876,8 @@ Los hooks abstraen la lógica de fetching y mutación. Usan React Query internam
 | `useStreak()` | Supabase / lógica local | Días consecutivos de entrenamiento |
 | `useSubscription()` | Supabase `subscriptions` | Estado de suscripción |
 | `useIsPremium()` | Derivado de useSubscription | Booleano: ¿es usuario premium? |
+| `useActiveMealPlan()` | Supabase `meal_plans` | Plan alimenticio activo (Premium) |
+| `useGenerateMealPlan()` | Edge Function `/generate-meal-plan` | Mutation para generar nuevo plan alimenticio con form params |
 | `useAsyncJob(jobId)` | Supabase `async_jobs` | Polling del estado de un job en background |
 | `useChat()` | Edge Function `/chat` | Streaming chat con el coach IA |
 
@@ -935,9 +986,10 @@ export const FREE_LIMITS = {
 | Límite | Verificación cliente | Verificación servidor |
 |---|---|---|
 | Mensajes/día | `useChat`: `limitReached` flag | Edge Function `/chat`: `get_daily_message_count()` |
-| Planes/mes | `useIsPremium()` + conteo | Edge Function `/generate-plan`: count query |
+| Planes de entrenamiento/mes | `useIsPremium()` + conteo | Edge Function `/generate-plan`: count query |
+| Planes alimenticios/mes (Premium) | `useIsPremium()` + conteo | Edge Function `/generate-meal-plan`: count query |
+| Planes alimenticios (Free) | `useIsPremium()` check | Edge Function `/generate-meal-plan`: lifetime check |
 | Historial corporal | `useBodyHistory`: limita el rango de fechas | Query con `LIMIT` o `WHERE recorded_at > now() - 14 days` |
-| Plan alimenticio | `useIsPremium()` | Edge Function: check suscripción |
 
 ### UX de los límites
 
@@ -1000,7 +1052,7 @@ Las variables de las Edge Functions se configuran con `supabase secrets set` y e
 
 ## 20. Pasos de Construcción — Historial y Próximos
 
-### Completados (Pasos 1–8)
+### Completados (Pasos 1–9)
 
 | Paso | Descripción |
 |---|---|
@@ -1012,12 +1064,12 @@ Las variables de las Edge Functions se configuran con `supabase secrets set` y e
 | 6 | **Dashboard (Home)**: pantalla Home completa con datos reales, tab bar con Ionicons (5 tabs). Hooks: useProfile, useActiveGoal, useActiveWorkoutPlan, useLatestBodyData, useStreak, useSubscription, useAsyncJob |
 | 7 | **Chat con IA (Memo el Forjador)**: Edge Function con streaming SSE, Claude Haiku + Prompt Caching, rate limit 20 msg/día. UI completa: ChatBubble, ChatInput, StreamingText, MessageLimitBanner, hook useChat, pantalla chat.tsx con auto-scroll. Integración Anthropic verificada end-to-end |
 | 8 | **Planes de entrenamiento**: Edge Function `generate-plan` llama a Claude Sonnet sincrónicamente (sin QStash por ahora). Pantallas: hub de planes con mini-calendario + rutina del día, detalle del plan con días expandibles. Límite free: 1 plan/mes |
+| 9 | **Planes Alimenticios (Premium)**: Edge Function `generate-meal-plan` llama a Claude Sonnet (`claude-sonnet-4-6`, `max_tokens: 8192`) con JWT auth. Límites: free = 1 plan de por vida, premium = 10 planes/mes. Hooks `useActiveMealPlan()` (query) y `useGenerateMealPlan()` (mutation). Componentes: `MacroBar` (barra 3 segmentos: proteína/carbs/grasa), `MealPlanCard` (colapsable con macros/ingredientes). Pantalla `/plans/meal/`: form intake (tipo dieta, alergias, disponibilidad) → generación → vista 7 días con navegador + macros globales. Integración completa con TanStack Query v5. |
 
-### Próximos (Pasos 9–15)
+### Próximos (Pasos 10–15)
 
 | Paso | Descripción |
 |---|---|
-| **9** | **Planes Alimenticios (Premium)** ← PRÓXIMO: Edge Function `generate-meal-plan`, formulario de intake, UI de meal plans con MacroBar. Tabla `meal_plans` ya existe en DB. Placeholder en `app/(app)/plans/meal/index.tsx` |
 | 10 | **Seguimiento Corporal**: gráfica de peso con Skia, formulario de mediciones, GoalProgress |
 | 11 | **Notificaciones Push**: integración completa con expo-notifications y `lib/notifications.ts` |
 | 12 | **Freemium Gates y Upgrade**: PaywallBanner, UpgradeSheet, flujos de límite |
