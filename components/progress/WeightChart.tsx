@@ -10,6 +10,10 @@ const PAD_TOP = 12;
 const PAD_BOTTOM = 8;
 const PAD_H = 8;
 
+// colors.primary (#22C55E) with opacity for Skia gradient fill
+const PRIMARY_ALPHA_25 = 'rgba(34,197,94,0.25)';
+const PRIMARY_ALPHA_0 = 'rgba(34,197,94,0)';
+
 interface DataPoint {
   recorded_at: string;
   weight_kg: number;
@@ -113,16 +117,16 @@ export function WeightChart({ data }: WeightChartProps) {
   }, [filtered, points]);
 
   return (
-    <View style={{
-      backgroundColor: colors.surface, borderRadius: 16, padding: 16,
-      borderWidth: 1, borderColor: colors.border,
-    }}>
+    <View
+      className="rounded-2xl p-4 border"
+      style={{ backgroundColor: colors.surface, borderColor: colors.border }}
+    >
       {/* Header + range selector */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <View className="flex-row justify-between items-center mb-3">
         <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: colors.textMuted, letterSpacing: 0.5 }}>
           PESO CORPORAL
         </Text>
-        <View style={{ flexDirection: 'row', gap: 4 }}>
+        <View className="flex-row gap-1">
           {RANGES.map(({ key, label, days }) => {
             const locked = !isPremium && days > 14;
             const active = range === key;
@@ -131,12 +135,10 @@ export function WeightChart({ data }: WeightChartProps) {
                 key={key}
                 onPress={() => !locked && setRange(key)}
                 activeOpacity={locked ? 1 : 0.7}
+                className="px-[10px] py-1 rounded-[20px] border flex-row items-center gap-[3px]"
                 style={{
-                  paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20,
-                  borderWidth: 1,
                   borderColor: active ? colors.primary : colors.border,
                   backgroundColor: active ? colors.primaryDim : 'transparent',
-                  flexDirection: 'row', alignItems: 'center', gap: 3,
                 }}
               >
                 <Text style={{
@@ -154,9 +156,12 @@ export function WeightChart({ data }: WeightChartProps) {
 
       {/* Chart or empty state */}
       {filtered.length < 2 ? (
-        <View style={{ height: CHART_HEIGHT, alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <View className="h-[160px] items-center justify-center gap-2">
           <Ionicons name="trending-up-outline" size={32} color={colors.textMuted} />
-          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted, textAlign: 'center' }}>
+          <Text
+            className="text-center"
+            style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}
+          >
             Registra tu peso para ver tu progreso aquí
           </Text>
         </View>
@@ -168,7 +173,7 @@ export function WeightChart({ data }: WeightChartProps) {
                 <LinearGradient
                   start={vec(0, PAD_TOP)}
                   end={vec(0, CHART_HEIGHT)}
-                  colors={['rgba(34,197,94,0.25)', 'rgba(34,197,94,0)']}
+                  colors={[PRIMARY_ALPHA_25, PRIMARY_ALPHA_0]}
                 />
               </Path>
             )}
@@ -188,15 +193,13 @@ export function WeightChart({ data }: WeightChartProps) {
           </Canvas>
 
           {/* X-axis labels */}
-          <View style={{ height: 18, position: 'relative', marginTop: 2 }}>
+          <View className="h-[18px] relative mt-0.5">
             {xLabels.map(({ label, x }, i) => (
               <Text
                 key={i}
+                className="absolute w-9 text-center"
                 style={{
-                  position: 'absolute',
                   left: x - 18,
-                  width: 36,
-                  textAlign: 'center',
                   fontFamily: 'Inter-Regular',
                   fontSize: 10,
                   color: colors.textMuted,
