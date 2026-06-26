@@ -88,7 +88,12 @@ Genera exactamente 7 días distintos con variedad. Cada día debe tener exactame
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS });
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ error: 'method_not_allowed' }),
+      { status: 405, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+    );
+  }
 
   try {
     const authHeader = req.headers.get('Authorization');
