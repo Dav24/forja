@@ -333,7 +333,7 @@ export default function PlansScreen() {
               Planes Alimenticios
             </Text>
             <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
-              Premium · Próximamente
+              Nutrición personalizada con IA
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
