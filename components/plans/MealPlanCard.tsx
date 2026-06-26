@@ -22,18 +22,15 @@ export function MealPlanCard({ meal }: { meal: Meal }) {
     <TouchableOpacity
       onPress={() => setExpanded(e => !e)}
       activeOpacity={0.8}
+      className="rounded-xl border p-4 mb-2"
       style={{
         backgroundColor: colors.surface,
-        borderRadius: 12,
-        padding: 14,
-        marginBottom: 8,
-        borderWidth: 1,
         borderColor: colors.border,
       }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+      <View className="flex-row items-start justify-between">
+        <View className="flex-1">
+          <View className="flex-row items-center gap-1.5 mb-0.5">
             <Text style={{ color: colors.accent, fontFamily: 'Inter-Medium', fontSize: 11 }}>
               {meal.meal_type.toUpperCase()}
             </Text>
@@ -60,7 +57,7 @@ export function MealPlanCard({ meal }: { meal: Meal }) {
         />
       </View>
 
-      <View style={{ marginTop: 10 }}>
+      <View className="mt-2.5">
         <MacroBar
           protein_g={meal.protein_g}
           carbs_g={meal.carbs_g}
@@ -70,13 +67,13 @@ export function MealPlanCard({ meal }: { meal: Meal }) {
       </View>
 
       {expanded && (
-        <View style={{ marginTop: 12, gap: 4 }}>
+        <View className="mt-3 gap-1">
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 11, marginBottom: 4 }}>
             INGREDIENTES
           </Text>
           {meal.ingredients.map((ing, i) => (
-            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: colors.primary }} />
+            <View key={i} className="flex-row items-center gap-2">
+              <View className="w-1 h-1 rounded-full" style={{ backgroundColor: colors.primary }} />
               <Text style={{ color: colors.text, fontFamily: 'Inter-Regular', fontSize: 13 }}>{ing}</Text>
             </View>
           ))}
