@@ -95,6 +95,8 @@ Deno.serve(async (req) => {
     );
   }
 
+  let jobId: string | null = null;
+
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -162,7 +164,16 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { allergies = 'ninguna', diet_type = 'omnívoro', food_availability = 'media' } = body;
+
+    const VALID_DIETS = ['omnívoro', 'vegetariano', 'vegano', 'sin gluten', 'keto'];
+    const VALID_AVAILABILITY = ['básica', 'media', 'amplia'];
+
+    const { allergies: rawAllergies = 'ninguna', diet_type: rawDiet = 'omnívoro', food_availability: rawAvailability = 'media' } = body;
+
+    // Sanitizar
+    const allergies = String(rawAllergies).slice(0, 200).replace(/[^\w\s,áéíóúñü]/gi, '');
+    const diet_type = VALID_DIETS.includes(String(rawDiet).toLowerCase()) ? String(rawDiet).toLowerCase() : 'omnívoro';
+    const food_availability = VALID_AVAILABILITY.includes(String(rawAvailability).toLowerCase()) ? String(rawAvailability).toLowerCase() : 'media';
 
     const [goalResult, bodyResult] = await Promise.all([
       supabase.from('goals').select('type, fitness_level')
@@ -190,6 +201,8 @@ Deno.serve(async (req) => {
         { status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
       );
     }
+
+    jobId = job.id;
 
     const prompt = buildMealPlanPrompt({
       goal_type: goalResult.data.type,
@@ -238,6 +251,9 @@ Deno.serve(async (req) => {
       const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON found');
       planData = JSON.parse(jsonMatch[0]);
+      if (!planData || !Array.isArray(planData.days) || planData.days.length === 0) {
+        throw new Error('invalid_plan_structure');
+      }
     } catch (e) {
       console.error('Error parsing plan JSON:', e, rawContent.slice(0, 500));
       await supabase.from('async_jobs')
@@ -288,6 +304,17 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     console.error('generate-meal-plan error:', err);
+    if (jobId) {
+      const cleanupClient = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+      );
+      await cleanupClient
+        .from('async_jobs')
+        .update({ status: 'failed', error: 'unexpected_error', completed_at: new Date().toISOString() })
+        .eq('id', jobId)
+        .catch(() => {}); // no propagar error del cleanup
+    }
     return new Response(
       JSON.stringify({ error: 'internal_error' }),
       { status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
