@@ -1,0 +1,17 @@
+{
+  "app": {
+    "name": "Forja"
+  },
+  "actions": {
+    "continue": "Continue",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "upgrade": "Get Premium"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "No connection. Check your internet."
+  }
+}

@@ -1,0 +1,89 @@
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useOnboardingStore } from '@/store/onboarding.store';
+
+type GoalType = 'weight_loss' | 'muscle_gain' | 'recomposition' | 'powerlifting' | 'sport_specific' | 'general_fitness';
+
+const GOALS: { type: GoalType; icon: string; title: string; description: string }[] = [
+  { type: 'weight_loss',      icon: '🔥', title: 'Bajar de peso',         description: 'Perder grasa y mejorar composición corporal' },
+  { type: 'muscle_gain',      icon: '💪', title: 'Ganar músculo',          description: 'Aumentar masa muscular y fuerza' },
+  { type: 'recomposition',    icon: '⚡', title: 'Recomposición',          description: 'Perder grasa y ganar músculo simultáneamente' },
+  { type: 'powerlifting',     icon: '🏋️', title: 'Powerlifting',           description: 'Maximizar fuerza en sentadilla, press y peso muerto' },
+  { type: 'sport_specific',   icon: '🏃', title: 'Deporte específico',     description: 'Rendimiento para tu deporte o disciplina' },
+  { type: 'general_fitness',  icon: '✨', title: 'Fitness general',        description: 'Mejorar salud, energía y bienestar general' },
+];
+
+export default function Step1Goals() {
+  const [selected, setSelected] = useState<GoalType | null>(null);
+  const { setStep1 } = useOnboardingStore();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  function handleContinue() {
+    if (!selected) return;
+    setStep1({ goalType: selected });
+    router.push('/(auth)/onboarding/step-2-body');
+  }
+
+  return (
+    <View className="flex-1 bg-background">
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 100 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="pt-6 pb-8">
+          <Text className="text-text-muted text-sm font-medium mb-1">Paso 1 de 3</Text>
+          <Text className="text-text font-bold text-3xl">¿Cuál es tu objetivo?</Text>
+          <Text className="text-text-muted text-base mt-2">Tu coach se adapta a lo que quieres lograr.</Text>
+        </View>
+
+        <View className="gap-3">
+          {GOALS.map((goal) => {
+            const isSelected = selected === goal.type;
+            return (
+              <TouchableOpacity
+                key={goal.type}
+                onPress={() => setSelected(goal.type)}
+                className={`rounded-2xl p-4 border ${isSelected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
+                activeOpacity={0.7}
+              >
+                <View className="flex-row items-center gap-4">
+                  <Text className="text-3xl">{goal.icon}</Text>
+                  <View className="flex-1">
+                    <Text className={`font-semibold text-base ${isSelected ? 'text-primary' : 'text-text'}`}>
+                      {goal.title}
+                    </Text>
+                    <Text className="text-text-muted text-sm mt-0.5">{goal.description}</Text>
+                  </View>
+                  {isSelected && (
+                    <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
+                      <Text className="text-background font-bold text-xs">✓</Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      {/* Botón fijo al fondo */}
+      <View
+        className="absolute bottom-0 left-0 right-0 px-5 bg-background border-t border-border"
+        style={{ paddingBottom: insets.bottom + 16, paddingTop: 16 }}
+      >
+        <TouchableOpacity
+          className={`rounded-xl h-14 items-center justify-center ${selected ? 'bg-primary' : 'bg-surface'}`}
+          onPress={handleContinue}
+          disabled={!selected}
+        >
+          <Text className={`font-bold text-base ${selected ? 'text-background' : 'text-text-muted'}`}>
+            Continuar
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
