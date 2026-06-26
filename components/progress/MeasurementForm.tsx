@@ -54,7 +54,7 @@ export function MeasurementForm({ initialValues, isUpdate = false, onSuccess }: 
   }
 
   return (
-    <View style={{ gap: 16 }}>
+    <View className="gap-4">
       <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: typography.sizes.h3, color: colors.text }}>
         {isUpdate ? 'Actualizar medidas' : 'Registrar medidas'}
       </Text>
@@ -67,8 +67,8 @@ export function MeasurementForm({ initialValues, isUpdate = false, onSuccess }: 
         keyboardType="decimal-pad"
       />
 
-      <View style={{ gap: 6 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <View className="gap-1.5">
+        <View className="flex-row items-center justify-between">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>
             Grasa corporal (%)
           </Text>
@@ -84,8 +84,8 @@ export function MeasurementForm({ initialValues, isUpdate = false, onSuccess }: 
         />
       </View>
 
-      <View style={{ gap: 6 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <View className="gap-1.5">
+        <View className="flex-row items-center justify-between">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>
             Masa muscular (kg)
           </Text>
