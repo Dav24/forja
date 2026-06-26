@@ -49,11 +49,33 @@ export function useLogBodyData() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (entry: {
-      weight_kg?: number;
+      weight_kg: number;
       body_fat_pct?: number;
       muscle_mass_kg?: number;
     }) => {
       const { error } = await supabase.from('body_data').insert({ user_id: user!.id, ...entry });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['body_data'] });
+    },
+  });
+}
+
+export function useUpdateBodyData() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: {
+      id: string;
+      weight_kg: number;
+      body_fat_pct?: number;
+      muscle_mass_kg?: number;
+    }) => {
+      const { id, ...updates } = params;
+      const { error } = await supabase
+        .from('body_data')
+        .update(updates)
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {

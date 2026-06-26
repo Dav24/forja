@@ -46,8 +46,11 @@ export function GoalProgress() {
   let progressPct = 0;
   if (showWeightProgress && startWeight != null && currentWeight != null && goal.target_weight_kg != null) {
     const totalChange = Math.abs(startWeight - goal.target_weight_kg);
-    const achievedChange = Math.abs(startWeight - currentWeight);
-    progressPct = totalChange > 0 ? Math.min((achievedChange / totalChange) * 100, 100) : 0;
+    // Positive when moving in the correct direction for the goal type
+    const signedChange = goal.type === 'weight_loss'
+      ? startWeight - currentWeight   // positive when losing (correct direction)
+      : currentWeight - startWeight;  // positive when gaining (correct direction)
+    progressPct = totalChange > 0 ? Math.min(Math.max((signedChange / totalChange) * 100, 0), 100) : 0;
   }
 
   const daysLeft = goal.target_date

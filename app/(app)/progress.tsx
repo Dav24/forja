@@ -154,6 +154,7 @@ export default function ProgressScreen() {
             muscle_mass_kg: latestBodyData?.muscle_mass_kg ?? undefined,
           } : undefined}
           isUpdate={isToday}
+          existingId={isToday ? latestBodyData?.id ?? undefined : undefined}
           onSuccess={handleFormSuccess}
         />
       </Sheet>

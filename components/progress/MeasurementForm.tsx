@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { useLogBodyData } from '@/hooks/useBodyTracking';
+import { useLogBodyData, useUpdateBodyData } from '@/hooks/useBodyTracking';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
@@ -15,12 +15,16 @@ interface MeasurementFormProps {
     muscle_mass_kg?: number;
   };
   isUpdate?: boolean;
+  existingId?: string;
   onSuccess: () => void;
 }
 
-export function MeasurementForm({ initialValues, isUpdate = false, onSuccess }: MeasurementFormProps) {
+export function MeasurementForm({ initialValues, isUpdate = false, existingId, onSuccess }: MeasurementFormProps) {
   const isPremium = useIsPremium();
-  const { mutate, isPending, error } = useLogBodyData();
+  const { mutate, isPending: insertPending, error: insertError } = useLogBodyData();
+  const { mutate: updateBody, isPending: isUpdating, error: updateError } = useUpdateBodyData();
+  const isPending = insertPending || isUpdating;
+  const error = insertError || updateError;
 
   const [weightKg, setWeightKg] = useState(initialValues?.weight_kg?.toString() ?? '');
   const [bodyFatPct, setBodyFatPct] = useState(initialValues?.body_fat_pct?.toString() ?? '');
@@ -45,12 +49,23 @@ export function MeasurementForm({ initialValues, isUpdate = false, onSuccess }: 
     const err = validate();
     if (err) { setValidationError(err); return; }
     setValidationError(null);
-    const entry: { weight_kg: number; body_fat_pct?: number; muscle_mass_kg?: number } = {
-      weight_kg: parseFloat(weightKg),
-    };
-    if (isPremium && bodyFatPct) entry.body_fat_pct = parseFloat(bodyFatPct);
-    if (isPremium && muscleMassKg) entry.muscle_mass_kg = parseFloat(muscleMassKg);
-    mutate(entry, { onSuccess });
+
+    if (existingId) {
+      const params: { id: string; weight_kg: number; body_fat_pct?: number; muscle_mass_kg?: number } = {
+        id: existingId,
+        weight_kg: parseFloat(weightKg),
+      };
+      if (isPremium && bodyFatPct) params.body_fat_pct = parseFloat(bodyFatPct);
+      if (isPremium && muscleMassKg) params.muscle_mass_kg = parseFloat(muscleMassKg);
+      updateBody(params, { onSuccess });
+    } else {
+      const entry: { weight_kg: number; body_fat_pct?: number; muscle_mass_kg?: number } = {
+        weight_kg: parseFloat(weightKg),
+      };
+      if (isPremium && bodyFatPct) entry.body_fat_pct = parseFloat(bodyFatPct);
+      if (isPremium && muscleMassKg) entry.muscle_mass_kg = parseFloat(muscleMassKg);
+      mutate(entry, { onSuccess });
+    }
   }
 
   return (
