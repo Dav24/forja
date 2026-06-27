@@ -45,6 +45,13 @@ AS $$
     FROM body_data
     WHERE weight_kg IS NOT NULL
     ORDER BY user_id, recorded_at DESC
+  ),
+  active_goal AS (
+    SELECT DISTINCT ON (user_id)
+      user_id, type, target_weight_kg, target_date
+    FROM goals
+    WHERE is_active = TRUE
+    ORDER BY user_id, created_at DESC
   )
   SELECT
     p.id                                                AS user_id,
@@ -60,7 +67,7 @@ AS $$
     lw.weight_kg                                        AS current_weight
   FROM profiles p
   LEFT JOIN subscriptions s ON s.user_id = p.id
-  LEFT JOIN goals g ON g.user_id = p.id AND g.is_active = TRUE
+  LEFT JOIN active_goal g ON g.user_id = p.id
   LEFT JOIN last_body lb ON lb.user_id = p.id
   LEFT JOIN last_chat lc ON lc.user_id = p.id
   LEFT JOIN first_weight fw ON fw.user_id = p.id
