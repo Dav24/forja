@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
-import { useIsPremium, useSubscription } from '@/hooks/useSubscription';
+import { useIsPremium } from '@/hooks/useSubscription';
 import { colors } from '@/constants/colors';
 
 type Billing = 'monthly' | 'yearly';
@@ -44,7 +44,6 @@ function buildPaymentURL(billing: Billing, promoCode: string): string {
 
 export default function UpgradeScreen() {
   const isPremium = useIsPremium();
-  const { data: subscription } = useSubscription();
   const [billing, setBilling] = useState<Billing>('yearly');
   const [promoCode, setPromoCode] = useState('');
   const [promoOpen, setPromoOpen] = useState(false);
