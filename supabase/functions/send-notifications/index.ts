@@ -132,6 +132,9 @@ async function sendBatch(messages: ExpoMessage[]): Promise<ExpoTicket[]> {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        ...(Deno.env.get('EXPO_ACCESS_TOKEN')
+          ? { Authorization: `Bearer ${Deno.env.get('EXPO_ACCESS_TOKEN')}` }
+          : {}),
       },
       body: JSON.stringify(batch),
     });
@@ -203,6 +206,23 @@ Deno.serve(async (req: Request) => {
 
   const tickets = await sendBatch(messages);
 
+  // Fetch users who already received a notification today
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const successUserIds = selected
+    .filter((_, i) => tickets[i]?.status === 'ok')
+    .map(({ target }) => target.user_id);
+
+  const { data: alreadySent } = successUserIds.length > 0
+    ? await supabase
+        .from('notifications')
+        .select('user_id')
+        .in('user_id', successUserIds)
+        .gte('sent_at', `${today}T00:00:00Z`)
+        .lt('sent_at', `${today}T23:59:59Z`)
+    : { data: [] };
+
+  const alreadySentIds = new Set((alreadySent ?? []).map((r: { user_id: string }) => r.user_id));
+
   // Process tickets
   const invalidUserIds: string[] = [];
   const notificationInserts: Array<{
@@ -219,7 +239,7 @@ Deno.serve(async (req: Request) => {
 
     if (ticket.status === 'error' && ticket.details?.error === 'DeviceNotRegistered') {
       invalidUserIds.push(target.user_id);
-    } else if (ticket.status === 'ok') {
+    } else if (ticket.status === 'ok' && !alreadySentIds.has(target.user_id)) {
       notificationInserts.push({
         user_id: target.user_id,
         type: payload.type,

@@ -74,3 +74,15 @@ AS $$
   LEFT JOIN latest_weight lw ON lw.user_id = p.id
   WHERE p.expo_push_token IS NOT NULL;
 $$;
+
+REVOKE ALL ON FUNCTION get_notification_targets() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION get_notification_targets() TO service_role;
+
+-- IMMUTABLE wrapper required because timestamptz::date is STABLE (timezone-dependent)
+CREATE OR REPLACE FUNCTION ts_to_utc_date(ts TIMESTAMPTZ) RETURNS DATE
+  LANGUAGE sql IMMUTABLE STRICT AS $$
+    SELECT DATE(ts AT TIME ZONE 'UTC');
+  $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_user_type_day
+  ON notifications (user_id, type, ts_to_utc_date(sent_at));

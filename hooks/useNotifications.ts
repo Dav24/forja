@@ -34,9 +34,8 @@ export function useNotifications(): void {
         if (finalStatus !== 'granted') return;
 
         const projectId = Constants.expoConfig?.extra?.eas?.projectId as string | undefined;
-        const { data: token } = await Notifications.getExpoPushTokenAsync(
-          projectId ? { projectId } : {}
-        );
+        if (!projectId) return; // requires eas init + extra.eas.projectId in app.json
+        const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
         if (!token) return;
 
         const { data: profile } = await supabase
