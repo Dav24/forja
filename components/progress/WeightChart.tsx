@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { Canvas, Path, Skia, LinearGradient, vec, Circle } from '@shopify/react-native-skia';
 import { Ionicons } from '@expo/vector-icons';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { colors } from '@/constants/colors';
+import { UpgradeSheet } from '@/components/premium/UpgradeSheet';
 
 const CHART_HEIGHT = 160;
 const PAD_TOP = 12;
@@ -88,6 +89,7 @@ export function WeightChart({ data }: WeightChartProps) {
   const isPremium = useIsPremium();
   const { width: screenW } = useWindowDimensions();
   const [range, setRange] = useState<RangeKey>('2w');
+  const upgradeSheetRef = useRef<any>(null);
 
   const chartW = screenW - 32;
 
@@ -133,7 +135,13 @@ export function WeightChart({ data }: WeightChartProps) {
             return (
               <TouchableOpacity
                 key={key}
-                onPress={() => !locked && setRange(key)}
+                onPress={() => {
+                  if (locked) {
+                    upgradeSheetRef.current?.expand();
+                  } else {
+                    setRange(key);
+                  }
+                }}
                 activeOpacity={locked ? 1 : 0.7}
                 className="px-[10px] py-1 rounded-[20px] border flex-row items-center gap-[3px]"
                 style={{
@@ -211,6 +219,7 @@ export function WeightChart({ data }: WeightChartProps) {
           </View>
         </>
       )}
+      <UpgradeSheet ref={upgradeSheetRef} context="chart_range" />
     </View>
   );
 }

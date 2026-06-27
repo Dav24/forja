@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text } from 'react-native';
+import { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -7,6 +7,7 @@ import { useLogBodyData, useUpdateBodyData } from '@/hooks/useBodyTracking';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
+import { UpgradeSheet } from '@/components/premium/UpgradeSheet';
 
 interface MeasurementFormProps {
   initialValues?: {
@@ -25,6 +26,7 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
   const { mutate: updateBody, isPending: isUpdating, error: updateError } = useUpdateBodyData();
   const isPending = insertPending || isUpdating;
   const error = insertError || updateError;
+  const upgradeSheetRef = useRef<any>(null);
 
   const [weightKg, setWeightKg] = useState(initialValues?.weight_kg?.toString() ?? '');
   const [bodyFatPct, setBodyFatPct] = useState(initialValues?.body_fat_pct?.toString() ?? '');
@@ -89,14 +91,19 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
           </Text>
           {!isPremium && <Badge label="Premium" variant="accent" />}
         </View>
-        <Input
-          value={bodyFatPct}
-          onChangeText={setBodyFatPct}
-          placeholder="18.5"
-          keyboardType="decimal-pad"
-          editable={isPremium}
-          style={{ opacity: isPremium ? 1 : 0.4 }}
-        />
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => { if (!isPremium) upgradeSheetRef.current?.expand(); }}
+        >
+          <Input
+            value={bodyFatPct}
+            onChangeText={setBodyFatPct}
+            placeholder="18.5"
+            keyboardType="decimal-pad"
+            editable={isPremium}
+            style={{ opacity: isPremium ? 1 : 0.4 }}
+          />
+        </TouchableOpacity>
       </View>
 
       <View className="gap-1.5">
@@ -106,14 +113,19 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
           </Text>
           {!isPremium && <Badge label="Premium" variant="accent" />}
         </View>
-        <Input
-          value={muscleMassKg}
-          onChangeText={setMuscleMassKg}
-          placeholder="35.0"
-          keyboardType="decimal-pad"
-          editable={isPremium}
-          style={{ opacity: isPremium ? 1 : 0.4 }}
-        />
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => { if (!isPremium) upgradeSheetRef.current?.expand(); }}
+        >
+          <Input
+            value={muscleMassKg}
+            onChangeText={setMuscleMassKg}
+            placeholder="35.0"
+            keyboardType="decimal-pad"
+            editable={isPremium}
+            style={{ opacity: isPremium ? 1 : 0.4 }}
+          />
+        </TouchableOpacity>
       </View>
 
       {(validationError || error) && (
@@ -128,6 +140,7 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
         loading={isPending}
         disabled={!weightKg}
       />
+      <UpgradeSheet ref={upgradeSheetRef} context="body_composition" />
     </View>
   );
 }

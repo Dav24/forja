@@ -9,6 +9,7 @@ import { useIsPremium } from '@/hooks/useSubscription';
 import { FREE_LIMITS } from '@/lib/limits';
 import { MacroBar } from '@/components/plans/MacroBar';
 import { MealPlanCard, type Meal } from '@/components/plans/MealPlanCard';
+import { PaywallBanner } from '@/components/premium/PaywallBanner';
 
 const ALLERGY_OPTIONS = ['Ninguna', 'Gluten', 'Lactosa', 'Frutos secos', 'Mariscos'];
 const DIET_OPTIONS = ['Omnívoro', 'Vegetariano', 'Vegano', 'Sin gluten', 'Keto'];
@@ -214,20 +215,11 @@ export default function MealPlansScreen() {
                 </Text>
               </TouchableOpacity>
             ) : (
-              <View style={{
-                marginTop: 16, backgroundColor: colors.accent + '15',
-                borderWidth: 1, borderColor: colors.accent + '40',
-                borderRadius: 12, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12,
-              }}>
-                <Ionicons name="lock-closed-outline" size={18} color={colors.accent} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: colors.accent, fontFamily: 'Inter-Medium', fontSize: 13 }}>
-                    Regenerar requiere Premium
-                  </Text>
-                  <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
-                    Actualiza para crear nuevos planes cuando quieras
-                  </Text>
-                </View>
+              <View style={{ marginTop: 16 }}>
+                <PaywallBanner
+                  message="Actualiza para crear nuevos planes cuando quieras"
+                  onPress={() => router.push('/(app)/upgrade' as never)}
+                />
               </View>
             )}
           </>

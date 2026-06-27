@@ -39,7 +39,7 @@ export function MessageLimitBanner({ count, limitReached }: MessageLimitBannerPr
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => router.push('/(app)/profile')}
+          onPress={() => router.push('/(app)/upgrade' as never)}
           activeOpacity={0.8}
           style={{ backgroundColor: colors.primary, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 }}
         >
