@@ -1,0 +1,47 @@
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@/constants/colors';
+
+interface PaywallBannerProps {
+  message: string;
+  ctaLabel?: string;
+  onPress: () => void;
+}
+
+export function PaywallBanner({ message, ctaLabel = 'Hazte Premium', onPress }: PaywallBannerProps) {
+  return (
+    <View
+      style={{
+        backgroundColor: colors.accent + '1A',
+        borderWidth: 1,
+        borderColor: colors.accent + '40',
+        borderRadius: 12,
+        padding: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+      }}
+    >
+      <Ionicons name="flash-outline" size={18} color={colors.accent} />
+      <Text
+        style={{ flex: 1, fontFamily: 'Inter-Regular', fontSize: 13, color: colors.text }}
+      >
+        {message}
+      </Text>
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.8}
+        style={{
+          backgroundColor: colors.accent,
+          borderRadius: 8,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+        }}
+      >
+        <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 12 }}>
+          {ctaLabel}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
