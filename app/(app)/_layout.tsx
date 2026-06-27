@@ -70,6 +70,10 @@ export default function AppLayout() {
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} />,
         }}
       />
+      <Tabs.Screen
+        name="upgrade"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
