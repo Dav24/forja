@@ -135,6 +135,11 @@ async function sendBatch(messages: ExpoMessage[]): Promise<ExpoTicket[]> {
       },
       body: JSON.stringify(batch),
     });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`Expo API HTTP ${res.status}:`, text);
+      throw new Error(`Expo Push API failed: ${res.status}`);
+    }
     const json = await res.json() as { data: ExpoTicket[] };
     tickets.push(...(json.data ?? []));
   }
@@ -208,8 +213,9 @@ Deno.serve(async (req: Request) => {
   }> = [];
 
   tickets.forEach((ticket, i) => {
-    const { target, payload } = selected[i];
-    if (!target) return;
+    const entry = selected[i];
+    if (!entry) return;
+    const { target, payload } = entry;
 
     if (ticket.status === 'error' && ticket.details?.error === 'DeviceNotRegistered') {
       invalidUserIds.push(target.user_id);
@@ -225,15 +231,17 @@ Deno.serve(async (req: Request) => {
 
   // Clean invalid tokens
   if (invalidUserIds.length > 0) {
-    await supabase
+    const { error: cleanErr } = await supabase
       .from('profiles')
       .update({ expo_push_token: null })
       .in('id', invalidUserIds);
+    if (cleanErr) console.error('Failed to clean tokens:', cleanErr);
   }
 
   // Insert successful notifications
   if (notificationInserts.length > 0) {
-    await supabase.from('notifications').insert(notificationInserts);
+    const { error: insertErr } = await supabase.from('notifications').insert(notificationInserts);
+    if (insertErr) console.error('Failed to insert notifications:', insertErr);
   }
 
   return new Response(
