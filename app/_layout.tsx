@@ -19,11 +19,23 @@ import {
   JetBrainsMono_500Medium,
 } from '@expo-google-fonts/jetbrains-mono';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfileStore } from '@/store/profile.store';
+import { useNotifications } from '@/hooks/useNotifications';
 
 SplashScreen.preventAutoHideAsync();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +46,7 @@ const queryClient = new QueryClient({
 function AuthGuard() {
   const { session, isLoading, setSession, setIsLoading } = useAuthStore();
   const { onboardingCompleted, setOnboardingCompleted, setDisplayName } = useProfileStore();
+  useNotifications();
   const segments = useSegments();
   const pathname = usePathname();
   const router = useRouter();
@@ -100,10 +113,25 @@ export default function RootLayout() {
     'JetBrainsMono-Regular': JetBrainsMono_400Regular,
     'JetBrainsMono-Medium': JetBrainsMono_500Medium,
   });
+  const router = useRouter();
 
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const type = response.notification.request.content.data?.type as string | undefined;
+      if (type === 'goal_milestone') {
+        router.push('/(app)/progress');
+      } else if (type === 'plan_ready') {
+        router.push('/(app)/plans');
+      } else {
+        router.push('/(app)');
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   if (!fontsLoaded) return null;
 
