@@ -37,6 +37,8 @@ Implementar la experiencia completa de monetización in-app: pantalla de upgrade
 
 **Nota de roadmap:** Native IAP (Apple In-App Purchase + Google Play Billing) está planeado para el futuro cuando el volumen lo justifique. No se implementa en este paso.
 
+**Regla de copy importante:** La **conexión con pulseras y relojes es GRATIS** en todos los tiers — apps como Strava y Adidas ya la ofrecen gratis, paywallearla ahuyenta usuarios. Lo que es Premium/Pro es la **inteligencia de Memo sobre esos datos** (análisis de workout, calibración calórica, adherencia al plan). Ningún elemento de UI debe sugerir que conectar un dispositivo requiere pago.
+
 ---
 
 ## Arquitectura
@@ -112,7 +114,7 @@ interface UpgradeSheetProps {
 | `chart_range` | "Historial completo" | "Hasta 365 días de datos" · "Rangos de 1 mes y 3 meses" · "Tendencias de largo plazo" |
 | `body_composition` | "Composición corporal" | "% de grasa corporal" · "Masa muscular en kg" · "Seguimiento completo de tu cuerpo" |
 | `meal_plan` | "Planes ilimitados" | "10 planes al mes" · "Actualiza según tu progreso" · "Memo ajusta según tus datos reales" |
-| `generic` | "Desbloquea Premium" | "Chat ilimitado con Memo" · "Planes de entrenamiento ilimitados" · "Análisis de workouts con tu pulsera" |
+| `generic` | "Desbloquea Premium" | "Chat ilimitado con Memo" · "Planes de entrenamiento ilimitados" · "Memo analiza tus datos de actividad" |
 
 **Layout (NativeWind v4):**
 - Contenedor: `className="flex-1 px-6 pt-4"` 
