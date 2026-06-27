@@ -63,32 +63,32 @@ export const UpgradeSheet = forwardRef<unknown, UpgradeSheetProps>(
 
     return (
       <Sheet ref={ref} snapPoints={['60%']}>
-        <View style={{ gap: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <View className="gap-4">
+          <View className="flex-row items-center gap-[10px]">
             <Ionicons name="lock-closed" size={22} color={colors.accent} />
             <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20, color: colors.text }}>
               {title}
             </Text>
           </View>
 
-          <View style={{ gap: 10 }}>
+          <View className="gap-[10px]">
             {bullets.map((bullet, i) => (
-              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View key={i} className="flex-row items-center gap-[10px]">
                 <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
-                <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.text, flex: 1 }}>
+                <Text className="flex-1" style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.text }}>
                   {bullet}
                 </Text>
               </View>
             ))}
           </View>
 
-          <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted, textAlign: 'center' }}>
+          <Text className="text-center" style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
             Desde $1,299/año
           </Text>
 
           <Button label="Hazte Premium →" onPress={handleUpgrade} />
 
-          <TouchableOpacity onPress={handleSeeAll} activeOpacity={0.7} style={{ alignItems: 'center' }}>
+          <TouchableOpacity onPress={handleSeeAll} activeOpacity={0.7} className="items-center">
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.accent }}>
               Ver todos los beneficios ↗
             </Text>
