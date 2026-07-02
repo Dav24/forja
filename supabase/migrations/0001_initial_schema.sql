@@ -202,11 +202,11 @@ CREATE POLICY "users_own_jobs" ON async_jobs
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, display_name) VALUES (NEW.id, NEW.raw_user_meta_data->>'display_name');
-  INSERT INTO subscriptions (user_id) VALUES (NEW.id);
+  INSERT INTO public.profiles (id, display_name) VALUES (NEW.id, NEW.raw_user_meta_data->>'display_name');
+  INSERT INTO public.subscriptions (user_id) VALUES (NEW.id);
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users

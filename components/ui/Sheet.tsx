@@ -1,21 +1,22 @@
 import { forwardRef, useCallback } from 'react';
 import { View } from 'react-native';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const BottomSheetModule = require('react-native-bottom-sheet');
-const BottomSheet = BottomSheetModule.default;
-const { BottomSheetBackdrop, BottomSheetView } = BottomSheetModule;
+import BottomSheet, {
+  BottomSheetView,
+  BottomSheetBackdrop,
+  type BottomSheetBackdropProps,
+} from '@gorhom/bottom-sheet';
 
 interface SheetProps {
   children: React.ReactNode;
   snapPoints?: (string | number)[];
 }
 
-export const Sheet = forwardRef<unknown, SheetProps>(function Sheet(
+export const Sheet = forwardRef<BottomSheet, SheetProps>(function Sheet(
   { children, snapPoints, ...props },
   ref,
 ) {
   const renderBackdrop = useCallback(
-    (backdropProps: Record<string, unknown>) => (
+    (backdropProps: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
         {...backdropProps}
         disappearsOnIndex={-1}

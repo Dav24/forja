@@ -77,7 +77,11 @@ export default function Step3Level() {
       setOnboardingCompleted(true);
       router.replace('/(app)');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error desconocido';
+      // Los errores de Supabase (PostgrestError) traen message pero no extienden Error
+      const message =
+        typeof err === 'object' && err !== null && 'message' in err
+          ? String((err as { message: unknown }).message)
+          : 'Error desconocido';
       Alert.alert('Error al guardar', message);
     } finally {
       setLoading(false);

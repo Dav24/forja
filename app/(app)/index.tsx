@@ -20,10 +20,23 @@ const GOAL_LABELS: Record<string, string> = {
   general_fitness: 'Fitness general',
 };
 
-const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const DAY_NAMES = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+
+// Comparación sin acentos ni mayúsculas: la IA genera "Miércoles", "Sábado", etc.
+function normalizeDayName(name: string) {
+  return name.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
 
 function getTodayDayName() {
   return DAY_NAMES[new Date().getDay()];
+}
+
+interface ScheduleDay {
+  day_number: number;
+  day_name: string;
+  is_rest: boolean;
+  focus?: string;
+  exercises?: { name: string }[];
 }
 
 function getGreeting() {
@@ -43,8 +56,9 @@ export default function HomeScreen() {
   const { data: streak = 0 } = useStreak();
 
   const todayDayName = getTodayDayName();
-  const schedule = plan?.schedule as { days?: { day: string; muscle_groups: string[]; exercises: { name: string }[] }[] } | null;
-  const todayWorkout = schedule?.days?.find((d) => d.day === todayDayName);
+  const schedule: ScheduleDay[] = Array.isArray(plan?.schedule) ? (plan.schedule as unknown as ScheduleDay[]) : [];
+  const todayWorkout = schedule.find((d) => normalizeDayName(d.day_name) === todayDayName);
+  const todayExercises = todayWorkout?.exercises ?? [];
 
   return (
     <ScrollView
@@ -89,26 +103,26 @@ export default function HomeScreen() {
                   <Badge label={plan.is_active ? 'Activo' : 'Inactivo'} variant="primary" />
                 </View>
 
-                {todayWorkout
+                {todayWorkout && !todayWorkout.is_rest
                   ? (
                     <View className="gap-2">
-                      <View className="flex-row gap-2 flex-wrap">
-                        {todayWorkout.muscle_groups.map((g) => (
-                          <Badge key={g} label={g} variant="muted" />
-                        ))}
-                      </View>
+                      {todayWorkout.focus && (
+                        <View className="flex-row gap-2 flex-wrap">
+                          <Badge label={todayWorkout.focus} variant="muted" />
+                        </View>
+                      )}
                       <Text className="text-text-muted text-sm">
-                        {todayWorkout.exercises.length} ejercicios · {todayDayName}
+                        {todayExercises.length} ejercicios · {todayWorkout.day_name}
                       </Text>
-                      {todayWorkout.exercises.slice(0, 3).map((ex) => (
+                      {todayExercises.slice(0, 3).map((ex) => (
                         <View key={ex.name} className="flex-row items-center gap-2">
                           <View className="w-1.5 h-1.5 rounded-full bg-primary" />
                           <Text className="text-text text-sm">{ex.name}</Text>
                         </View>
                       ))}
-                      {todayWorkout.exercises.length > 3 && (
+                      {todayExercises.length > 3 && (
                         <Text className="text-text-muted text-sm">
-                          +{todayWorkout.exercises.length - 3} más
+                          +{todayExercises.length - 3} más
                         </Text>
                       )}
                     </View>

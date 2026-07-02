@@ -19,7 +19,7 @@ import {
   JetBrainsMono_500Medium,
 } from '@expo-google-fonts/jetbrains-mono';
 import * as SplashScreen from 'expo-splash-screen';
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfileStore } from '@/store/profile.store';
@@ -27,15 +27,25 @@ import { useNotifications } from '@/hooks/useNotifications';
 
 SplashScreen.preventAutoHideAsync();
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+const isExpoGo = Constants.appOwnership === 'expo';
+
+// expo-notifications crashes on import in Expo Go SDK 53+; require conditionally
+type NotificationsModule = typeof import('expo-notifications');
+const Notifications: NotificationsModule | null = isExpoGo
+  ? null
+  : (() => { try { return require('expo-notifications') as NotificationsModule; } catch { return null; } })();
+
+if (Notifications) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -120,6 +130,7 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   useEffect(() => {
+    if (!Notifications) return;
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const type = response.notification.request.content.data?.type as string | undefined;
       if (type === 'goal_milestone') {

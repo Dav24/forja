@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
@@ -47,7 +48,7 @@ const COPY: Record<UpgradeContext, { title: string; bullets: string[] }> = {
   },
 };
 
-export const UpgradeSheet = forwardRef<unknown, UpgradeSheetProps>(
+export const UpgradeSheet = forwardRef<BottomSheet, UpgradeSheetProps>(
   function UpgradeSheet({ context = 'generic' }, ref) {
     const { title, bullets } = COPY[context];
 

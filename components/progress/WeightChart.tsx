@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
-import { Canvas, Path, Skia, LinearGradient, vec, Circle } from '@shopify/react-native-skia';
+import Svg, { Path, Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { colors } from '@/constants/colors';
@@ -10,10 +10,6 @@ const CHART_HEIGHT = 160;
 const PAD_TOP = 12;
 const PAD_BOTTOM = 8;
 const PAD_H = 8;
-
-// colors.primary (#22C55E) with opacity for Skia gradient fill
-const PRIMARY_ALPHA_25 = 'rgba(34,197,94,0.25)';
-const PRIMARY_ALPHA_0 = 'rgba(34,197,94,0)';
 
 interface DataPoint {
   recorded_at: string;
@@ -59,24 +55,19 @@ function toPoints(
   }));
 }
 
-function buildPaths(pts: { x: number; y: number }[]) {
-  if (pts.length < 2) return { linePath: null, areaPath: null };
+function buildSvgPaths(pts: { x: number; y: number }[]) {
+  if (pts.length < 2) return { linePath: '', areaPath: '' };
 
-  const linePath = Skia.Path.Make();
-  const areaPath = Skia.Path.Make();
-
-  linePath.moveTo(pts[0].x, pts[0].y);
-  areaPath.moveTo(pts[0].x, CHART_HEIGHT - PAD_BOTTOM);
-  areaPath.lineTo(pts[0].x, pts[0].y);
+  let linePath = `M ${pts[0].x} ${pts[0].y}`;
+  let areaPath = `M ${pts[0].x} ${CHART_HEIGHT - PAD_BOTTOM} L ${pts[0].x} ${pts[0].y}`;
 
   for (let i = 1; i < pts.length; i++) {
-    linePath.lineTo(pts[i].x, pts[i].y);
-    areaPath.lineTo(pts[i].x, pts[i].y);
+    linePath += ` L ${pts[i].x} ${pts[i].y}`;
+    areaPath += ` L ${pts[i].x} ${pts[i].y}`;
   }
 
   const last = pts[pts.length - 1];
-  areaPath.lineTo(last.x, CHART_HEIGHT - PAD_BOTTOM);
-  areaPath.close();
+  areaPath += ` L ${last.x} ${CHART_HEIGHT - PAD_BOTTOM} Z`;
 
   return { linePath, areaPath };
 }
@@ -104,7 +95,7 @@ export function WeightChart({ data }: WeightChartProps) {
   }, [validData, range]);
 
   const points = useMemo(() => toPoints(filtered, chartW), [filtered, chartW]);
-  const { linePath, areaPath } = useMemo(() => buildPaths(points), [points]);
+  const { linePath, areaPath } = useMemo(() => buildSvgPaths(points), [points]);
 
   const xLabels = useMemo(() => {
     if (filtered.length < 2) return [];
@@ -175,30 +166,30 @@ export function WeightChart({ data }: WeightChartProps) {
         </View>
       ) : (
         <>
-          <Canvas style={{ width: chartW, height: CHART_HEIGHT }}>
-            {areaPath && (
-              <Path path={areaPath}>
-                <LinearGradient
-                  start={vec(0, PAD_TOP)}
-                  end={vec(0, CHART_HEIGHT)}
-                  colors={[PRIMARY_ALPHA_25, PRIMARY_ALPHA_0]}
-                />
-              </Path>
-            )}
-            {linePath && (
+          <Svg width={chartW} height={CHART_HEIGHT}>
+            <Defs>
+              <LinearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={colors.primary} stopOpacity="0.25" />
+                <Stop offset="1" stopColor={colors.primary} stopOpacity="0" />
+              </LinearGradient>
+            </Defs>
+            {areaPath ? (
+              <Path d={areaPath} fill="url(#weightGrad)" />
+            ) : null}
+            {linePath ? (
               <Path
-                path={linePath}
-                color={colors.primary}
-                style="stroke"
+                d={linePath}
+                stroke={colors.primary}
                 strokeWidth={2}
-                strokeJoin="round"
-                strokeCap="round"
+                fill="none"
+                strokeLinejoin="round"
+                strokeLinecap="round"
               />
-            )}
+            ) : null}
             {points.map((p, i) => (
-              <Circle key={i} cx={p.x} cy={p.y} r={3} color={colors.primary} />
+              <Circle key={i} cx={p.x} cy={p.y} r={3} fill={colors.primary} />
             ))}
-          </Canvas>
+          </Svg>
 
           {/* X-axis labels */}
           <View className="h-[18px] relative mt-0.5">
