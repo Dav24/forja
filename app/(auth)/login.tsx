@@ -4,14 +4,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
   TouchableOpacity,
   View,
-  Text,
 } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { Link } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { ForjaWordmark } from '@/components/brand/ForjaWordmark';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -37,8 +39,10 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View className="flex-1 justify-center px-5 py-12">
           <View className="mb-12">
-            <Text className="text-primary font-bold text-5xl tracking-tight">Forja</Text>
-            <Text className="text-text-muted text-base mt-1">Tu entrenador personal con IA</Text>
+            <Animated.View entering={FadeIn.duration(700)} className="items-center mb-2">
+              <ForjaWordmark size="lg" />
+            </Animated.View>
+            <Text className="text-text-muted text-base text-center mt-2">Fórjate. Un día a la vez.</Text>
           </View>
 
           <View className="gap-4">

@@ -8,10 +8,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { Link } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { ForjaWordmark } from '@/components/brand/ForjaWordmark';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -46,9 +48,11 @@ export default function RegisterScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View className="flex-1 justify-center px-5 py-12">
           <View className="mb-10">
-            <Text className="text-primary font-bold text-5xl tracking-tight">Forja</Text>
-            <Text className="text-text font-bold text-2xl mt-4">Crea tu cuenta</Text>
-            <Text className="text-text-muted text-base mt-1">Empieza a entrenar con tu coach IA</Text>
+            <Animated.View entering={FadeIn.duration(700)} className="items-center mb-2">
+              <ForjaWordmark size="lg" />
+            </Animated.View>
+            <Text className="text-text-muted text-base text-center mt-2">Fórjate. Un día a la vez.</Text>
+            <Text className="text-text font-bold text-2xl mt-6">Crea tu cuenta</Text>
           </View>
 
           <View className="gap-4">
