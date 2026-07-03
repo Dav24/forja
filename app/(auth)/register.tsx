@@ -51,7 +51,7 @@ export default function RegisterScreen() {
             <Animated.View entering={FadeIn.duration(700)} className="items-center mb-2">
               <ForjaWordmark size="lg" />
             </Animated.View>
-            <Text className="text-text-muted text-base text-center mt-2">Fórjate. Un día a la vez.</Text>
+            <Text className="text-text-muted text-base text-center mt-2" style={{ fontFamily: 'Inter-Regular' }}>Fórjate. Un día a la vez.</Text>
             <Text className="text-text font-bold text-2xl mt-6">Crea tu cuenta</Text>
           </View>
 
