@@ -35,6 +35,8 @@ export function Button({
   label,
   disabled,
   className = '',
+  onPressIn,
+  onPressOut,
   ...props
 }: ButtonProps) {
   const s = sizeStyles[size];
@@ -42,8 +44,14 @@ export function Button({
   const scale = useSharedValue(1);
   const pressStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
-  const handlePressIn = () => { scale.value = withSpring(0.97, { damping: 15, stiffness: 400 }); };
-  const handlePressOut = () => { scale.value = withSpring(1, { damping: 15, stiffness: 400 }); };
+  const handlePressIn: PressableProps['onPressIn'] = (e) => {
+    scale.value = withSpring(0.97, { damping: 15, stiffness: 400 });
+    onPressIn?.(e);
+  };
+  const handlePressOut: PressableProps['onPressOut'] = (e) => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+    onPressOut?.(e);
+  };
 
   if (variant === 'primary') {
     return (
