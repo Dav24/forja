@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGradient, Path, Stop } from 'react-native-svg';
 import Animated, {
+  cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -48,7 +49,11 @@ export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
   const flicker = useSharedValue(1);
 
   useEffect(() => {
-    if (dead) return;
+    if (dead) {
+      cancelAnimation(flicker);
+      flicker.value = withTiming(1, { duration: 200 });
+      return;
+    }
     flicker.value = withRepeat(
       withSequence(
         withTiming(1.06, { duration: 700 }),
