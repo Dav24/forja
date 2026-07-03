@@ -56,7 +56,7 @@ export default function PlansScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={{ marginBottom: 24 }}>
-          <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 24 }}>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
             Planes
           </Text>
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 2 }}>

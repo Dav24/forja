@@ -44,7 +44,7 @@ export default function ProfileScreen() {
           borderBottomColor: colors.border,
         }}
       >
-        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 22, color: colors.text }}>
+        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
           Perfil
         </Text>
       </View>
