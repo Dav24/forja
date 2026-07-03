@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { MessageLimitBanner } from '@/components/chat/MessageLimitBanner';
+import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { useChat, type ChatMessage } from '@/hooks/useChat';
 import { colors } from '@/constants/colors';
 
@@ -20,7 +21,7 @@ function EmptyState() {
           textAlign: 'center',
         }}
       >
-        Hola, soy Memo
+        Hola, soy Vulcano
       </Text>
       <Text
         style={{
@@ -78,12 +79,13 @@ export default function ChatScreen() {
           borderBottomColor: colors.border,
         }}
       >
-        <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 18 }}>
-          Memo el Forjador
-        </Text>
-        <Text style={{ color: colors.primary, fontFamily: 'Inter-Medium', fontSize: 12 }}>
-          Tu coach de IA · Forja
-        </Text>
+        <View className="flex-row items-center gap-3">
+          <VulcanoAvatar size={38} />
+          <View>
+            <Text className="text-text font-bold text-base" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>Vulcano</Text>
+            <Text className="text-text-muted text-xs">El Forjador · tu coach</Text>
+          </View>
+        </View>
       </View>
 
       <KeyboardAvoidingView

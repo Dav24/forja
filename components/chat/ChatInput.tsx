@@ -27,7 +27,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
       <TextInput
         value={text}
         onChangeText={setText}
-        placeholder="Escríbele a Memo..."
+        placeholder="Escríbele a Vulcano..."
         placeholderTextColor={colors.textMuted}
         multiline
         maxLength={500}
