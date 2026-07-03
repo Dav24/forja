@@ -1,28 +1,21 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useProfile, useActiveGoal } from '@/hooks/useProfile';
 import { useActiveWorkoutPlan } from '@/hooks/useWorkoutPlan';
-import { useLatestBodyData } from '@/hooks/useBodyTracking';
+import { useLatestBodyData, useFirstBodyData } from '@/hooks/useBodyTracking';
 import { useStreak } from '@/hooks/useStreak';
+import { ForjaWordmark } from '@/components/brand/ForjaWordmark';
+import { StreakFlame } from '@/components/home/StreakFlame';
+import { StatCard } from '@/components/ui/StatCard';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Badge } from '@/components/ui/Badge';
 import { colors } from '@/constants/colors';
-
-const GOAL_LABELS: Record<string, string> = {
-  weight_loss: 'Bajar de peso',
-  muscle_gain: 'Ganar músculo',
-  recomposition: 'Recomposición',
-  powerlifting: 'Powerlifting',
-  sport_specific: 'Deporte específico',
-  general_fitness: 'Fitness general',
-};
 
 const DAY_NAMES = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
 
-// Comparación sin acentos ni mayúsculas: la IA genera "Miércoles", "Sábado", etc.
 function normalizeDayName(name: string) {
   return name.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 }
@@ -36,7 +29,8 @@ interface ScheduleDay {
   day_name: string;
   is_rest: boolean;
   focus?: string;
-  exercises?: { name: string }[];
+  duration_min?: number;
+  exercises?: { name: string; order?: number; sets?: number | string; reps?: number | string }[];
 }
 
 function getGreeting() {
@@ -49,10 +43,11 @@ function getGreeting() {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { data: profile, isLoading: loadingProfile } = useProfile();
-  const { data: goal, isLoading: loadingGoal } = useActiveGoal();
+  const { data: profile } = useProfile();
+  const { data: goal } = useActiveGoal();
   const { data: plan, isLoading: loadingPlan } = useActiveWorkoutPlan();
-  const { data: bodyData, isLoading: loadingBody } = useLatestBodyData();
+  const { data: bodyData } = useLatestBodyData();
+  const { data: firstBody } = useFirstBodyData();
   const { data: streak = 0 } = useStreak();
 
   const todayDayName = getTodayDayName();
@@ -60,156 +55,129 @@ export default function HomeScreen() {
   const todayWorkout = schedule.find((d) => normalizeDayName(d.day_name) === todayDayName);
   const todayExercises = todayWorkout?.exercises ?? [];
 
+  const heroLine1 = !plan ? 'AÚN NO FORJAMOS' : todayWorkout && !todayWorkout.is_rest ? 'HOY SE FORJA' : 'HOY: DESCANSO';
+  const heroLine2 = !plan ? 'TU PLAN' : todayWorkout && !todayWorkout.is_rest ? (todayWorkout.focus ?? 'ENTRENAMIENTO').toUpperCase() : 'Y RECUPERACIÓN';
+
+  const goalProgressPct = (() => {
+    const start = firstBody?.weight_kg;
+    const current = bodyData?.weight_kg;
+    const target = goal?.target_weight_kg;
+    if (start == null || current == null || target == null || start === target) return null;
+    const pct = Math.round(((current - start) / (target - start)) * 100);
+    return Math.min(Math.max(pct, 0), 100);
+  })();
+
   return (
     <ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 80 }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Header: saludo + streak */}
-      <View className="px-5 mb-6 flex-row items-start justify-between">
-        <View className="flex-1">
-          <Text className="text-text-muted text-sm">{getGreeting()},</Text>
-          {loadingProfile
-            ? <Skeleton className="h-8 w-40 mt-1" />
-            : <Text className="text-text font-bold text-3xl mt-0.5" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>
-                {profile?.display_name ?? 'Atleta'} 👋
-              </Text>
-          }
+      {/* Section 0 — Brand header */}
+      <Animated.View entering={FadeInUp.duration(250).delay(0)}>
+        <View className="px-5 mb-4 flex-row items-center justify-between">
+          <ForjaWordmark size="sm" />
+          <StreakFlame streak={streak} compact />
         </View>
+      </Animated.View>
 
-        {/* Streak badge */}
-        <View className="bg-surface border border-border rounded-2xl px-3 py-2 items-center ml-4">
-          <Text className="text-warning text-lg">🔥</Text>
-          <Text className="text-warning font-bold text-lg" style={{ fontFamily: 'JetBrainsMono-Medium' }}>
-            {streak}
+      {/* Section 1 — Saludo + hero editorial */}
+      <Animated.View entering={FadeInUp.duration(250).delay(60)}>
+        <View className="px-5 mb-4">
+          <Text className="text-text-muted text-sm" style={{ fontFamily: 'Inter-Regular' }}>
+            {getGreeting()}, {profile?.display_name ?? 'atleta'}
           </Text>
-          <Text className="text-text-muted text-xs">días</Text>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 34, lineHeight: 38, color: colors.text, letterSpacing: 1 }}>
+            {heroLine1}
+          </Text>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 34, lineHeight: 38, color: colors.primary, letterSpacing: 1 }}>
+            {heroLine2}
+          </Text>
         </View>
-      </View>
+      </Animated.View>
 
-      {/* Plan de hoy */}
-      <View className="px-5 mb-4">
-        <Text className="text-text-muted text-sm font-medium mb-3 uppercase tracking-widest">Entrenamiento de hoy</Text>
-        {loadingPlan
-          ? <Skeleton className="h-32 w-full" />
-          : plan
-            ? (
-              <Card className="gap-3">
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-text font-bold text-lg" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>
-                    {plan.title}
-                  </Text>
-                  <Badge label={plan.is_active ? 'Activo' : 'Inactivo'} variant="primary" />
-                </View>
+      {/* Section 2 — Card del día */}
+      <Animated.View entering={FadeInUp.duration(250).delay(120)}>
+        <View className="px-5 mb-4">
+          {loadingPlan ? (
+            <Skeleton className="h-40 w-full" />
+          ) : plan ? (
+            <Card>
+              {/* Bebas day header */}
+              <Text
+                style={{ fontFamily: 'BebasNeue-Regular', fontSize: 19, color: colors.primary, letterSpacing: 0.5 }}
+                className="mb-2"
+              >
+                {todayWorkout
+                  ? `DÍA ${todayWorkout.day_number} · ${(todayWorkout.focus ?? 'ENTRENAMIENTO').toUpperCase()}`
+                  : plan.title.toUpperCase()}
+              </Text>
 
-                {todayWorkout && !todayWorkout.is_rest
-                  ? (
-                    <View className="gap-2">
-                      {todayWorkout.focus && (
-                        <View className="flex-row gap-2 flex-wrap">
-                          <Badge label={todayWorkout.focus} variant="muted" />
-                        </View>
-                      )}
-                      <Text className="text-text-muted text-sm">
-                        {todayExercises.length} ejercicios · {todayWorkout.day_name}
+              {todayWorkout && !todayWorkout.is_rest ? (
+                <>
+                  {todayExercises.slice(0, 3).map((ex, i) => (
+                    <View
+                      key={`${ex.name}-${i}`}
+                      className="flex-row items-center gap-2.5 py-2 border-b border-border"
+                    >
+                      <Text
+                        style={{ fontFamily: 'BebasNeue-Regular', fontSize: 16, color: '#57534E', minWidth: 22 }}
+                      >
+                        {String(ex.order ?? i + 1).padStart(2, '0')}
                       </Text>
-                      {todayExercises.slice(0, 3).map((ex) => (
-                        <View key={ex.name} className="flex-row items-center gap-2">
-                          <View className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          <Text className="text-text text-sm">{ex.name}</Text>
+                      <Text className="flex-1 text-text text-sm" style={{ fontFamily: 'Inter-Medium' }}>
+                        {ex.name}
+                      </Text>
+                      {ex.sets != null && ex.reps != null && (
+                        <View className="bg-surface-elevated rounded-md px-2 py-0.5">
+                          <Text
+                            style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.primaryBright }}
+                          >
+                            {ex.sets}×{ex.reps}
+                          </Text>
                         </View>
-                      ))}
-                      {todayExercises.length > 3 && (
-                        <Text className="text-text-muted text-sm">
-                          +{todayExercises.length - 3} más
-                        </Text>
                       )}
                     </View>
-                  )
-                  : <Text className="text-text-muted text-sm">Día de descanso 💤</Text>
-                }
-
-                <TouchableOpacity
-                  className="border border-border rounded-xl h-10 items-center justify-center mt-1"
-                  onPress={() => router.push('/(app)/plans/workout')}
-                >
-                  <Text className="text-text text-sm font-semibold">Ver plan completo</Text>
-                </TouchableOpacity>
-              </Card>
-            )
-            : (
-              <Card className="items-center py-6 gap-3">
-                <Text className="text-4xl">🏋️</Text>
-                <Text className="text-text font-bold text-lg text-center" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>
-                  Sin plan de entrenamiento
+                  ))}
+                  {todayExercises.length > 3 && (
+                    <Text className="text-text-muted text-sm pt-2">
+                      +{todayExercises.length - 3} ejercicios más →
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <Text className="text-text-muted text-sm">
+                  {todayWorkout?.is_rest ? 'Día de descanso 💤 — recupera y descansa' : 'Sin entrenamiento asignado hoy'}
                 </Text>
-                <Text className="text-text-muted text-sm text-center">
-                  Tu coach IA generará un plan personalizado para ti
-                </Text>
-                <TouchableOpacity
-                  className="bg-primary rounded-xl h-11 px-6 items-center justify-center mt-1"
-                  onPress={() => router.push('/(app)/plans/workout')}
-                >
-                  <Text className="text-background font-bold text-sm">Generar mi plan</Text>
-                </TouchableOpacity>
-              </Card>
-            )
-        }
-      </View>
-
-      {/* Stats rápidas */}
-      <View className="px-5 mb-6">
-        <Text className="text-text-muted text-sm font-medium mb-3 uppercase tracking-widest">Stats</Text>
-        <View className="flex-row gap-3">
-          {/* Peso */}
-          <Card className="flex-1 gap-1">
-            <Text className="text-text-muted text-xs">Último peso</Text>
-            {loadingBody
-              ? <Skeleton className="h-8 w-20 mt-1" />
-              : <Text className="text-text font-bold text-2xl" style={{ fontFamily: 'JetBrainsMono-Medium' }}>
-                  {bodyData?.weight_kg ? `${bodyData.weight_kg}` : '—'}
-                  <Text className="text-text-muted text-sm font-normal"> kg</Text>
-                </Text>
-            }
-          </Card>
-
-          {/* Objetivo */}
-          <Card className="flex-1 gap-1">
-            <Text className="text-text-muted text-xs">Objetivo</Text>
-            {loadingGoal
-              ? <Skeleton className="h-8 w-20 mt-1" />
-              : <Text className="text-text font-bold text-sm mt-1" style={{ fontFamily: 'SpaceGrotesk-SemiBold' }} numberOfLines={2}>
-                  {goal ? GOAL_LABELS[goal.type] : '—'}
-                </Text>
-            }
-          </Card>
+              )}
+            </Card>
+          ) : (
+            <Card className="items-center py-6 gap-3">
+              <Text className="text-text text-sm text-center" style={{ fontFamily: 'Inter-Medium' }}>
+                Tu coach IA generará un plan personalizado para ti
+              </Text>
+              <Button
+                label="Ir a planes"
+                size="sm"
+                onPress={() => router.push('/(app)/plans/workout')}
+              />
+            </Card>
+          )}
         </View>
-      </View>
+      </Animated.View>
 
-      {/* CTA Coach */}
-      <View className="px-5">
-        <TouchableOpacity
-          className="rounded-2xl overflow-hidden"
-          onPress={() => router.push('/(app)/chat')}
-          activeOpacity={0.85}
-        >
-          <View className="bg-primary-dim border border-primary p-5 flex-row items-center gap-4">
-            <View className="w-12 h-12 rounded-2xl bg-primary items-center justify-center">
-              <Ionicons name="chatbubble-ellipses" size={22} color={colors.background} />
-            </View>
-            <View className="flex-1">
-              <Text className="text-primary font-bold text-lg" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>
-                Hablar con mi Coach
-              </Text>
-              <Text className="text-text-muted text-sm mt-0.5">
-                Tu entrenador IA está listo
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.primary} />
-          </View>
-        </TouchableOpacity>
-      </View>
+      {/* Section 3 — Stats + CTA */}
+      <Animated.View entering={FadeInUp.duration(250).delay(180)}>
+        <View className="px-5 mb-4 flex-row gap-2.5">
+          <StatCard value={bodyData?.weight_kg ?? '—'} decimals={1} suffix=" kg" label="Actual" />
+          <StatCard value={goal?.target_weight_kg ?? '—'} decimals={1} suffix=" kg" label="Meta" />
+          <StatCard value={goalProgressPct ?? '—'} suffix="%" label="Progreso" />
+        </View>
+
+        <View className="px-5">
+          <Button label="⚒️  Hablar con Vulcano" size="md" onPress={() => router.push('/(app)/chat')} />
+        </View>
+      </Animated.View>
     </ScrollView>
   );
 }
