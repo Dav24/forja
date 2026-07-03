@@ -9,7 +9,6 @@ import { Sheet } from '@/components/ui/Sheet';
 import { StatCard } from '@/components/ui/StatCard';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
 import { colors } from '@/constants/colors';
-import { typography } from '@/constants/typography';
 
 export default function ProgressScreen() {
   const sheetRef = useRef<any>(null);
