@@ -159,6 +159,7 @@ export default function HomeScreen() {
               <Button
                 label="Ir a planes"
                 size="sm"
+                variant="secondary"
                 onPress={() => router.push('/(app)/plans/workout')}
               />
             </Card>
