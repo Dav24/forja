@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { colors } from '@/constants/colors';
+import { StatCard } from '@/components/ui/StatCard';
 
 type Exercise = {
   order: number;
@@ -97,58 +98,42 @@ export default function WorkoutPlanDetailScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
-      {/* Header */}
+      {/* Nav bar — back button only */}
       <View style={{
         paddingHorizontal: 16,
         paddingVertical: 12,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
         borderBottomWidth: 1,
         borderBottomColor: colors.border,
       }}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={{ flex: 1, color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 18 }} numberOfLines={1}>
-          {plan.title}
-        </Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        {/* Descripción */}
-        {plan.description ? (
-          <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, lineHeight: 20, marginBottom: 16 }}>
-            {plan.description}
+
+        {/* Step 1: Plan title — Bebas 30px */}
+        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 0.5 }}>
+          {plan.title}
+        </Text>
+
+        {/* weekly_schedule_summary (fallback to description) */}
+        {(plan.weekly_schedule_summary ?? plan.description) ? (
+          <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, lineHeight: 20, marginTop: 4 }}>
+            {plan.weekly_schedule_summary ?? plan.description}
           </Text>
         ) : null}
 
-        {/* Stats rápidos */}
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
-          {[
-            { icon: 'barbell-outline' as const, label: `${trainDays.length} días/sem`, color: colors.primary },
-            { icon: 'moon-outline' as const, label: `${restDays.length} descanso`, color: colors.accent },
-            { icon: 'time-outline' as const, label: `${plan.duration_weeks ?? 8} semanas`, color: colors.warning },
-          ].map((stat, i) => (
-            <View key={i} style={{
-              flex: 1,
-              backgroundColor: colors.surface,
-              borderRadius: 12,
-              padding: 12,
-              alignItems: 'center',
-              gap: 4,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}>
-              <Ionicons name={stat.icon} size={20} color={stat.color} />
-              <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 11, textAlign: 'center' }}>
-                {stat.label}
-              </Text>
-            </View>
-          ))}
+        {/* StatCards row */}
+        <View className="flex-row gap-2.5 my-4">
+          <StatCard value={String(trainDays.length)} label="Días de forja" />
+          <StatCard value={String(restDays.length)} label="Descanso" />
+          <StatCard value={String(plan.duration_weeks ?? 8)} label="Semanas" />
         </View>
 
-        {/* Progresión */}
+        {/* Progression notes */}
         {plan.progression_notes ? (
           <View style={{
             backgroundColor: colors.primaryDim + '30',
@@ -160,7 +145,9 @@ export default function WorkoutPlanDetailScreen() {
           }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
               <Ionicons name="trending-up-outline" size={16} color={colors.primary} />
-              <Text style={{ color: colors.primary, fontFamily: 'Inter-Bold', fontSize: 12 }}>PROGRESIÓN</Text>
+              <Text style={{ color: colors.primary, fontFamily: 'SpaceGrotesk-Bold', fontSize: 11, letterSpacing: 1 }}>
+                PROGRESIÓN
+              </Text>
             </View>
             <Text style={{ color: colors.text, fontFamily: 'Inter-Regular', fontSize: 13, lineHeight: 18 }}>
               {plan.progression_notes}
@@ -168,15 +155,12 @@ export default function WorkoutPlanDetailScreen() {
           </View>
         ) : null}
 
-        {/* Lista de días */}
-        <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, marginBottom: 12 }}>
-          Programa semanal
-        </Text>
-
+        {/* Schedule list */}
         {schedule.map((day, index) => {
           const jsDay = day.day_number === 7 ? 0 : day.day_number;
           const isToday = jsDay === todayIndex;
           const isExpanded = expandedDay === index;
+          const dayLabel = `DÍA ${day.day_number} · ${day.is_rest ? 'DESCANSO' : (day.focus ?? '').toUpperCase()}`;
 
           return (
             <TouchableOpacity
@@ -194,7 +178,7 @@ export default function WorkoutPlanDetailScreen() {
                 overflow: 'hidden',
               }}
             >
-              {/* Cabecera del día */}
+              {/* Step 2: Day header — Bebas 19px */}
               <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 }}>
                 <View style={{
                   width: 40,
@@ -217,21 +201,23 @@ export default function WorkoutPlanDetailScreen() {
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Text style={{
-                      color: day.is_rest ? colors.textMuted : colors.text,
-                      fontFamily: 'Inter-Bold',
-                      fontSize: 15,
+                      fontFamily: 'BebasNeue-Regular',
+                      fontSize: 19,
+                      color: day.is_rest ? colors.textMuted : colors.primary,
                     }}>
-                      {day.day_name}
+                      {dayLabel}
                     </Text>
                     {isToday && (
                       <View style={{ backgroundColor: colors.primary, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
-                        <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 10 }}>HOY</Text>
+                        <Text style={{ color: colors.background, fontFamily: 'SpaceGrotesk-Bold', fontSize: 10 }}>HOY</Text>
                       </View>
                     )}
                   </View>
-                  <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
-                    {day.is_rest ? 'Descanso' : `${day.focus} · ${day.exercises.length} ejercicios · ~${day.estimated_duration_minutes}min`}
-                  </Text>
+                  {!day.is_rest && (
+                    <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
+                      {day.exercises.length} ejercicios · ~{day.estimated_duration_minutes}min
+                    </Text>
+                  )}
                 </View>
                 {!day.is_rest && (
                   <Ionicons
@@ -242,45 +228,58 @@ export default function WorkoutPlanDetailScreen() {
                 )}
               </View>
 
-              {/* Ejercicios expandidos */}
+              {/* Step 3: Expanded exercises — editorial pattern */}
               {isExpanded && !day.is_rest && (
                 <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: 14, paddingBottom: 14 }}>
                   {day.exercises.map((ex, ei) => (
-                    <View key={ei} style={{
-                      paddingTop: 12,
-                      borderTopWidth: ei > 0 ? 1 : 0,
-                      borderTopColor: colors.border,
-                      marginTop: ei > 0 ? 0 : 0,
-                    }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ color: colors.text, fontFamily: 'Inter-SemiBold', fontSize: 14 }}>
-                            {ex.name}
-                          </Text>
-                          {ex.muscle_group ? (
-                            <Text style={{ color: colors.primary, fontFamily: 'Inter-Medium', fontSize: 11, marginTop: 2 }}>
-                              {ex.muscle_group}
-                            </Text>
-                          ) : null}
-                          {ex.technique_notes ? (
-                            <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 4, lineHeight: 16 }}>
-                              {ex.technique_notes}
-                            </Text>
-                          ) : null}
-                        </View>
-                        <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                          <View style={{ backgroundColor: colors.surfaceElevated, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-                            <Text style={{ color: colors.text, fontFamily: 'Inter-Bold', fontSize: 13 }}>
+                    <View key={ei}>
+                      {/* Exercise row */}
+                      <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 10,
+                        paddingVertical: 8,
+                        borderBottomWidth: 1,
+                        borderBottomColor: colors.border,
+                      }}>
+                        {/* Order number — Bebas 16px stone */}
+                        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 16, color: '#57534E', minWidth: 22 }}>
+                          {String(ex.order ?? ei + 1).padStart(2, '0')}
+                        </Text>
+                        {/* Exercise name — Inter-Medium */}
+                        <Text style={{ flex: 1, color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14 }}>
+                          {ex.name}
+                        </Text>
+                        {/* Chips — JetBrainsMono-Medium, primaryBright */}
+                        <View style={{ flexDirection: 'row', gap: 4 }}>
+                          <View style={{ backgroundColor: colors.surfaceElevated, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                            <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.primaryBright }}>
                               {ex.sets}×{ex.reps}
                             </Text>
                           </View>
                           {ex.rest_seconds ? (
-                            <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 11 }}>
-                              {ex.rest_seconds}s descanso
-                            </Text>
+                            <View style={{ backgroundColor: colors.surfaceElevated, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                              <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.primaryBright }}>
+                                {ex.rest_seconds}s
+                              </Text>
+                            </View>
                           ) : null}
                         </View>
                       </View>
+                      {/* Technique notes — Inter-Regular 12 italic textMuted */}
+                      {ex.technique_notes ? (
+                        <Text style={{
+                          fontFamily: 'Inter-Regular',
+                          fontSize: 12,
+                          fontStyle: 'italic',
+                          color: colors.textMuted,
+                          paddingTop: 4,
+                          paddingBottom: 2,
+                          paddingLeft: 32,
+                        }}>
+                          {ex.technique_notes}
+                        </Text>
+                      ) : null}
                     </View>
                   ))}
                 </View>
