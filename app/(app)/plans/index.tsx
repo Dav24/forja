@@ -140,7 +140,7 @@ export default function PlansScreen() {
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
-              <Text style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, marginBottom: 4, textTransform: 'uppercase' }}>
+              <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, marginBottom: 4 }}>
                 {(activePlan as { title: string }).title}
               </Text>
               {(activePlan as { description?: string }).description ? (
@@ -333,7 +333,7 @@ export default function PlansScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-              <Text style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, textTransform: 'uppercase', flex: 1 }}>
+              <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, flex: 1 }}>
                 Planes Alimenticios
               </Text>
               {!isPremium && <Badge label="PREMIUM" variant="premium" />}
