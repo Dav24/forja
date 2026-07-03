@@ -31,14 +31,14 @@ export function MacroBar({ protein_g, carbs_g, fat_g, compact = false }: MacroBa
     <View>
       <View className="flex-row rounded overflow-hidden" style={{ height: compact ? 6 : 10 }}>
         <View style={{ flex: proteinPct, backgroundColor: colors.primary }} />
-        <View style={{ flex: carbsPct, backgroundColor: colors.accent }} />
-        <View style={{ flex: fatPct, backgroundColor: colors.warning }} />
+        <View style={{ flex: carbsPct, backgroundColor: colors.primaryBright }} />
+        <View style={{ flex: fatPct, backgroundColor: colors.textMuted }} />
       </View>
       {!compact && (
         <View className="flex-row justify-between mt-2">
           <MacroLabel color={colors.primary} label="Proteína" grams={protein_g} pct={proteinPct} />
-          <MacroLabel color={colors.accent} label="Carbs" grams={carbs_g} pct={carbsPct} />
-          <MacroLabel color={colors.warning} label="Grasa" grams={fat_g} pct={fatPct} />
+          <MacroLabel color={colors.primaryBright} label="Carbs" grams={carbs_g} pct={carbsPct} />
+          <MacroLabel color={colors.textMuted} label="Grasa" grams={fat_g} pct={fatPct} />
         </View>
       )}
     </View>

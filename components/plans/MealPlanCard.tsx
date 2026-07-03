@@ -45,9 +45,11 @@ export function MealPlanCard({ meal }: { meal: Meal }) {
           >
             {meal.name}
           </Text>
-          <Text style={{ color: colors.textMuted, fontFamily: 'JetBrainsMono-Medium', fontSize: 12, marginTop: 2 }}>
-            {meal.calories} kcal
-          </Text>
+          <View className="bg-surface-elevated rounded px-1.5 py-0.5 self-start" style={{ marginTop: 4 }}>
+            <Text style={{ color: colors.primaryBright, fontFamily: 'JetBrainsMono-Medium', fontSize: 11 }}>
+              {meal.calories} kcal
+            </Text>
+          </View>
         </View>
         <Ionicons
           name={expanded ? 'chevron-up' : 'chevron-down'}

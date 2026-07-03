@@ -10,6 +10,7 @@ import { FREE_LIMITS } from '@/lib/limits';
 import { MacroBar } from '@/components/plans/MacroBar';
 import { MealPlanCard, type Meal } from '@/components/plans/MealPlanCard';
 import { PaywallBanner } from '@/components/premium/PaywallBanner';
+import { Badge } from '@/components/ui/Badge';
 
 const ALLERGY_OPTIONS = ['Ninguna', 'Gluten', 'Lactosa', 'Frutos secos', 'Mariscos'];
 const DIET_OPTIONS = ['Omnívoro', 'Vegetariano', 'Vegano', 'Sin gluten', 'Keto'];
@@ -124,7 +125,7 @@ export default function MealPlansScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 18 }}>
+          <Text style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 30 }}>
             Plan Alimenticio
           </Text>
           {activePlan && planData && (
@@ -215,7 +216,8 @@ export default function MealPlansScreen() {
                 </Text>
               </TouchableOpacity>
             ) : (
-              <View style={{ marginTop: 16 }}>
+              <View style={{ marginTop: 16, gap: 8 }}>
+                <Badge label="PREMIUM" variant="premium" />
                 <PaywallBanner
                   message="Actualiza para crear nuevos planes cuando quieras"
                   onPress={() => router.push('/(app)/upgrade' as never)}
