@@ -169,12 +169,23 @@ export function WeightChart({ data }: WeightChartProps) {
           <Svg width={chartW} height={CHART_HEIGHT}>
             <Defs>
               <LinearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={colors.primary} stopOpacity="0.25" />
-                <Stop offset="1" stopColor={colors.primary} stopOpacity="0" />
+                <Stop offset="0" stopColor="#F97316" stopOpacity="0.3" />
+                <Stop offset="1" stopColor="#F97316" stopOpacity="0" />
               </LinearGradient>
             </Defs>
             {areaPath ? (
               <Path d={areaPath} fill="url(#weightGrad)" />
+            ) : null}
+            {linePath ? (
+              <Path
+                d={linePath}
+                stroke={colors.primary}
+                strokeWidth={6}
+                strokeOpacity={0.25}
+                fill="none"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
             ) : null}
             {linePath ? (
               <Path
@@ -187,7 +198,7 @@ export function WeightChart({ data }: WeightChartProps) {
               />
             ) : null}
             {points.map((p, i) => (
-              <Circle key={i} cx={p.x} cy={p.y} r={3} fill={colors.primary} />
+              <Circle key={i} cx={p.x} cy={p.y} r={3} fill={colors.primaryBright} />
             ))}
           </Svg>
 

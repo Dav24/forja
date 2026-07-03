@@ -6,6 +6,7 @@ import { GoalProgress } from '@/components/progress/GoalProgress';
 import { WeightChart } from '@/components/progress/WeightChart';
 import { MeasurementForm } from '@/components/progress/MeasurementForm';
 import { Sheet } from '@/components/ui/Sheet';
+import { StatCard } from '@/components/ui/StatCard';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
@@ -43,7 +44,7 @@ export default function ProgressScreen() {
       >
         {/* Header */}
         <View className="mb-5">
-          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: typography.sizes.h1, color: colors.text }}>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text }}>
             Progreso
           </Text>
           {latestBodyData?.weight_kg && (
@@ -54,6 +55,28 @@ export default function ProgressScreen() {
               Último registro: {latestBodyData.weight_kg.toFixed(1)} kg
             </Text>
           )}
+        </View>
+
+        {/* Stat cards */}
+        <View className="flex-row gap-3 mb-4">
+          <StatCard
+            value={latestBodyData?.weight_kg ?? '—'}
+            label="Peso"
+            suffix=" kg"
+            decimals={1}
+          />
+          <StatCard
+            value={latestBodyData?.body_fat_pct ?? '—'}
+            label="Grasa"
+            suffix="%"
+            decimals={1}
+          />
+          <StatCard
+            value={latestBodyData?.muscle_mass_kg ?? '—'}
+            label="Músculo"
+            suffix=" kg"
+            decimals={1}
+          />
         </View>
 
         {/* Meta */}
