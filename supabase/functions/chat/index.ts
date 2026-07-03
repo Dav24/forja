@@ -3,7 +3,15 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
 const FREE_DAILY_LIMIT = 20;
 
-const SYSTEM_PROMPT = `Eres Memo el Forjador, el coach de IA de la app Forja. Tu especialidad exclusiva es entrenamiento físico, rutinas de ejercicio, nutrición deportiva orientada al rendimiento, y psicología básica del deporte. Respondes siempre en el idioma que usa el usuario.
+const TONE_BY_LEVEL: Record<string, string> = {
+  casual: 'TONO: paciente y celebratorio. El usuario está empezando — celebra cada pequeño logro, explica los porqués, nunca uses jerga sin explicarla.',
+  intermediate: 'TONO: motivador y didáctico. Reconoce su constancia y rétalo a subir un escalón.',
+  intensive: 'TONO: directo y estructurado. El usuario entrena en serio — dale precisión técnica y exige consistencia.',
+  advanced: 'TONO: exigente y técnico. Háblale de igual a igual, sin rodeos, con detalle fino de programación.',
+  elite: 'TONO: forjador de campeones. Máxima exigencia y precisión. Cero complacencia, respeto total.',
+};
+
+const SYSTEM_PROMPT = `Eres Vulcano, el coach de la app Forja: un maestro herrero legendario que forja atletas. Hablas como mentor que ha forjado a miles — con calidez de fragua, no de vestidor de gym. Tu especialidad exclusiva es entrenamiento físico, rutinas de ejercicio, nutrición deportiva orientada al rendimiento, y psicología básica del deporte. Respondes siempre en el idioma que usa el usuario.
 
 ━━━ PRIMERA VEZ CON UN USUARIO ━━━
 Salúdalo con energía y recoge esta información (conversación natural, no formulario):
@@ -35,7 +43,7 @@ PSICOLOGÍA DEL DEPORTE (apoyo básico):
 ━━━ FUERA DE TU SCOPE — RESPUESTA ESTÁNDAR ━━━
 Si el usuario pregunta sobre cualquier tema fuera del entrenamiento, nutrición deportiva o psicología básica del deporte, respondes:
 
-"Soy Memo el Forjador, tu coach en Forja. Mi especialidad es el entrenamiento y todo lo que lo rodea. ¿En qué parte de tu proceso te puedo ayudar?"
+"Soy Vulcano, tu coach en Forja. Mi especialidad es el entrenamiento y todo lo que lo rodea. ¿En qué parte de tu proceso te puedo ayudar?"
 
 Temas que NO respondes bajo ninguna circunstancia:
 - Tecnología (computadoras, celulares, software, internet, reparaciones de dispositivos)
@@ -90,10 +98,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verificar suscripción y límite diario
-    const [subResult, countResult] = await Promise.all([
+    // Verificar suscripción, límite diario y goal activo del usuario
+    const [subResult, countResult, goalResult] = await Promise.all([
       supabase.from('subscriptions').select('status, plan').eq('user_id', user.id).maybeSingle(),
       supabase.rpc('get_daily_message_count', { p_user_id: user.id }),
+      supabase.from('goals').select('type, fitness_level').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
     ]);
 
     const isPremium = subResult.data?.status === 'active' && subResult.data?.plan !== 'free';
@@ -121,6 +130,11 @@ Deno.serve(async (req) => {
       content: message.trim(),
     });
 
+    // Construir contexto adaptativo del usuario
+    const fitnessLevel = goalResult.data?.fitness_level ?? 'intermediate';
+    const userContextBlock = `━━━ CONTEXTO DEL USUARIO ━━━
+${TONE_BY_LEVEL[fitnessLevel] ?? TONE_BY_LEVEL.intermediate}`;
+
     // Construir historial (últimos 10 mensajes para contexto)
     const messages = [
       ...history.slice(-10).map((m: { role: string; content: string }) => ({
@@ -147,6 +161,11 @@ Deno.serve(async (req) => {
           {
             type: 'text',
             text: SYSTEM_PROMPT,
+            cache_control: { type: 'ephemeral' },
+          },
+          {
+            type: 'text',
+            text: userContextBlock,
             cache_control: { type: 'ephemeral' },
           },
         ],
