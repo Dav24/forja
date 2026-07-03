@@ -1,15 +1,11 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useActiveWorkoutPlan } from '@/hooks/useWorkoutPlan';
-import { useAuthStore } from '@/store/auth.store';
+import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { colors } from '@/constants/colors';
 import { Badge } from '@/components/ui/Badge';
 import { useIsPremium } from '@/hooks/useSubscription';
-
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
@@ -18,9 +14,8 @@ function getTodayDayIndex() {
 }
 
 export default function PlansScreen() {
-  const { session } = useAuthStore();
   const { data: activePlan, isLoading, refetch } = useActiveWorkoutPlan();
-  const [generating, setGenerating] = useState(false);
+  const { generating, promptDaysAndGenerate } = useGeneratePlan(refetch);
   const isPremium = useIsPremium();
 
   const todayIndex = getTodayDayIndex();
@@ -43,56 +38,6 @@ export default function PlansScreen() {
     const jsDay = d.day_number === 7 ? 0 : d.day_number;
     return jsDay === todayIndex;
   });
-
-  async function handleGeneratePlan() {
-    if (!session) return;
-
-    Alert.alert(
-      'Generar Plan',
-      '¿Cuántos días por semana quieres entrenar?',
-      [3, 4, 5, 6].map((days) => ({
-        text: `${days} días`,
-        onPress: () => generate(days),
-      })),
-    );
-  }
-
-  async function generate(days: number) {
-    if (!session) return;
-    setGenerating(true);
-    try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-plan`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ days_per_week: days }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (data.error === 'monthly_plan_limit_reached') {
-          Alert.alert('Límite alcanzado', 'En el plan free puedes generar 1 plan por mes. Actualiza a premium para generar más.');
-        } else if (data.error === 'generation_in_progress') {
-          Alert.alert('En proceso', 'Ya hay un plan siendo generado. Espera un momento.');
-        } else {
-          Alert.alert('Error', 'No se pudo generar el plan. Intenta de nuevo.');
-        }
-        return;
-      }
-
-      await refetch();
-      if (data.plan_id) {
-        router.push(`/(app)/plans/workout/${data.plan_id}`);
-      }
-    } catch {
-      Alert.alert('Error', 'Ocurrió un error de conexión. Intenta de nuevo.');
-    } finally {
-      setGenerating(false);
-    }
-  }
 
   if (isLoading) {
     return (
@@ -240,7 +185,7 @@ export default function PlansScreen() {
 
             {/* Botón nuevo plan */}
             <TouchableOpacity
-              onPress={handleGeneratePlan}
+              onPress={() => promptDaysAndGenerate('Generar Plan')}
               disabled={generating}
               activeOpacity={0.7}
               style={{
@@ -286,7 +231,7 @@ export default function PlansScreen() {
               Genera tu primer plan personalizado con IA. Tarda menos de 30 segundos.
             </Text>
             <TouchableOpacity
-              onPress={handleGeneratePlan}
+              onPress={() => promptDaysAndGenerate('Generar Plan')}
               disabled={generating}
               activeOpacity={0.8}
               style={{
