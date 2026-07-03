@@ -6,6 +6,8 @@ import { router } from 'expo-router';
 import { useActiveWorkoutPlan } from '@/hooks/useWorkoutPlan';
 import { useAuthStore } from '@/store/auth.store';
 import { colors } from '@/constants/colors';
+import { Badge } from '@/components/ui/Badge';
+import { useIsPremium } from '@/hooks/useSubscription';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 
@@ -19,6 +21,7 @@ export default function PlansScreen() {
   const { session } = useAuthStore();
   const { data: activePlan, isLoading, refetch } = useActiveWorkoutPlan();
   const [generating, setGenerating] = useState(false);
+  const isPremium = useIsPremium();
 
   const todayIndex = getTodayDayIndex();
 
@@ -137,7 +140,7 @@ export default function PlansScreen() {
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
-              <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, marginBottom: 4 }}>
+              <Text style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, marginBottom: 4, textTransform: 'uppercase' }}>
                 {(activePlan as { title: string }).title}
               </Text>
               {(activePlan as { description?: string }).description ? (
@@ -329,9 +332,12 @@ export default function PlansScreen() {
             <Ionicons name="nutrition-outline" size={22} color={colors.accent} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: colors.text, fontFamily: 'Inter-SemiBold', fontSize: 15 }}>
-              Planes Alimenticios
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+              <Text style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, textTransform: 'uppercase', flex: 1 }}>
+                Planes Alimenticios
+              </Text>
+              {!isPremium && <Badge label="PREMIUM" variant="premium" />}
+            </View>
             <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
               Nutrición personalizada con IA
             </Text>
