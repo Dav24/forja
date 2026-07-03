@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { useProfileStore } from '@/store/profile.store';
 import { SparkBurst } from '@/components/effects/SparkBurst';
+import { colors } from '@/constants/colors';
 
 type FitnessLevel = 'casual' | 'intermediate' | 'intensive' | 'advanced' | 'elite';
 type Mode = 'flexible' | 'strict';
@@ -169,7 +170,7 @@ export default function Step3Level() {
           disabled={loading || celebrating || !fitnessLevel || !mode}
         >
           {loading
-            ? <ActivityIndicator color="#0A0A0F" />
+            ? <ActivityIndicator color={colors.background} />
             : <Text className={`font-bold text-base ${fitnessLevel && mode ? 'text-background' : 'text-text-muted'}`}>
                 Forjar mi plan 🔥
               </Text>

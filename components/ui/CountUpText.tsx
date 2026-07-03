@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Text, TextStyle } from 'react-native';
-import Animated, { Easing, runOnJS, useSharedValue, withTiming, useAnimatedReaction } from 'react-native-reanimated';
+import { Easing, runOnJS, useSharedValue, withTiming, useAnimatedReaction } from 'react-native-reanimated';
 
 interface CountUpTextProps {
   value: number;

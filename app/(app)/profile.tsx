@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -48,7 +49,7 @@ export default function ProfileScreen() {
         </Text>
       </View>
 
-      <View style={{ flex: 1, padding: 20, gap: 20 }}>
+      <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1, padding: 20, gap: 20 }}>
         {/* Avatar + name + plan badge */}
         <View style={{ alignItems: 'center', gap: 12 }}>
           <View
@@ -150,7 +151,7 @@ export default function ProfileScreen() {
             </Text>
           </View>
         )}
-      </View>
+      </Animated.View>
 
       {/* Sign out */}
       <View style={{ padding: 20 }}>

@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { colors } from '@/constants/colors';
 import { Badge } from '@/components/ui/Badge';
@@ -51,6 +52,7 @@ export default function PlansScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
+      <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={{ marginBottom: 24 }}>
@@ -290,6 +292,7 @@ export default function PlansScreen() {
           <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 }

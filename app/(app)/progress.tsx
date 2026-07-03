@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { GoalProgress } from '@/components/progress/GoalProgress';
 import { WeightChart } from '@/components/progress/WeightChart';
@@ -37,6 +38,7 @@ export default function ProgressScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
+      <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
@@ -146,6 +148,7 @@ export default function ProgressScreen() {
           </View>
         )}
       </ScrollView>
+      </Animated.View>
 
       {/* FAB */}
       <TouchableOpacity

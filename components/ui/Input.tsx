@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
+import { colors } from '@/constants/colors';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -17,7 +18,7 @@ export function Input({ label, error, secureTextEntry, className = '', ...props 
       <View className="relative">
         <TextInput
           className={`bg-surface border ${error ? 'border-destructive' : 'border-border'} rounded-xl px-4 h-14 text-text text-base pr-12`}
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textMuted}
           secureTextEntry={secureTextEntry && !visible}
           {...props}
         />

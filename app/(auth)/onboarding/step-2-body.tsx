@@ -6,6 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOnboardingStore } from '@/store/onboarding.store';
+import { colors } from '@/constants/colors';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -74,7 +75,7 @@ export default function Step2Body() {
             <TextInput
               className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
               placeholder="70"
-              placeholderTextColor="#64748B"
+              placeholderTextColor={colors.textMuted}
               value={weight}
               onChangeText={setWeight}
               keyboardType="decimal-pad"
@@ -85,7 +86,7 @@ export default function Step2Body() {
             <TextInput
               className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
               placeholder="175"
-              placeholderTextColor="#64748B"
+              placeholderTextColor={colors.textMuted}
               value={height}
               onChangeText={setHeight}
               keyboardType="number-pad"
@@ -99,7 +100,7 @@ export default function Step2Body() {
           <TextInput
             className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
             placeholder="25"
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textMuted}
             value={age}
             onChangeText={setAge}
             keyboardType="number-pad"

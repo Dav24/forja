@@ -7,7 +7,6 @@ interface EmberProps {
 
 // La brasa de la marca: la "O" de FORJA
 export function Ember({ size, glow = false }: EmberProps) {
-  const r = size / 2;
   return (
     <Svg width={size} height={size} viewBox="0 0 44 44">
       <Defs>

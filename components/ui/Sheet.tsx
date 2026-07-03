@@ -1,5 +1,6 @@
 import { forwardRef, useCallback } from 'react';
 import { View } from 'react-native';
+import { colors } from '@/constants/colors';
 import BottomSheet, {
   BottomSheetView,
   BottomSheetBackdrop,
@@ -34,8 +35,8 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(function Sheet(
       snapPoints={snapPoints ?? ['50%']}
       enablePanDownToClose
       backdropComponent={renderBackdrop}
-      backgroundStyle={{ backgroundColor: '#1E1E2E' }}
-      handleIndicatorStyle={{ backgroundColor: '#64748B' }}
+      backgroundStyle={{ backgroundColor: colors.surfaceElevated }}
+      handleIndicatorStyle={{ backgroundColor: colors.accent }}
       {...props}
     >
       <BottomSheetView>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
@@ -117,6 +118,7 @@ export default function MealPlansScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
+      <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1 }}>
       <View style={{
         paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center',
         gap: 12, borderBottomWidth: 1, borderBottomColor: colors.border,
@@ -290,6 +292,7 @@ export default function MealPlansScreen() {
           </>
         )}
       </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 }

@@ -2,7 +2,7 @@
 
 > App móvil de entrenamiento con coach IA personal.  
 > Dominio: **forja.fit** · Empresa: **Physis Labs**  
-> Última actualización: 2026-06-25
+> Última actualización: 2026-07-03
 
 ---
 
@@ -33,7 +33,7 @@
 
 ## 1. Visión y Producto
 
-**Forja** es una app móvil de entrenamiento personal potenciada por IA. El usuario tiene acceso a un coach virtual llamado **Memo el Forjador**, que responde preguntas de entrenamiento, nutrición deportiva y psicología básica del deporte. La IA genera planes de entrenamiento personalizados (y planes alimenticios en Premium) a partir del perfil, objetivos y datos corporales del usuario.
+**Forja** es una app móvil de entrenamiento personal potenciada por IA. El usuario tiene acceso a un coach virtual llamado **Vulcano**, que responde preguntas de entrenamiento, nutrición deportiva y psicología básica del deporte. La IA genera planes de entrenamiento personalizados (y planes alimenticios en Premium) a partir del perfil, objetivos y datos corporales del usuario.
 
 ### Objetivos de negocio
 
@@ -45,7 +45,7 @@
 
 | Feature | Free | Premium |
 |---|---|---|
-| Chat con coach IA (Memo) | 20 msg/día | Ilimitado |
+| Chat con coach IA (Vulcano) | 20 msg/día | Ilimitado |
 | Plan de entrenamiento IA | 1/mes | Ilimitado |
 | Modificaciones al plan | 3/mes | Ilimitadas |
 | Plan alimenticio IA | ✗ | ✓ |
@@ -497,7 +497,7 @@ Las funciones viven en `supabase/functions/` y corren en Deno. Se despliegan con
 
 **Por qué streaming SSE**: la respuesta del coach aparece palabra por palabra en la UI, lo que da sensación de velocidad y naturalidad. Sin streaming el usuario esperaría varios segundos viendo nada.
 
-**Por qué prompt caching**: el system prompt de Memo el Forjador tiene ~1500 tokens. Con `cache_control: { type: 'ephemeral' }`, Anthropic cachea el prompt hasta 5 minutos, reduciendo el costo de input tokens en ~90% para conversaciones frecuentes.
+**Por qué prompt caching**: el system prompt de Vulcano tiene ~1500 tokens. Con `cache_control: { type: 'ephemeral' }`, Anthropic cachea el prompt hasta 5 minutos, reduciendo el costo de input tokens en ~90% para conversaciones frecuentes.
 
 **Modelo**: `claude-haiku-4-5-20251001` — el más rápido y económico de la familia Claude. Ideal para chat en tiempo real.
 
@@ -564,11 +564,11 @@ Worker para procesamiento en background de generación de planes. Permitirá des
 
 ## 7. Integración con IA — Claude (Anthropic)
 
-### Persona: Memo el Forjador
+### Persona: Vulcano
 
 El system prompt define la personalidad y scope del coach:
 
-- **Nombre**: Memo el Forjador
+- **Nombre**: Vulcano
 - **Idioma**: responde siempre en el idioma del usuario
 - **Especialidad exclusiva**: entrenamiento, rutinas, nutrición deportiva, psicología básica del deporte
 - **Fuera de scope**: cualquier otro tema (tecnología, política, finanzas, etc.) → respuesta estándar de redirección
@@ -705,7 +705,7 @@ Pantalla de inicio del usuario autenticado. Muestra:
 ### Chat (`app/(app)/chat.tsx`)
 Pantalla del coach IA, completamente implementada.
 
-- **Header**: muestra "Memo el Forjador" + "Tu coach de IA · Forja" en verde
+- **Header**: muestra "Vulcano" + "El Forjador · tu coach" con avatar VulcanoAvatar
 - **Estado vacío** (`EmptyState`): cuando no hay mensajes, muestra emoji + texto de bienvenida invitando al usuario a contar su objetivo
 - **Lista de mensajes** (`FlatList`): renderiza `ChatBubble` por cada mensaje. Auto-scroll al final cuando llegan mensajes nuevos (con delay de 50ms para respetar el layout) y durante streaming con `onContentSizeChange`
 - **Teclado**: `KeyboardAvoidingView` con `behavior: 'padding'` en iOS y `'height'` en Android
@@ -755,11 +755,22 @@ Nivel de fitness (casual → élite) y modalidad (flexible / estricto). Al confi
 | `Button` | Botón con variantes (primary, outline, ghost) y estado de loading |
 | `Card` | Contenedor con fondo `surface`, bordes redondeados y padding |
 | `Input` | Campo de texto estilizado con soporte para dark theme |
-| `Badge` | Etiqueta pequeña con variantes (primary, muted, warning) |
+| `Badge` | Etiqueta pequeña con variantes (primary, muted, warning, premium, accent) |
 | `Avatar` | Imagen de perfil circular con fallback a iniciales |
 | `ProgressBar` | Barra de progreso animada con porcentaje |
-| `Sheet` | Bottom sheet wrapper sobre `react-native-bottom-sheet` |
+| `Sheet` | Bottom sheet wrapper sobre `react-native-bottom-sheet` (backgroundStyle = `surfaceElevated`, handle = `accent`) |
 | `Skeleton` | Placeholder animado para loading states |
+| `StatCard` | Tarjeta métrica con CountUpText animado |
+| `CountUpText` | Número que cuenta hacia arriba (700ms, Easing.cubic) |
+
+### `components/brand/` y `components/effects/` — Marca e identidad
+
+| Componente | Propósito |
+|---|---|
+| `Ember` | Brasa circular con gradiente radial naranja–ámbar (logo "O" de FORJA) |
+| `ForjaWordmark` | Logotipo FORJA completo (Bebas Neue + Ember) |
+| `StreakFlame` | Llama SVG animada para indicadores de racha |
+| `SparkBurst` | Partículas de celebración para onboarding completado / logros |
 
 ### `components/chat/`
 
@@ -769,6 +780,7 @@ Nivel de fitness (casual → élite) y modalidad (flexible / estricto). Al confi
 | `ChatInput` | Input fijo al fondo con botón enviar y stop streaming |
 | `MessageLimitBanner` | Banner que aparece cuando el usuario free alcanza el límite diario |
 | `StreamingText` | Renderiza texto que llega fragmento a fragmento (cursor parpadeante) |
+| `VulcanoAvatar` | Avatar circular del coach Vulcano con gradiente ember |
 
 ### `components/plans/`
 
@@ -901,34 +913,63 @@ El hook usa un `AbortController` para permitir cancelar el stream si el usuario 
 
 ## 14. Sistema de Diseño
 
-### Paleta de colores (`constants/colors.ts`)
+### Paleta Ember (`constants/colors.ts`)
 
-```ts
-{
-  background:      '#0A0A0F',   // fondo principal (casi negro)
-  surface:         '#13131C',   // cards, inputs
-  surfaceElevated: '#1E1E2E',   // modales, sheets
-  primary:         '#22C55E',   // verde — color de marca, CTAs
-  primaryDim:      '#166534',   // verde oscuro — fondos de cards activas
-  accent:          '#818CF8',   // índigo — elementos secundarios
-  text:            '#F1F5F9',   // texto principal
-  textMuted:       '#64748B',   // texto secundario, labels, placeholders
-  border:          '#1E293B',   // bordes de cards e inputs
-  destructive:     '#EF4444',   // rojo — acciones de borrado, errores
-  warning:         '#F59E0B',   // ámbar — alertas, streak
-  success:         '#22C55E',   // mismo que primary
-}
-```
+Paleta de marca basada en fuego / brasa incandescente. Reemplaza la paleta fría (verde + índigo + azul oscuro) con tonos cálidos naranja–ámbar sobre fondos oscuros marrón-carbón.
 
-**Filosofía**: dark theme profundo (no gris, sino casi negro con tinte azul). El verde primario da energía y vitalidad, coherente con el contexto de fitness. Todos los colores tienen suficiente contraste para cumplir WCAG AA.
+| Token | Valor | Uso |
+|---|---|---|
+| `background` | `#0C0A09` | Fondo principal (carbón oscuro) |
+| `surface` | `#1C1917` | Cards, inputs |
+| `surfaceElevated` | `#292524` | Modales, sheets |
+| `primary` | `#F97316` | Naranja — CTAs, estados activos |
+| `primaryBright` | `#FBBF24` | Ámbar claro — highlights |
+| `primaryDim` | `#7C2D12` | Naranja oscuro — fondos de cards activas |
+| `accent` | `#FBBF24` | Ámbar — handle de sheet, elementos secundarios |
+| `text` | `#FAFAF9` | Texto principal |
+| `textMuted` | `#A8A29E` | Texto secundario, labels, placeholders |
+| `border` | `#292524` | Bordes de cards e inputs |
+| `destructive` | `#EF4444` | Rojo — errores |
+| `warning` | `#F59E0B` | Ámbar — alertas |
+| `success` | `#22C55E` | Verde — único verde permitido (solo éxito) |
 
-### Tipografía (`constants/typography.ts`)
+Gradientes de marca: `gradients.ember` (`#FBBF24 → #F97316`) y `gradients.flame` (`#EA580C → #F97316 → #FDE68A`).
 
-- `SpaceGrotesk-Regular / SemiBold / Bold` → headings y títulos de sección
-- `Inter-Regular / Medium` → cuerpo, labels, botones
+**Filosofía**: dark theme cálido tipo fragua. El naranja primario evoca fuego, esfuerzo y transformación. Ningún hex frío de la paleta anterior (`#0A0A0F`, `#13131C`, `#1E1E2E`, `#166534`, `#818CF8`, `#64748B`, `#1E293B`) está permitido en pantallas o componentes.
+
+### Tipografía
+
+- `BebasNeue-Regular` → títulos de pantalla, nombres de planes, badges de marca (display grande)
+- `SpaceGrotesk-Regular / SemiBold / Bold` → subtítulos, headings de sección
+- `Inter-Regular / Medium / Bold` → cuerpo, labels, botones
 - `JetBrainsMono-Regular / Medium` → números (peso, streak, estadísticas)
 
 **Por qué JetBrains Mono para números**: los números en fuente monoespaciada no "saltan" visualmente cuando cambian de dígitos (ej: "9" → "10"). Mejora la legibilidad en contextos de métricas.
+
+### Identidad Vulcano
+
+El coach de IA se llama **Vulcano** (antes Memo). Tiene tono adaptativo: motivador y directo por defecto; empático y pausado si detecta signos de estrés o frustración en el usuario. Componentes relacionados: `VulcanoAvatar`, header del chat.
+
+### Componentes de marca (`components/brand/` y `components/effects/`)
+
+| Componente | Propósito |
+|---|---|
+| `Ember` | Brasa circular con gradiente radial naranja–ámbar. Logo "O" de FORJA. Props: `size`, `glow` |
+| `ForjaWordmark` | Logotipo completo FORJA en Bebas Neue con Ember incrustada |
+| `StreakFlame` | Llama animada SVG para indicadores de racha activa |
+| `SparkBurst` | Lluvia de partículas chispa para celebraciones (onboarding completado, logros) |
+
+### Componentes UI nuevos (`components/ui/` y `components/chat/`)
+
+| Componente | Propósito |
+|---|---|
+| `StatCard` | Tarjeta métrica con `CountUpText` animado, label y sufijo. Usada en progreso |
+| `CountUpText` | Número que cuenta hacia arriba al aparecer (700ms, Easing.cubic) |
+| `VulcanoAvatar` | Avatar circular del coach con gradiente ember y letras "VF" |
+
+### Animaciones de entrada (spec §6.1)
+
+Pantallas con `entering={FadeInUp.duration(250)}` en su contenedor principal: Home, Plans Hub, Meal Plans, Progress, Profile, Upgrade. Chat omitido (KeyboardAvoidingView + FlatList con auto-scroll).
 
 ### Clases NativeWind
 
@@ -1062,7 +1103,7 @@ Las variables de las Edge Functions se configuran con `supabase secrets set` y e
 | 4 | **Onboarding**: 3 pasos (objetivo → cuerpo → nivel/modalidad), guarda en `goals` + `body_data`, marca `onboarding_completed = true` |
 | 5 | **Design System**: Button, Card, Input, Badge, ProgressBar, Skeleton, Avatar, Sheet. Fuentes: Space Grotesk + Inter + JetBrains Mono |
 | 6 | **Dashboard (Home)**: pantalla Home completa con datos reales, tab bar con Ionicons (5 tabs). Hooks: useProfile, useActiveGoal, useActiveWorkoutPlan, useLatestBodyData, useStreak, useSubscription, useAsyncJob |
-| 7 | **Chat con IA (Memo el Forjador)**: Edge Function con streaming SSE, Claude Haiku + Prompt Caching, rate limit 20 msg/día. UI completa: ChatBubble, ChatInput, StreamingText, MessageLimitBanner, hook useChat, pantalla chat.tsx con auto-scroll. Integración Anthropic verificada end-to-end |
+| 7 | **Chat con IA (Vulcano)**: Edge Function con streaming SSE, Claude Haiku + Prompt Caching, rate limit 20 msg/día. UI completa: ChatBubble, ChatInput, StreamingText, MessageLimitBanner, hook useChat, pantalla chat.tsx con auto-scroll. Integración Anthropic verificada end-to-end |
 | 8 | **Planes de entrenamiento**: Edge Function `generate-plan` llama a Claude Sonnet sincrónicamente (sin QStash por ahora). Pantallas: hub de planes con mini-calendario + rutina del día, detalle del plan con días expandibles. Límite free: 1 plan/mes |
 | 9 | **Planes Alimenticios (Premium)**: Edge Function `generate-meal-plan` llama a Claude Sonnet (`claude-sonnet-4-6`, `max_tokens: 8192`) con JWT auth. Límites: free = 1 plan de por vida, premium = 10 planes/mes. Hooks `useActiveMealPlan()` (query) y `useGenerateMealPlan()` (mutation). Componentes: `MacroBar` (barra 3 segmentos: proteína/carbs/grasa), `MealPlanCard` (colapsable con macros/ingredientes). Pantalla `/plans/meal/`: form intake (tipo dieta, alergias, disponibilidad) → generación → vista 7 días con navegador + macros globales. Integración completa con TanStack Query v5. |
 

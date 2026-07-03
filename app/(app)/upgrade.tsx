@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -74,7 +75,8 @@ export default function UpgradeScreen() {
         </Text>
       </View>
 
-      <ScrollView
+      <Animated.ScrollView
+        entering={FadeInUp.duration(250)}
         contentContainerStyle={{ padding: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
       >
@@ -358,7 +360,7 @@ export default function UpgradeScreen() {
         >
           Cancela cuando quieras · Procesado de forma segura con Stripe
         </Text>
-      </ScrollView>
+      </Animated.ScrollView>
     </SafeAreaView>
   );
 }
