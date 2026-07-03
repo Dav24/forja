@@ -1,5 +1,6 @@
 export const typography = {
   fonts: {
+    display: 'BebasNeue',
     heading: 'SpaceGrotesk',
     body: 'Inter',
     mono: 'JetBrainsMono',

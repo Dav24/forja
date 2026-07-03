@@ -1,14 +1,30 @@
 export const colors = {
-  background: '#0A0A0F',
-  surface: '#13131C',
-  surfaceElevated: '#1E1E2E',
-  primary: '#22C55E',
-  primaryDim: '#166534',
-  accent: '#818CF8',
-  text: '#F1F5F9',
-  textMuted: '#64748B',
-  border: '#1E293B',
+  background: '#0C0A09',
+  surface: '#1C1917',
+  surfaceElevated: '#292524',
+  primary: '#F97316',
+  primaryBright: '#FBBF24',
+  primaryDim: '#7C2D12',
+  accent: '#FBBF24',
+  text: '#FAFAF9',
+  textMuted: '#A8A29E',
+  border: '#292524',
   destructive: '#EF4444',
   warning: '#F59E0B',
   success: '#22C55E',
+} as const;
+
+// Gradientes de marca — usar con expo-linear-gradient
+export const gradients = {
+  ember: ['#FBBF24', '#F97316'] as const,
+  flame: ['#EA580C', '#F97316', '#FDE68A'] as const,
+} as const;
+
+// Sombra de fuego para CTAs primarios (dosificar: 1-2 por pantalla)
+export const fireShadow = {
+  shadowColor: '#F97316',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.35,
+  shadowRadius: 22,
+  elevation: 8,
 } as const;
