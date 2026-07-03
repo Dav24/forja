@@ -65,8 +65,10 @@ export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
     );
   }, [dead]);
 
+  // Calculado fuera del worklet: las funciones JS normales no existen en el hilo de UI
+  const baseScale = flameScale(streak);
   const flickerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: flicker.value * flameScale(streak) }],
+    transform: [{ scale: flicker.value * baseScale }],
   }));
 
   if (compact) {
