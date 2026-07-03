@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { useProfileStore } from '@/store/profile.store';
+import { SparkBurst } from '@/components/effects/SparkBurst';
 
 type FitnessLevel = 'casual' | 'intermediate' | 'intensive' | 'advanced' | 'elite';
 type Mode = 'flexible' | 'strict';
@@ -27,6 +28,7 @@ export default function Step3Level() {
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
   const [mode, setMode] = useState<Mode | null>(null);
   const [loading, setLoading] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
 
   const { user } = useAuthStore();
   const { goalType, targetWeightKg, weightKg, heightCm, age, gender, activityLevel } = useOnboardingStore();
@@ -74,8 +76,9 @@ export default function Step3Level() {
         .eq('id', user.id);
       if (profileError) throw profileError;
 
-      setOnboardingCompleted(true);
-      router.replace('/(app)');
+      // Disparar celebración; la navegación ocurre en onDone para evitar
+      // que el AuthGuard redirija antes de que termine la animación.
+      setCelebrating(true);
     } catch (err: unknown) {
       // Los errores de Supabase (PostgrestError) traen message pero no extienden Error
       const message =
@@ -163,16 +166,24 @@ export default function Step3Level() {
         <TouchableOpacity
           className={`rounded-xl h-14 items-center justify-center ${fitnessLevel && mode ? 'bg-primary' : 'bg-surface'}`}
           onPress={handleFinish}
-          disabled={loading || !fitnessLevel || !mode}
+          disabled={loading || celebrating || !fitnessLevel || !mode}
         >
           {loading
             ? <ActivityIndicator color="#0A0A0F" />
             : <Text className={`font-bold text-base ${fitnessLevel && mode ? 'text-background' : 'text-text-muted'}`}>
-                Empezar a entrenar 🔥
+                Forjar mi plan 🔥
               </Text>
           }
         </TouchableOpacity>
       </View>
+
+      <SparkBurst
+        trigger={celebrating}
+        onDone={() => {
+          setOnboardingCompleted(true);
+          router.replace('/(app)');
+        }}
+      />
     </View>
   );
 }

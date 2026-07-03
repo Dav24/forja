@@ -1,6 +1,7 @@
 import { Stack, usePathname } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 
 const STEPS = [
   '/(auth)/onboarding/step-1-goals',
@@ -19,12 +20,7 @@ export default function OnboardingLayout() {
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       {/* Barra de progreso */}
       <View className="px-5 pt-4 pb-2">
-        <View className="h-1 bg-surface-elevated rounded-full overflow-hidden">
-          <View
-            className="h-full bg-primary rounded-full"
-            style={{ width: `${progress}%` }}
-          />
-        </View>
+        <ProgressBar value={progress} />
       </View>
 
       <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }} />

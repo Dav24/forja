@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOnboardingStore } from '@/store/onboarding.store';
+import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 
 type GoalType = 'weight_loss' | 'muscle_gain' | 'recomposition' | 'powerlifting' | 'sport_specific' | 'general_fitness';
 
@@ -33,7 +34,17 @@ export default function Step1Goals() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 100 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="pt-6 pb-8">
+        <View className="pt-6 items-center mb-6">
+          <VulcanoAvatar size={72} />
+          <Text className="text-text mt-3 text-center" style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20 }}>
+            Soy Vulcano, forjador de atletas
+          </Text>
+          <Text className="text-text-muted text-sm text-center mt-1" style={{ fontFamily: 'Inter-Regular' }}>
+            Cuéntame de ti y forjaremos tu plan a la medida.
+          </Text>
+        </View>
+
+        <View className="pb-8">
           <Text className="text-text-muted text-sm font-medium mb-1">Paso 1 de 3</Text>
           <Text className="text-text font-bold text-3xl">¿Cuál es tu objetivo?</Text>
           <Text className="text-text-muted text-base mt-2">Tu coach se adapta a lo que quieres lograr.</Text>
