@@ -79,9 +79,9 @@ export default function ProfileScreen() {
               {user?.email}
             </Text>
             {isPremium ? (
-              <Badge label="⚡ Premium activo" variant="accent" />
+              <Badge label="PREMIUM" variant="premium" />
             ) : (
-              <Badge label="Plan Free" variant="muted" />
+              <Badge label="FREE" variant="muted" />
             )}
           </View>
         </View>
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
                   flex: 1,
                 }}
               >
-                Desbloquea todo el potencial de Memo
+                Desbloquea todo el potencial de Vulcano
               </Text>
             </View>
             <Text

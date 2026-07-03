@@ -35,15 +35,15 @@ const COPY: Record<UpgradeContext, { title: string; bullets: string[] }> = {
     bullets: [
       '10 planes al mes',
       'Actualiza según tu progreso',
-      'Memo ajusta según tus datos reales',
+      'Vulcano ajusta según tus datos reales',
     ],
   },
   generic: {
     title: 'Desbloquea Premium',
     bullets: [
-      'Chat ilimitado con Memo',
+      'Chat ilimitado con Vulcano',
       'Planes de entrenamiento ilimitados',
-      'Memo analiza tus datos de actividad',
+      'Vulcano analiza tus datos de actividad',
     ],
   },
 };

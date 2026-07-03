@@ -2,29 +2,30 @@ import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
 import { useIsPremium } from '@/hooks/useSubscription';
-import { colors } from '@/constants/colors';
+import { colors, gradients } from '@/constants/colors';
 
 type Billing = 'monthly' | 'yearly';
 
 const FREE_FEATURES = [
-  '20 mensajes al día con Memo',
+  '20 mensajes al día con Vulcano',
   '1 plan de entrenamiento al mes',
   '1 plan alimenticio (de por vida)',
   '14 días de historial corporal',
 ];
 
 const PREMIUM_FEATURES = [
-  'Chat ilimitado con Memo',
+  'Chat ilimitado con Vulcano',
   'Planes de entrenamiento ilimitados',
   '10 planes alimenticios al mes',
   '365 días de historial corporal',
   'Composición corporal (% grasa, músculo)',
-  'Memo analiza tus datos de actividad',
+  'Vulcano analiza tus datos de actividad',
 ];
 
 const PRO_FEATURES = [
@@ -82,10 +83,10 @@ export default function UpgradeScreen() {
           <Ionicons name="flash" size={40} color={colors.accent} />
           <Text
             style={{
-              fontFamily: 'SpaceGrotesk-Bold',
-              fontSize: 28,
+              fontFamily: 'BebasNeue-Regular',
+              fontSize: 30,
               color: colors.text,
-              letterSpacing: -0.5,
+              letterSpacing: 1,
             }}
           >
             FORJA PRO
@@ -172,7 +173,7 @@ export default function UpgradeScreen() {
               marginBottom: 12,
             }}
           >
-            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.text }}>
+            <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 22, color: colors.text }}>
               Free
             </Text>
             <View style={{ alignItems: 'flex-end', gap: 4 }}>
@@ -195,63 +196,71 @@ export default function UpgradeScreen() {
           ))}
         </View>
 
-        {/* Premium tier card */}
-        <View
-          style={{
-            backgroundColor: colors.surface,
-            borderRadius: 16,
-            padding: 16,
-            marginBottom: 12,
-            borderWidth: 2,
-            borderColor: colors.primary,
-          }}
+        {/* Premium tier card — incandescent border */}
+        <LinearGradient
+          colors={gradients.ember}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ borderRadius: 18, padding: 2, marginBottom: 12 }}
         >
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: 12,
+              backgroundColor: colors.surface,
+              borderRadius: 16,
+              padding: 16,
             }}
           >
-            <View style={{ gap: 6 }}>
-              <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.text }}>
-                ⚡ Premium
-              </Text>
-              <Badge label="Recomendado" variant="primary" />
-            </View>
-            <View style={{ alignItems: 'flex-end', gap: 4 }}>
-              <Text
-                style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.primary }}
-              >
-                {price}
-              </Text>
-              {billing === 'yearly' && (
-                <Text
-                  style={{
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 11,
-                    color: colors.textMuted,
-                  }}
-                >
-                  $108/mes — 40% off
-                </Text>
-              )}
-              {isPremium && <Badge label="✓ Activo" variant="accent" />}
-            </View>
-          </View>
-          {PREMIUM_FEATURES.map((f, i) => (
             <View
-              key={i}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: 12,
+              }}
             >
-              <Ionicons name="checkmark-circle" size={14} color={colors.primary} />
-              <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.text }}>
-                {f}
-              </Text>
+              <View style={{ gap: 6 }}>
+                <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 24, color: colors.text }}>
+                  ⚡ PREMIUM
+                </Text>
+                {billing === 'yearly' ? (
+                  <Badge label="MEJOR VALOR" variant="premium" />
+                ) : (
+                  <Badge label="Recomendado" variant="primary" />
+                )}
+              </View>
+              <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                <Text
+                  style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.primary }}
+                >
+                  {price}
+                </Text>
+                {billing === 'yearly' && (
+                  <Text
+                    style={{
+                      fontFamily: 'Inter-Regular',
+                      fontSize: 11,
+                      color: colors.textMuted,
+                    }}
+                  >
+                    $108/mes — 40% off
+                  </Text>
+                )}
+                {isPremium && <Badge label="✓ Activo" variant="accent" />}
+              </View>
             </View>
-          ))}
-        </View>
+            {PREMIUM_FEATURES.map((f, i) => (
+              <View
+                key={i}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
+              >
+                <Ionicons name="checkmark-circle" size={14} color={colors.accent} />
+                <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.text }}>
+                  {f}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </LinearGradient>
 
         {/* Pro tier card */}
         <View
@@ -273,7 +282,7 @@ export default function UpgradeScreen() {
               marginBottom: 12,
             }}
           >
-            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.text }}>
+            <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 22, color: colors.text }}>
               🔥 Pro
             </Text>
             <Badge label="Próximamente" variant="muted" />
