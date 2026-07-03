@@ -18,6 +18,7 @@ import {
   JetBrainsMono_400Regular,
   JetBrainsMono_500Medium,
 } from '@expo-google-fonts/jetbrains-mono';
+import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import * as SplashScreen from 'expo-splash-screen';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
@@ -122,6 +123,7 @@ export default function RootLayout() {
     'Inter-Medium': Inter_500Medium,
     'JetBrainsMono-Regular': JetBrainsMono_400Regular,
     'JetBrainsMono-Medium': JetBrainsMono_500Medium,
+    'BebasNeue-Regular': BebasNeue_400Regular,
   });
   const router = useRouter();
 
