@@ -10,17 +10,20 @@ import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { colors, gradients } from '@/constants/colors';
+import { useAuthStore } from '@/store/auth.store';
+import { buildPaymentURL, buildPortalURL } from '@/lib/payments';
 
 type Billing = 'monthly' | 'yearly';
 
-const FREE_FEATURES = [
+const APRENDIZ_FEATURES = [
   '20 mensajes al día con Vulcano',
   '1 plan de entrenamiento al mes',
   '1 plan alimenticio (de por vida)',
   '14 días de historial corporal',
+  'Conexión de pulsera o reloj',
 ];
 
-const PREMIUM_FEATURES = [
+const MAESTRO_FEATURES = [
   'Chat ilimitado con Vulcano',
   'Planes de entrenamiento ilimitados',
   '10 planes alimenticios al mes',
@@ -29,23 +32,15 @@ const PREMIUM_FEATURES = [
   'Vulcano analiza tus datos de actividad',
 ];
 
-const PRO_FEATURES = [
-  'Todo lo de Premium',
+const COMING_FEATURES = [
   'Fotos de comida con análisis IA',
   'Análisis de técnica de ejercicio',
   'Coaching en tiempo real',
 ];
 
-function buildPaymentURL(billing: Billing, promoCode: string): string {
-  let url = 'https://pay.forja.fit?plan=premium&billing=' + billing;
-  if (promoCode.trim()) {
-    url += '&promo=' + encodeURIComponent(promoCode.trim().toUpperCase());
-  }
-  return url;
-}
-
 export default function UpgradeScreen() {
   const isPremium = useIsPremium();
+  const userId = useAuthStore((s) => s.user?.id);
   const [billing, setBilling] = useState<Billing>('yearly');
   const [promoCode, setPromoCode] = useState('');
   const [promoOpen, setPromoOpen] = useState(false);
@@ -91,7 +86,7 @@ export default function UpgradeScreen() {
               letterSpacing: 1,
             }}
           >
-            FORJA PRO
+            MAESTRO FORJADOR
           </Text>
           <Text
             style={{
@@ -101,7 +96,7 @@ export default function UpgradeScreen() {
               textAlign: 'center',
             }}
           >
-            Entrena con inteligencia
+            Forja tu mejor versión
           </Text>
         </View>
 
@@ -176,7 +171,7 @@ export default function UpgradeScreen() {
             }}
           >
             <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 22, color: colors.text }}>
-              Free
+              Aprendiz
             </Text>
             <View style={{ alignItems: 'flex-end', gap: 4 }}>
               <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.text }}>
@@ -185,7 +180,7 @@ export default function UpgradeScreen() {
               {!isPremium && <Badge label="Actual" variant="muted" />}
             </View>
           </View>
-          {FREE_FEATURES.map((f, i) => (
+          {APRENDIZ_FEATURES.map((f, i) => (
             <View
               key={i}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
@@ -222,7 +217,7 @@ export default function UpgradeScreen() {
             >
               <View style={{ gap: 6 }}>
                 <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 24, color: colors.text }}>
-                  ⚡ PREMIUM
+                  MAESTRO FORJADOR
                 </Text>
                 {billing === 'yearly' ? (
                   <Badge label="MEJOR VALOR" variant="premium" />
@@ -250,7 +245,7 @@ export default function UpgradeScreen() {
                 {isPremium && <Badge label="✓ Activo" variant="accent" />}
               </View>
             </View>
-            {PREMIUM_FEATURES.map((f, i) => (
+            {MAESTRO_FEATURES.map((f, i) => (
               <View
                 key={i}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
@@ -261,46 +256,31 @@ export default function UpgradeScreen() {
                 </Text>
               </View>
             ))}
+            <Text
+              style={{
+                fontFamily: 'Inter-Bold',
+                fontSize: 12,
+                color: colors.accent,
+                letterSpacing: 1,
+                marginTop: 12,
+                marginBottom: 6,
+              }}
+            >
+              EN CAMINO 🔥
+            </Text>
+            {COMING_FEATURES.map((f, i) => (
+              <View
+                key={i}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
+              >
+                <Ionicons name="time-outline" size={14} color={colors.textMuted} />
+                <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
+                  {f}
+                </Text>
+              </View>
+            ))}
           </View>
         </LinearGradient>
-
-        {/* Pro tier card */}
-        <View
-          style={{
-            backgroundColor: colors.surface,
-            borderRadius: 16,
-            padding: 16,
-            marginBottom: 24,
-            borderWidth: 1,
-            borderColor: colors.textMuted,
-            opacity: 0.6,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 12,
-            }}
-          >
-            <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 22, color: colors.text }}>
-              🔥 Pro
-            </Text>
-            <Badge label="Próximamente" variant="muted" />
-          </View>
-          {PRO_FEATURES.map((f, i) => (
-            <View
-              key={i}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
-            >
-              <Ionicons name="checkmark" size={14} color={colors.textMuted} />
-              <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
-                {f}
-              </Text>
-            </View>
-          ))}
-        </View>
 
         {/* Promo code */}
         <TouchableOpacity
@@ -332,19 +312,19 @@ export default function UpgradeScreen() {
               <Text
                 style={{ fontFamily: 'Inter-Bold', fontSize: 16, color: colors.primary }}
               >
-                Ya eres Premium
+                Ya eres Maestro Forjador
               </Text>
             </View>
             <Button
               variant="secondary"
               label="Gestionar suscripción"
-              onPress={() => Linking.openURL('https://pay.forja.fit/portal')}
+              onPress={() => userId && Linking.openURL(buildPortalURL(userId))}
             />
           </View>
         ) : (
           <Button
             label={ctaLabel}
-            onPress={() => Linking.openURL(buildPaymentURL(billing, promoCode))}
+            onPress={() => userId && Linking.openURL(buildPaymentURL(userId, billing, promoCode))}
           />
         )}
 
