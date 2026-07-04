@@ -11,9 +11,7 @@ import { Input } from '@/components/ui/Input';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { colors, gradients } from '@/constants/colors';
 import { useAuthStore } from '@/store/auth.store';
-import { buildPaymentURL, buildPortalURL } from '@/lib/payments';
-
-type Billing = 'monthly' | 'yearly';
+import { buildPaymentURL, buildPortalURL, type Billing } from '@/lib/payments';
 
 const APRENDIZ_FEATURES = [
   '20 mensajes al día con Vulcano',

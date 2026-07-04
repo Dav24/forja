@@ -169,13 +169,19 @@ export function PricingSection({
               </>
             ) : (
               <div className="mt-6 space-y-2">
+                <p className="text-center font-bold">Descarga Forja y empieza gratis</p>
                 <a
                   href={process.env.NEXT_PUBLIC_APP_STORE_URL ?? '#'}
                   className="block w-full cursor-pointer rounded-xl bg-ember py-3.5 text-center font-bold text-carbon transition-colors duration-200 hover:bg-amber-bright"
                 >
-                  Descarga Forja y empieza gratis
+                  Descargar en App Store
                 </a>
-                <p className="text-center text-xs text-muted">iOS y Android</p>
+                <a
+                  href={process.env.NEXT_PUBLIC_PLAY_STORE_URL ?? '#'}
+                  className="block w-full cursor-pointer rounded-xl bg-ember py-3.5 text-center font-bold text-carbon transition-colors duration-200 hover:bg-amber-bright"
+                >
+                  Descargar en Google Play
+                </a>
               </div>
             )}
           </div>

@@ -13,7 +13,8 @@ export default async function Home({
   const params = await searchParams;
   const uid = isValidUid(params.uid) ? params.uid : null;
   const initialBilling = params.billing === 'monthly' ? 'monthly' : 'yearly';
-  const initialPromo = (params.promo ?? '').toUpperCase().slice(0, 40);
+  const rawPromo = typeof params.promo === 'string' ? params.promo : '';
+  const initialPromo = rawPromo.toUpperCase().slice(0, 40);
 
   return (
     <main className="flex flex-col gap-20 pb-24">

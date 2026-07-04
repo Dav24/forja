@@ -10,6 +10,9 @@ export async function POST(req: NextRequest) {
   }
   try {
     const stripe = getStripe();
+    // uid va embebido en el query: seguro SOLO porque isValidUid lo restringe a UUID.
+    // Nota: customers.search es eventualmente consistente (~1 min tras crear el customer);
+    // un usuario que paga y abre el portal inmediatamente puede ver un 404 transitorio.
     const found = await stripe.customers.search({
       query: `metadata['user_id']:'${uid}'`,
       limit: 1,

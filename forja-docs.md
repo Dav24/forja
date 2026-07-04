@@ -714,8 +714,9 @@ La misma verificación ocurre en las Edge Functions para cada request, garantiza
 
 - Deploy de `web/` a Vercel + configurar dominio `pay.forja.fit`.
 - Cambiar Stripe de test mode a live mode (`sk_live_...`, precios/producto/cupón recreados en live).
-- Crear el webhook endpoint de producción: `stripe webhook_endpoints create --url https://pay.forja.fit/api/webhook --enabled-events checkout.session.completed,customer.subscription.updated,customer.subscription.deleted` (o vía Dashboard) y guardar el `whsec_...` resultante en `supabase secrets set`.
+- Crear el webhook endpoint de producción: `stripe webhook_endpoints create --url https://<PROJECT_REF>.supabase.co/functions/v1/stripe-webhook --enabled-events checkout.session.completed,customer.subscription.updated,customer.subscription.deleted` (o vía Dashboard) y guardar el `whsec_...` resultante en `supabase secrets set` (el handler vive en Supabase Edge Functions, NO en la app Next.js).
 - Publicar `NEXT_PUBLIC_APP_STORE_URL` / `NEXT_PUBLIC_PLAY_STORE_URL` reales.
+- Reusar el customer de Stripe en checkout (evitar customers duplicados / doble suscripción al re-suscribirse).
 
 ### Pendiente humano (no automatizable)
 

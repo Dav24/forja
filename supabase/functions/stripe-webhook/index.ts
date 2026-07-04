@@ -58,6 +58,7 @@ Deno.serve(async (req) => {
           console.error('webhook: checkout.session.completed sin user_id', session.id);
           break;
         }
+        if (session.mode !== 'subscription' || !session.subscription) break;
         const subId = session.subscription as string;
         const sub = await stripe.subscriptions.retrieve(subId);
         const { error } = await supabase.from('subscriptions').upsert(
@@ -91,7 +92,8 @@ Deno.serve(async (req) => {
             current_period_end: periodEnd(sub),
             updated_at: new Date().toISOString(),
           })
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .eq('stripe_subscription_id', sub.id);
         if (error) throw error;
         break;
       }
@@ -106,7 +108,8 @@ Deno.serve(async (req) => {
             status: 'canceled',
             updated_at: new Date().toISOString(),
           })
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .eq('stripe_subscription_id', sub.id);
         if (error) throw error;
         break;
       }
