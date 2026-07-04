@@ -24,9 +24,9 @@ export function ComparisonTable() {
         <table className="w-full min-w-[480px] text-sm">
           <thead>
             <tr className="bg-surface text-left">
-              <th className="p-4 font-semibold"> </th>
-              <th className="p-4 text-center font-display text-lg font-normal">Aprendiz</th>
-              <th className="p-4 text-center font-display text-lg font-normal text-ember">
+              <th scope="col" className="p-4 font-semibold"> </th>
+              <th scope="col" className="p-4 text-center font-display text-lg font-normal">Aprendiz</th>
+              <th scope="col" className="p-4 text-center font-display text-lg font-normal text-ember">
                 Maestro Forjador
               </th>
             </tr>

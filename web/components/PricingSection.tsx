@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { Check, Minus, Flame, Loader2 } from 'lucide-react';
-
-type Billing = 'monthly' | 'yearly';
+import type { Billing } from '@/lib/checkout';
 
 const APRENDIZ = [
   '20 mensajes al día con Vulcano',
@@ -55,6 +54,7 @@ export function PricingSection({
       });
       if (!res.ok) throw new Error(String(res.status));
       const { url } = await res.json();
+      if (!url) throw new Error('missing url');
       window.location.href = url;
     } catch {
       setError('No pudimos iniciar el pago, intenta de nuevo.');
@@ -72,6 +72,7 @@ export function PricingSection({
         {(['monthly', 'yearly'] as const).map((b) => (
           <button
             key={b}
+            aria-pressed={billing === b}
             onClick={() => setBilling(b)}
             className={`cursor-pointer rounded-lg px-6 py-2 text-sm font-semibold transition-colors duration-200 ${
               billing === b ? 'bg-ember text-carbon' : 'text-muted hover:text-foreground'
@@ -146,7 +147,7 @@ export function PricingSection({
                   Convertirme en Maestro
                 </button>
                 {error && (
-                  <p role="alert" className="mt-3 text-center text-sm text-red-400">
+                  <p role="alert" className="mt-3 text-center text-sm text-destructive">
                     {error}
                   </p>
                 )}

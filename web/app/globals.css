@@ -10,6 +10,7 @@
   --color-foreground: #FAFAF9;
   --color-muted: #A8A29E;
   --color-subtle: #292524;
+  --color-destructive: #EF4444;
   --font-display: var(--font-bebas);
   --font-sans: var(--font-inter);
 }
