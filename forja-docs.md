@@ -2,7 +2,7 @@
 
 > App móvil de entrenamiento con coach IA personal.  
 > Dominio: **forja.fit** · Empresa: **Physis Labs**  
-> Última actualización: 2026-07-03
+> Última actualización: 2026-07-04
 
 ---
 
@@ -596,31 +596,109 @@ El historial completo persiste en `conversations` en DB para referencia futura, 
 
 ## 8. Integración de Pagos — Stripe
 
-> **Estado**: la integración de Stripe está diseñada y la tabla `subscriptions` está lista en DB. La implementación de `lib/stripe.ts` y `/functions/stripe-webhook` está pendiente (Paso 10).
+> **Estado**: implementado y verificado end-to-end en Stripe test mode (Paso 13, rama `paso-13-pagos`). Pendiente: deploy a producción (dominio + Stripe live) en Paso 15, y verificación humana del pago real desde el navegador del teléfono + Expo Go (ver más abajo).
 
-### Flujo de suscripción (diseñado)
+### Por qué una web separada (`pay.forja.fit`) y no Stripe In-App Purchases
+
+Apple/Google cobran 15–30% de comisión en compras dentro de la app para contenido digital. Redirigir a una web de pagos (Stripe Checkout hosted) evita esa comisión mientras el volumen no justifique migrar a IAP nativo (ver `project_payments` en memoria). La web vive en `web/` (Next.js), pensada para desplegarse en `pay.forja.fit`.
+
+### Arquitectura
 
 ```
-Usuario toca "Upgrade a Premium"
-    │
+App (React Native)
+    │  Linking.openURL(buildPaymentURL(uid, billing, promo))
     ▼
-UpgradeSheet.tsx (componente bottom sheet)
+web/ (Next.js) — pay.forja.fit
     │
-    ▼
-lib/stripe.ts → inicia Stripe Checkout (web o nativo)  ← pendiente
+    ├── GET /?uid=<uuid>&billing=&promo=   → landing (SSR): si hay uid válido
+    │                                         muestra "Convertirme en Maestro",
+    │                                         si no, "Descarga Forja" (CTA a stores)
     │
-    ▼
-Stripe procesa el pago
+    ├── POST /api/checkout {billing, uid, promo?}
+    │       └─ lib/checkout.ts createCheckoutSession()
+    │            crea Stripe Checkout Session en modo subscription,
+    │            price = STRIPE_PRICE_MONTHLY | STRIPE_PRICE_YEARLY,
+    │            metadata.user_id = uid, promo → discounts[] si existe
+    │       → devuelve { url: "https://checkout.stripe.com/..." }
     │
-    ▼
-Stripe → Webhook → /functions/stripe-webhook           ← pendiente
+    ├── GET /success                       → página post-pago (referencia visual;
+    │                                         la app tiene su propia app/(app)/success.tsx
+    │                                         vía deep link forja://success)
     │
+    └── POST /api/portal {uid}
+            └─ busca customer en Stripe por metadata.user_id (stripe.customers.list/search)
+               y crea un Billing Portal Session → { url: "https://billing.stripe.com/..." }
+
+Stripe (test mode, acct_1TpMcOK3706kh3Wn)
+    │  eventos de checkout/suscripción
     ▼
-Actualiza subscriptions (plan = 'premium', status = 'active')
+supabase/functions/stripe-webhook (Edge Function, Deno)
+    │  valida stripe-signature con STRIPE_WEBHOOK_SECRET (rechaza sin firma → 400)
     │
-    ▼
-Cliente: useSubscription() invalida cache → UI se actualiza
+    ├── checkout.session.completed
+    │     → upsert subscriptions: plan='premium', status=mapStripeStatus(sub.status),
+    │       stripe_customer_id, stripe_subscription_id, current_period_end
+    │     → stripe.customers.update(customer, {metadata:{user_id}})  (para que /api/portal lo encuentre)
+    │
+    ├── customer.subscription.updated
+    │     → resuelve user_id (sub.metadata.user_id, o lookup por stripe_subscription_id en DB)
+    │     → update status + current_period_end
+    │
+    └── customer.subscription.deleted
+          → update plan='free', status='canceled'
 ```
+
+### Producto y precios (Stripe test mode)
+
+| Recurso | Valor |
+|---|---|
+| Producto | `Forja — Maestro Forjador` (`prod_Up7O626sLEECs9`) |
+| Precio mensual | `price_1TpT9bK3706kh3Wno1HjLqRK` — 17900 MXN/mes |
+| Precio anual | `price_1TpT9bK3706kh3WnoWov4etl` — 129900 MXN/año |
+| Cupón influencers | 100% off, repeating 3 meses (`A4lYOCB7`) |
+| Código promo | `VULCANO100` |
+
+### Cómo correr los 3 procesos en local (dev)
+
+```bash
+# 1. Obtener el webhook secret (una vez) y ponerlo en supabase/.env → STRIPE_WEBHOOK_SECRET
+stripe listen --forward-to http://127.0.0.1:54321/functions/v1/stripe-webhook --print-secret
+
+# 2. Servir la Edge Function con los secrets de supabase/.env
+supabase functions serve stripe-webhook --env-file supabase/.env
+
+# 3. Reenviar eventos de Stripe test mode al webhook local (dejar corriendo)
+stripe listen --forward-to http://127.0.0.1:54321/functions/v1/stripe-webhook
+
+# 4. Levantar la web de pagos
+cd web && pnpm dev   # http://localhost:3000
+```
+
+### Variables de entorno de Pagos
+
+| Archivo | Variable | Valor / origen |
+|---|---|---|
+| `web/.env.local` | `STRIPE_SECRET_KEY` | `sk_test_...` (test mode, cuenta `acct_1TpMcOK3706kh3Wn`) |
+| `web/.env.local` | `STRIPE_PRICE_MONTHLY` | `price_1TpT9bK3706kh3Wno1HjLqRK` |
+| `web/.env.local` | `STRIPE_PRICE_YEARLY` | `price_1TpT9bK3706kh3WnoWov4etl` |
+| `web/.env.local` | `NEXT_PUBLIC_APP_STORE_URL` | `#` (placeholder hasta publicar) |
+| `web/.env.local` | `NEXT_PUBLIC_PLAY_STORE_URL` | `#` (placeholder hasta publicar) |
+| `supabase/.env` | `STRIPE_SECRET_KEY` | mismo `sk_test_...` |
+| `supabase/.env` | `STRIPE_WEBHOOK_SECRET` | `whsec_...` de `stripe listen --print-secret` |
+| `forja/.env.local` (app) | `EXPO_PUBLIC_PAYMENTS_URL` | `https://pay.forja.fit` en prod; usa el default de `lib/payments.ts` en dev |
+
+Ambos `web/.env.local` y `supabase/.env` están en `.gitignore` — **nunca se commitean**.
+
+### Verificación E2E automatizada (Paso 13, Task 9)
+
+Verificado con Stripe CLI + curl contra el stack local:
+1. `POST /api/checkout` (monthly, monthly+promo VULCANO100, yearly) → devuelve `checkout.stripe.com` URL real en los 3 casos.
+2. Checkout completado (evento `checkout.session.completed` firmado y enviado al webhook local, sobre una suscripción real creada en test mode) → `subscriptions` pasa a `plan=premium, status=active` con `stripe_customer_id`/`stripe_subscription_id` poblados.
+3. `POST /api/portal` → devuelve `billing.stripe.com` URL real (encuentra el customer por metadata.user_id que el webhook seteó en el paso 2).
+4. `stripe subscriptions cancel <sub_id>` → dispara `customer.subscription.deleted` real vía `stripe listen` → `subscriptions` pasa a `plan=free, status=canceled`.
+5. Landing SSR: `GET /?uid=<uuid>` contiene "Convertirme en Maestro"; sin `uid` contiene "Descarga Forja".
+
+**Nota sobre `stripe trigger checkout.session.completed`**: la fixture built-in del Stripe CLI genera una Checkout Session en modo *pago único* (sin `subscription`), no modo *subscription* — a diferencia de lo que crea nuestro `/api/checkout` real. Esto hace que el trigger built-in falle contra nuestro webhook (`session.subscription` es `null` → `stripe.subscriptions.retrieve(null)` lanza). Para la verificación real se creó una suscripción de verdad vía API (customer + payment method de test `pm_card_visa` + subscription) y se envió un evento `checkout.session.completed` sintético pero correctamente firmado (HMAC con `STRIPE_WEBHOOK_SECRET`) apuntando a esa suscripción real — ejercitando el mismo código que corre en producción.
 
 ### Estado de la suscripción en la app
 
@@ -631,6 +709,17 @@ plan === 'premium' && status === 'active' && current_period_end > now()
 ```
 
 La misma verificación ocurre en las Edge Functions para cada request, garantizando que los límites se apliquen server-side y no solo en el cliente.
+
+### Pendiente para Paso 15 (deploy a producción)
+
+- Deploy de `web/` a Vercel + configurar dominio `pay.forja.fit`.
+- Cambiar Stripe de test mode a live mode (`sk_live_...`, precios/producto/cupón recreados en live).
+- Crear el webhook endpoint de producción: `stripe webhook_endpoints create --url https://pay.forja.fit/api/webhook --enabled-events checkout.session.completed,customer.subscription.updated,customer.subscription.deleted` (o vía Dashboard) y guardar el `whsec_...` resultante en `supabase secrets set`.
+- Publicar `NEXT_PUBLIC_APP_STORE_URL` / `NEXT_PUBLIC_PLAY_STORE_URL` reales.
+
+### Pendiente humano (no automatizable)
+
+Verificación E2E real desde navegador/teléfono: completar un pago con tarjeta de prueba `4242 4242 4242 4242` desde el navegador del teléfono, confirmar el deep link `forja://success` abre la app en Expo Go con la pantalla "EL ACERO ESTÁ FORJADO", y que el perfil refleja "MAESTRO FORJADOR" tras el refetch en foreground.
 
 ---
 
@@ -1089,11 +1178,23 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 Las variables de las Edge Functions se configuran con `supabase secrets set` y están disponibles vía `Deno.env.get()`.
 
+### Web de Pagos (`.env.local` en `forja/web/`)
+
+```env
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PRICE_MONTHLY=price_...
+STRIPE_PRICE_YEARLY=price_...
+NEXT_PUBLIC_APP_STORE_URL=#
+NEXT_PUBLIC_PLAY_STORE_URL=#
+```
+
+Ver detalle completo en la sección 8 (Integración de Pagos — Stripe).
+
 ---
 
 ## 20. Pasos de Construcción — Historial y Próximos
 
-### Completados (Pasos 1–9)
+### Completados (Pasos 1–9, 12–13)
 
 | Paso | Descripción |
 |---|---|
@@ -1106,17 +1207,17 @@ Las variables de las Edge Functions se configuran con `supabase secrets set` y e
 | 7 | **Chat con IA (Vulcano)**: Edge Function con streaming SSE, Claude Haiku + Prompt Caching, rate limit 20 msg/día. UI completa: ChatBubble, ChatInput, StreamingText, MessageLimitBanner, hook useChat, pantalla chat.tsx con auto-scroll. Integración Anthropic verificada end-to-end |
 | 8 | **Planes de entrenamiento**: Edge Function `generate-plan` llama a Claude Sonnet sincrónicamente (sin QStash por ahora). Pantallas: hub de planes con mini-calendario + rutina del día, detalle del plan con días expandibles. Límite free: 1 plan/mes |
 | 9 | **Planes Alimenticios (Premium)**: Edge Function `generate-meal-plan` llama a Claude Sonnet (`claude-sonnet-4-6`, `max_tokens: 8192`) con JWT auth. Límites: free = 1 plan de por vida, premium = 10 planes/mes. Hooks `useActiveMealPlan()` (query) y `useGenerateMealPlan()` (mutation). Componentes: `MacroBar` (barra 3 segmentos: proteína/carbs/grasa), `MealPlanCard` (colapsable con macros/ingredientes). Pantalla `/plans/meal/`: form intake (tipo dieta, alergias, disponibilidad) → generación → vista 7 días con navegador + macros globales. Integración completa con TanStack Query v5. |
+| 12 | **Freemium Gates y Upgrade + Rediseño de Marca**: PaywallBanner, UpgradeSheet, flujos de límite, y rediseño completo de marca (paleta Ember/brasa, Vulcano, Bebas Neue) — ver secciones 11 y 14. |
+| 13 | **Web de Pagos**: Stripe Checkout en `web/` (Next.js, pensado para `pay.forja.fit`), `/api/checkout` + `/api/portal` + landing SSR por `uid`, Edge Function `stripe-webhook` (checkout.session.completed / customer.subscription.updated / customer.subscription.deleted), deep link `forja://success` de retorno en la app, refetch de suscripción en foreground. Producto + precios + cupón `VULCANO100` creados en Stripe test mode y verificados end-to-end (ver sección 8). Pendiente: deploy a producción (Paso 15) y verificación humana de pago real desde teléfono. |
 
-### Próximos (Pasos 10–15)
+### Próximos (Pasos 10, 11, 14–15)
 
 | Paso | Descripción |
 |---|---|
 | 10 | **Seguimiento Corporal**: gráfica de peso con Skia, formulario de mediciones, GoalProgress |
 | 11 | **Notificaciones Push**: integración completa con expo-notifications y `lib/notifications.ts` |
-| 12 | **Freemium Gates y Upgrade**: PaywallBanner, UpgradeSheet, flujos de límite |
-| 13 | **Web de Pagos**: Stripe Checkout en `pay.forja.fit`, deep link `forja://` de retorno, webhook |
 | 14 | **i18n**: activar todas las traducciones, detección de idioma del dispositivo |
-| 15 | **Load Testing + Deploy**: k6 completo, EAS Build, App Store + Play Store |
+| 15 | **Load Testing + Deploy**: k6 completo, EAS Build, App Store + Play Store, deploy de `web/` a Vercel + dominio `pay.forja.fit` + Stripe live mode + `stripe webhook_endpoints create` |
 
 ---
 

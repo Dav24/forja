@@ -37,6 +37,9 @@ supabase/.env
 # typescript
 *.tsbuildinfo
 
+# deno (artefacto generado por runs locales de Edge Functions; se despliegan desde source)
+deno.lock
+
 # generated native folders
 /ios
 /android
