@@ -19,11 +19,12 @@ function periodEnd(sub: Stripe.Subscription): string | null {
 
 async function userIdForSub(sub: Stripe.Subscription): Promise<string | null> {
   if (sub.metadata?.user_id) return sub.metadata.user_id;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('subscriptions')
     .select('user_id')
     .eq('stripe_subscription_id', sub.id)
     .maybeSingle();
+  if (error) throw error; // transitorio → el catch del caller responde 500 y Stripe reintenta
   if (!data) console.error('webhook: sin user_id para subscription', sub.id);
   return data?.user_id ?? null;
 }
