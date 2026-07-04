@@ -80,9 +80,9 @@ export default function ProfileScreen() {
               {user?.email}
             </Text>
             {isPremium ? (
-              <Badge label="PREMIUM" variant="premium" />
+              <Badge label="MAESTRO FORJADOR" variant="premium" />
             ) : (
-              <Badge label="FREE" variant="muted" />
+              <Badge label="APRENDIZ" variant="muted" />
             )}
           </View>
         </View>
@@ -118,7 +118,7 @@ export default function ProfileScreen() {
               Chat ilimitado, planes sin restricciones y seguimiento completo de tu cuerpo.
             </Text>
             <Button
-              label="Hazte Premium"
+              label="Hazte Maestro"
               onPress={() => router.push('/(app)/upgrade' as never)}
             />
           </View>

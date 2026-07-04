@@ -1,5 +1,6 @@
 import '../global.css';
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { Stack, usePathname, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -130,6 +131,15 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        queryClient.invalidateQueries({ queryKey: ['subscription'] });
+      }
+    });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     if (!Notifications) return;

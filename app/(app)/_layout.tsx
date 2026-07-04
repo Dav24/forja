@@ -74,6 +74,10 @@ export default function AppLayout() {
         name="upgrade"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="success"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }

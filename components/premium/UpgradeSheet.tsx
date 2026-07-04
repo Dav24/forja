@@ -6,6 +6,8 @@ import type BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
+import { useAuthStore } from '@/store/auth.store';
+import { buildPaymentURL } from '@/lib/payments';
 
 export type UpgradeContext = 'chart_range' | 'body_composition' | 'meal_plan' | 'generic';
 
@@ -39,7 +41,7 @@ const COPY: Record<UpgradeContext, { title: string; bullets: string[] }> = {
     ],
   },
   generic: {
-    title: 'Desbloquea Premium',
+    title: 'Conviértete en Maestro',
     bullets: [
       'Chat ilimitado con Vulcano',
       'Planes de entrenamiento ilimitados',
@@ -51,9 +53,10 @@ const COPY: Record<UpgradeContext, { title: string; bullets: string[] }> = {
 export const UpgradeSheet = forwardRef<BottomSheet, UpgradeSheetProps>(
   function UpgradeSheet({ context = 'generic' }, ref) {
     const { title, bullets } = COPY[context];
+    const userId = useAuthStore((s) => s.user?.id);
 
     function handleUpgrade() {
-      Linking.openURL('https://pay.forja.fit?plan=premium&billing=yearly');
+      if (userId) Linking.openURL(buildPaymentURL(userId, 'yearly'));
     }
 
     function handleSeeAll() {
@@ -87,7 +90,7 @@ export const UpgradeSheet = forwardRef<BottomSheet, UpgradeSheetProps>(
             Desde $1,299/año
           </Text>
 
-          <Button label="Hazte Premium →" onPress={handleUpgrade} />
+          <Button label="Hazte Maestro →" onPress={handleUpgrade} />
 
           <TouchableOpacity onPress={handleSeeAll} activeOpacity={0.7} className="items-center">
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.accent }}>
