@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-carbon: #0C0A09;
+  --color-surface: #1C1917;
+  --color-elevated: #292524;
+  --color-ember: #F97316;
+  --color-amber-bright: #FBBF24;
+  --color-ember-dim: #7C2D12;
+  --color-foreground: #FAFAF9;
+  --color-muted: #A8A29E;
+  --color-subtle: #292524;
+  --font-display: var(--font-bebas);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: linear-gradient(180deg, #0c0a09 0%, #000000 100%);
+  color: var(--color-foreground);
+  min-height: 100dvh;
+}
+
+/* Glow ámbar posicional para elementos clave */
+.ember-glow {
+  box-shadow: 0 0 60px -12px rgba(249, 115, 22, 0.45);
+}
+
+/* Brasas flotantes */
+@keyframes rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  10%  { opacity: 0.8; }
+  100% { transform: translateY(-90vh) scale(0.4); opacity: 0; }
+}
+.ember-particle {
+  position: absolute;
+  bottom: -10px;
+  border-radius: 9999px;
+  animation: rise linear infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ember-particle { animation: none; display: none; }
+}
