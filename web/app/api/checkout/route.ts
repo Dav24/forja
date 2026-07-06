@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
-import { createCheckoutSession, isValidUid, type Billing } from '@/lib/checkout';
+import { createCheckoutSession, isValidUid, requestOrigin, type Billing } from '@/lib/checkout';
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
   try {
-    const { url } = await createCheckoutSession(getStripe(), req.nextUrl.origin, {
+    const { url } = await createCheckoutSession(getStripe(), requestOrigin(req.headers, req.nextUrl.origin), {
       billing,
       uid,
       promo: promo || undefined,

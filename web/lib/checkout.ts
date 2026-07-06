@@ -15,6 +15,16 @@ export function priceIdFor(billing: Billing): string {
   return id;
 }
 
+// req.nextUrl.origin devuelve la dirección de bind del server (p.ej. 0.0.0.0 en dev
+// con -H 0.0.0.0), no el Host que usó el cliente — las success/cancel URLs saldrían
+// inalcanzables. El origin real viene de los headers.
+export function requestOrigin(headers: Headers, fallback: string): string {
+  const host = headers.get('x-forwarded-host') ?? headers.get('host');
+  if (!host) return fallback;
+  const proto = headers.get('x-forwarded-proto') ?? 'http';
+  return `${proto}://${host}`;
+}
+
 export async function resolvePromo(stripe: Stripe, code: string): Promise<string | null> {
   const found = await stripe.promotionCodes.list({ code, active: true, limit: 1 });
   return found.data[0]?.id ?? null;

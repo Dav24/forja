@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { isValidUid, priceIdFor, resolvePromo, createCheckoutSession } from './checkout';
+import { isValidUid, priceIdFor, resolvePromo, createCheckoutSession, requestOrigin } from './checkout';
 
 const UID = '123e4567-e89b-42d3-a456-426614174000';
 
@@ -43,6 +43,24 @@ describe('resolvePromo', () => {
   it('devuelve null cuando no existe (no bloquea)', async () => {
     const s = fakeStripe({ promotionCodes: { list: vi.fn().mockResolvedValue({ data: [] }) } });
     expect(await resolvePromo(s, 'NADA')).toBeNull();
+  });
+});
+
+describe('requestOrigin', () => {
+  it('usa el header host del request (no la dirección de bind del server)', () => {
+    const h = new Headers({ host: '192.168.1.109:3000' });
+    expect(requestOrigin(h, 'http://0.0.0.0:3000')).toBe('http://192.168.1.109:3000');
+  });
+  it('prefiere x-forwarded-host y x-forwarded-proto detrás de proxy', () => {
+    const h = new Headers({
+      host: 'internal:3000',
+      'x-forwarded-host': 'pay.forja.fit',
+      'x-forwarded-proto': 'https',
+    });
+    expect(requestOrigin(h, 'http://0.0.0.0:3000')).toBe('https://pay.forja.fit');
+  });
+  it('cae al fallback si no hay host', () => {
+    expect(requestOrigin(new Headers(), 'http://localhost:3000')).toBe('http://localhost:3000');
   });
 });
 
