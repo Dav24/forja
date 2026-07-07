@@ -21,13 +21,20 @@ import {
 } from '@expo-google-fonts/jetbrains-mono';
 import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import * as SplashScreen from 'expo-splash-screen';
+import * as SystemUI from 'expo-system-ui';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
+import { colors } from '@/constants/colors';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfileStore } from '@/store/profile.store';
 import { useNotifications } from '@/hooks/useNotifications';
 
 SplashScreen.preventAutoHideAsync();
+
+// Fondo de la VENTANA nativa (debajo de todo React). Sin esto es blanca y asoma
+// como flash al redimensionar con el teclado y en el cold-load. app.json no
+// aplica en Expo Go, por eso se fija también en runtime.
+SystemUI.setBackgroundColorAsync(colors.background);
 
 const isExpoGo = Constants.appOwnership === 'expo';
 
