@@ -92,7 +92,7 @@ FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
   ]
 }
 
-Genera exactamente ${userData.days_per_week} días de entrenamiento y ${7 - userData.days_per_week} días de descanso distribuidos en la semana. Incluye calentamiento como primer ejercicio y vuelta a la calma como último en cada día de entrenamiento. Sé específico en cargas sugeridas, técnica y progresión. El plan debe tener 7 entradas en "schedule" (un objeto por día de la semana).`;
+Genera exactamente ${userData.days_per_week} días de entrenamiento y ${7 - userData.days_per_week} días de descanso distribuidos en la semana. Incluye calentamiento como primer ejercicio y vuelta a la calma como último en cada día de entrenamiento. El plan debe tener 7 entradas en "schedule" (un objeto por día de la semana). Máximo 8 ejercicios por día (incluyendo calentamiento y vuelta a la calma). "technique_notes" debe ser UNA frase corta (máximo 15 palabras). Sé específico pero conciso: la progresión semanal va en "progression_notes", no repetida en cada ejercicio.`;
 }
 
 Deno.serve(async (req) => {
@@ -249,7 +249,10 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
+        // El JSON del plan rebasaba 4096 (y a veces 8192) tokens y llegaba truncado
+        // ("Invalid JSON from AI"). 16000 es el techo sano sin streaming; el prompt
+        // además acota el tamaño de salida (máx 8 ejercicios/día, notas de 1 frase).
+        max_tokens: 16000,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -269,6 +272,22 @@ Deno.serve(async (req) => {
     }
 
     const aiResult = await anthropicRes.json();
+
+    // Truncamiento: el modelo se quedó sin max_tokens a media respuesta — el JSON
+    // nunca va a parsear. Registrarlo como causa distinta a un JSON malformado.
+    if (aiResult.stop_reason === 'max_tokens') {
+      console.error('AI response truncated at max_tokens');
+      await supabase
+        .from('async_jobs')
+        .update({ status: 'failed', error: 'AI response truncated (max_tokens)', completed_at: new Date().toISOString() })
+        .eq('id', job.id);
+
+      return new Response(
+        JSON.stringify({ error: 'invalid_ai_response', job_id: job.id }),
+        { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      );
+    }
+
     const rawContent = aiResult.content?.[0]?.text ?? '';
 
     let planData: Record<string, unknown>;
