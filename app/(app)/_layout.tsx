@@ -79,6 +79,10 @@ export default function AppLayout() {
         name="success"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="settings"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
