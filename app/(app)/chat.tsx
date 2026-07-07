@@ -88,10 +88,12 @@ export default function ChatScreen() {
         </View>
       </View>
 
+      {/* En Android la ventana ya se encoge sola con el teclado (softwareKeyboardLayoutMode
+          resize) — un behavior aquí restaría la altura del teclado dos veces y empuja el
+          input fuera de pantalla. Solo iOS necesita compensación. */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {messages.length === 0 ? (
           <EmptyState />
