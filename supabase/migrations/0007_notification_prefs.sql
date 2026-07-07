@@ -70,5 +70,8 @@ AS $$
     AND (p.notif_reminders OR p.notif_updates);
 $$;
 
+-- 0004 dio EXECUTE a authenticated por DEFAULT PRIVILEGES; esta función es
+-- SECURITY DEFINER y expone datos de todos los usuarios: solo service_role.
 REVOKE ALL ON FUNCTION get_notification_targets() FROM PUBLIC;
+REVOKE ALL ON FUNCTION get_notification_targets() FROM authenticated;
 GRANT EXECUTE ON FUNCTION get_notification_targets() TO service_role;
