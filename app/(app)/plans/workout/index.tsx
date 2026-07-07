@@ -1,16 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { PlanGenerating } from '@/components/plans/PlanGenerating';
+import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
 
 export default function WorkoutPlansIndex() {
   const { data: activePlan, refetch } = useActiveWorkoutPlan();
-  const { generating, promptDaysAndGenerate } = useGeneratePlan(refetch);
+  const { generating, generate } = useGeneratePlan(refetch);
+  const sheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
     if (activePlan) {
@@ -70,11 +73,19 @@ export default function WorkoutPlansIndex() {
           label="Forjar mi plan"
           variant="primary"
           size="lg"
-          onPress={() => promptDaysAndGenerate('Forjar Plan')}
+          onPress={() => sheetRef.current?.expand()}
           className="w-full"
           style={{ width: '100%' }}
         />
       </View>
+
+      <GeneratePlanSheet
+        ref={sheetRef}
+        onGenerate={(params) => {
+          sheetRef.current?.close();
+          generate(params);
+        }}
+      />
     </SafeAreaView>
   );
 }

@@ -1,12 +1,15 @@
+import { useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { colors } from '@/constants/colors';
 import { Badge } from '@/components/ui/Badge';
 import { useIsPremium } from '@/hooks/useSubscription';
+import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
@@ -16,8 +19,9 @@ function getTodayDayIndex() {
 
 export default function PlansScreen() {
   const { data: activePlan, isLoading, refetch } = useActiveWorkoutPlan();
-  const { generating, promptDaysAndGenerate } = useGeneratePlan(refetch);
+  const { generating, generate } = useGeneratePlan(refetch);
   const isPremium = useIsPremium();
+  const sheetRef = useRef<BottomSheet>(null);
 
   const todayIndex = getTodayDayIndex();
 
@@ -187,7 +191,7 @@ export default function PlansScreen() {
 
             {/* Botón nuevo plan */}
             <TouchableOpacity
-              onPress={() => promptDaysAndGenerate('Generar Plan')}
+              onPress={() => sheetRef.current?.expand()}
               disabled={generating}
               activeOpacity={0.7}
               style={{
@@ -233,7 +237,7 @@ export default function PlansScreen() {
               Genera tu primer plan personalizado con IA. Tarda menos de 30 segundos.
             </Text>
             <TouchableOpacity
-              onPress={() => promptDaysAndGenerate('Generar Plan')}
+              onPress={() => sheetRef.current?.expand()}
               disabled={generating}
               activeOpacity={0.8}
               style={{
@@ -293,6 +297,14 @@ export default function PlansScreen() {
         </TouchableOpacity>
       </ScrollView>
       </Animated.View>
+
+      <GeneratePlanSheet
+        ref={sheetRef}
+        onGenerate={(params) => {
+          sheetRef.current?.close();
+          generate(params);
+        }}
+      />
     </SafeAreaView>
   );
 }

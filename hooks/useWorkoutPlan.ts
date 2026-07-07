@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
+import type { ModalityId } from '@/constants/modalities';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 
@@ -44,21 +45,46 @@ export function useWorkoutPlans() {
   });
 }
 
+export interface GeneratePlanParams {
+  modality: ModalityId;
+  days_per_week: number;
+  minutes_per_session: number;
+  equipment: string;
+}
+
 export function useGeneratePlan(refetch: () => Promise<unknown>) {
   const { session } = useAuthStore();
   const [generating, setGenerating] = useState(false);
 
-  async function generate(days: number) {
+  async function generate(params: GeneratePlanParams) {
     if (!session) return;
     setGenerating(true);
     try {
+      // Persistir la modalidad en el goal activo si aún no tiene (usuarios
+      // pre-multi-modalidad) y recoger las secundarias para la EF.
+      const { data: goal } = await supabase
+        .from('goals')
+        .select('id, modality, secondary_modalities')
+        .eq('user_id', session.user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (goal && !goal.modality) {
+        await supabase.from('goals').update({ modality: params.modality }).eq('id', goal.id);
+      }
+
       const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-plan`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ days_per_week: days }),
+        body: JSON.stringify({
+          ...params,
+          secondary_modalities: goal?.secondary_modalities ?? [],
+        }),
       });
 
       const data = await res.json();
@@ -85,19 +111,7 @@ export function useGeneratePlan(refetch: () => Promise<unknown>) {
     }
   }
 
-  function promptDaysAndGenerate(alertTitle: string) {
-    if (!session) return;
-    Alert.alert(
-      alertTitle,
-      '¿Cuántos días por semana quieres entrenar?',
-      [3, 4, 5, 6].map((days) => ({
-        text: `${days} días`,
-        onPress: () => generate(days),
-      })),
-    );
-  }
-
-  return { generating, promptDaysAndGenerate };
+  return { generating, generate };
 }
 
 export function useDeactivateWorkoutPlan() {
