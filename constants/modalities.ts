@@ -74,7 +74,3 @@ export const MODALITIES: Modality[] = [
     equipmentPresets: ['Cancha y balón'],
   },
 ];
-
-export const MODALITY_LABELS: Record<ModalityId, string> = Object.fromEntries(
-  MODALITIES.map((m) => [m.id, m.label]),
-) as Record<ModalityId, string>;

@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { colors } from '@/constants/colors';
 import BottomSheet, {
   BottomSheetView,
+  BottomSheetScrollView,
   BottomSheetBackdrop,
   type BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
@@ -10,10 +11,11 @@ import BottomSheet, {
 interface SheetProps {
   children: React.ReactNode;
   snapPoints?: (string | number)[];
+  scrollable?: boolean;
 }
 
 export const Sheet = forwardRef<BottomSheet, SheetProps>(function Sheet(
-  { children, snapPoints, ...props },
+  { children, snapPoints, scrollable, ...props },
   ref,
 ) {
   const renderBackdrop = useCallback(
@@ -39,9 +41,15 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(function Sheet(
       handleIndicatorStyle={{ backgroundColor: colors.accent }}
       {...props}
     >
-      <BottomSheetView>
-        <View className="px-5 pb-8">{children}</View>
-      </BottomSheetView>
+      {scrollable ? (
+        <BottomSheetScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }}>
+          {children}
+        </BottomSheetScrollView>
+      ) : (
+        <BottomSheetView>
+          <View className="px-5 pb-8">{children}</View>
+        </BottomSheetView>
+      )}
     </BottomSheet>
   );
 });

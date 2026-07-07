@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from '@/components/ui/Sheet';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -57,74 +57,72 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
   }
 
   return (
-    <Sheet ref={ref} snapPoints={['85%']}>
-      <BottomSheetScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}>
-        <Text className="text-text font-bold text-2xl mb-1">Forjar tu plan</Text>
-        <Text className="text-text-muted text-sm mb-5">Dime cómo entrenas y lo armo a tu medida.</Text>
+    <Sheet ref={ref} snapPoints={['85%']} scrollable>
+      <Text className="text-text font-bold text-2xl mb-1">Forjar tu plan</Text>
+      <Text className="text-text-muted text-sm mb-5">Dime cómo entrenas y lo armo a tu medida.</Text>
 
-        <Text className="text-text font-semibold text-base mb-2">Disciplina</Text>
-        <View className="flex-row flex-wrap gap-2 mb-5">
-          {MODALITIES.map((m) => (
-            <Chip key={m.id} label={`${m.icon} ${m.label}`} on={modality === m.id} onPress={() => selectModality(m.id)} />
-          ))}
-        </View>
+      <Text className="text-text font-semibold text-base mb-2">Disciplina</Text>
+      <View className="flex-row flex-wrap gap-2 mb-5">
+        {MODALITIES.map((m) => (
+          <Chip key={m.id} label={`${m.icon} ${m.label}`} on={modality === m.id} onPress={() => selectModality(m.id)} />
+        ))}
+      </View>
 
-        <Text className="text-text font-semibold text-base mb-2">Días por semana</Text>
-        <View className="flex-row gap-2 mb-5">
-          {DAYS.map((d) => (
-            <Chip key={d} label={`${d}`} on={days === d} onPress={() => setDays(d)} />
-          ))}
-        </View>
+      <Text className="text-text font-semibold text-base mb-2">Días por semana</Text>
+      <View className="flex-row gap-2 mb-5">
+        {DAYS.map((d) => (
+          <Chip key={d} label={`${d}`} on={days === d} onPress={() => setDays(d)} />
+        ))}
+      </View>
 
-        <Text className="text-text font-semibold text-base mb-2">Minutos por sesión</Text>
-        <View className="flex-row gap-2 mb-5">
-          {MINUTES.map((m) => (
-            <Chip key={m} label={`${m}`} on={minutes === m} onPress={() => setMinutes(m)} />
-          ))}
-        </View>
+      <Text className="text-text font-semibold text-base mb-2">Minutos por sesión</Text>
+      <View className="flex-row gap-2 mb-5">
+        {MINUTES.map((m) => (
+          <Chip key={m} label={`${m}`} on={minutes === m} onPress={() => setMinutes(m)} />
+        ))}
+      </View>
 
-        {modality && (
-          <>
-            <Text className="text-text font-semibold text-base mb-2">Equipo disponible</Text>
-            <View className="flex-row flex-wrap gap-2 mb-3">
-              {presets.map((p) => (
-                <Chip
-                  key={p}
-                  label={p}
-                  on={!showCustom && (equipment ?? presets[0]) === p}
-                  onPress={() => { setEquipment(p); setShowCustom(false); }}
-                />
-              ))}
-              <Chip label="Otro…" on={showCustom} onPress={() => setShowCustom(true)} />
-            </View>
-            {showCustom && (
-              <Input
-                placeholder="Describe tu equipo"
-                value={customEquipment}
-                onChangeText={setCustomEquipment}
+      {modality && (
+        <>
+          <Text className="text-text font-semibold text-base mb-2">Equipo disponible</Text>
+          <View className="flex-row flex-wrap gap-2 mb-3">
+            {presets.map((p) => (
+              <Chip
+                key={p}
+                label={p}
+                on={!showCustom && (equipment ?? presets[0]) === p}
+                onPress={() => { setEquipment(p); setShowCustom(false); }}
               />
-            )}
-          </>
-        )}
+            ))}
+            <Chip label="Otro…" on={showCustom} onPress={() => setShowCustom(true)} />
+          </View>
+          {showCustom && (
+            <Input
+              placeholder="Describe tu equipo"
+              value={customEquipment}
+              onChangeText={setCustomEquipment}
+            />
+          )}
+        </>
+      )}
 
-        <View className="mt-6">
-          <Button
-            label="Forjar mi plan"
-            variant="primary"
-            size="lg"
-            disabled={!canSubmit}
-            onPress={() =>
-              modality &&
-              onGenerate({
-                modality,
-                days_per_week: days,
-                minutes_per_session: minutes,
-                equipment: resolvedEquipment,
-              })
-            }
-          />
-        </View>
-      </BottomSheetScrollView>
+      <View className="mt-6">
+        <Button
+          label="Forjar mi plan"
+          variant="primary"
+          size="lg"
+          disabled={!canSubmit}
+          onPress={() =>
+            modality &&
+            onGenerate({
+              modality,
+              days_per_week: days,
+              minutes_per_session: minutes,
+              equipment: resolvedEquipment,
+            })
+          }
+        />
+      </View>
     </Sheet>
   );
 });
