@@ -8,26 +8,11 @@ import { useOnboardingStore } from '@/store/onboarding.store';
 import { useProfileStore } from '@/store/profile.store';
 import { SparkBurst } from '@/components/effects/SparkBurst';
 import { colors } from '@/constants/colors';
-
-type FitnessLevel = 'casual' | 'intermediate' | 'intensive' | 'advanced' | 'elite';
-type Mode = 'flexible' | 'strict';
-
-const FITNESS_LEVELS: { value: FitnessLevel; label: string; description: string }[] = [
-  { value: 'casual',        label: 'Casual',        description: 'Entreno esporádicamente o soy principiante' },
-  { value: 'intermediate',  label: 'Intermedio',    description: 'Entreno regularmente desde hace meses' },
-  { value: 'intensive',     label: 'Intensivo',     description: 'Entreno con seriedad, varias veces a la semana' },
-  { value: 'advanced',      label: 'Avanzado',      description: 'Años de entrenamiento consistente' },
-  { value: 'elite',         label: 'Élite',         description: 'Atleta competitivo o de alto rendimiento' },
-];
-
-const MODES: { value: Mode; label: string; description: string; icon: string }[] = [
-  { value: 'flexible', icon: '🌊', label: 'Flexible',  description: 'Me adapto cuando la vida se complica. Prefiero consistencia a perfección.' },
-  { value: 'strict',   icon: '🎯', label: 'Estricto',  description: 'Me comprometo al 100%. Sin excusas, sin saltarme sesiones.' },
-];
+import { FITNESS_LEVELS, MODES, type FitnessLevel, type TrainingMode } from '@/constants/goals';
 
 export default function Step3Level() {
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
-  const [mode, setMode] = useState<Mode | null>(null);
+  const [mode, setMode] = useState<TrainingMode | null>(null);
   const [loading, setLoading] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
 

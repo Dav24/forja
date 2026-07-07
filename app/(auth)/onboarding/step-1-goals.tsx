@@ -4,17 +4,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
-
-type GoalType = 'weight_loss' | 'muscle_gain' | 'recomposition' | 'powerlifting' | 'sport_specific' | 'general_fitness';
-
-const GOALS: { type: GoalType; icon: string; title: string; description: string }[] = [
-  { type: 'weight_loss',      icon: '🔥', title: 'Bajar de peso',         description: 'Perder grasa y mejorar composición corporal' },
-  { type: 'muscle_gain',      icon: '💪', title: 'Ganar músculo',          description: 'Aumentar masa muscular y fuerza' },
-  { type: 'recomposition',    icon: '⚡', title: 'Recomposición',          description: 'Perder grasa y ganar músculo simultáneamente' },
-  { type: 'powerlifting',     icon: '🏋️', title: 'Powerlifting',           description: 'Maximizar fuerza en sentadilla, press y peso muerto' },
-  { type: 'sport_specific',   icon: '🏃', title: 'Deporte específico',     description: 'Rendimiento para tu deporte o disciplina' },
-  { type: 'general_fitness',  icon: '✨', title: 'Fitness general',        description: 'Mejorar salud, energía y bienestar general' },
-];
+import { GOALS, type GoalType } from '@/constants/goals';
 
 export default function Step1Goals() {
   const [selected, setSelected] = useState<GoalType | null>(null);
