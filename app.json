@@ -13,14 +13,7 @@
       "expo-font",
       "expo-secure-store",
       "expo-notifications",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/splash-icon.png",
-          "backgroundColor": "#0C0A09"
-        }
-      ],
-      "expo-image",
+      ["expo-splash-screen", { "image": "./assets/splash-icon.png", "backgroundColor": "#0C0A09" }],
       [
         "expo-image-picker",
         {
