@@ -24,60 +24,60 @@ export default function WorkoutPlansIndex() {
   // Si hay plan activo, no renderizar nada mientras ocurre la navegación
   if (activePlan) return null;
 
-  // Mientras se genera, mostrar Vulcano trabajando
-  if (generating) {
-    return <PlanGenerating />;
-  }
-
-  // Empty state — sin plan activo
+  // GeneratePlanSheet permanece montado durante `generating` para que su animación
+  // de cierre no se corte a mitad de camino al desmontar todo el árbol.
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingHorizontal: 32,
-          gap: 16,
-        }}
-      >
-        <VulcanoAvatar size={72} />
+      {generating ? (
+        <PlanGenerating />
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 32,
+            gap: 16,
+          }}
+        >
+          <VulcanoAvatar size={72} />
 
-        <View style={{ alignItems: 'center', gap: 8 }}>
-          <Text
-            className="uppercase"
-            style={{
-              color: colors.text,
-              fontFamily: 'BebasNeue-Regular',
-              fontSize: 26,
-              textAlign: 'center',
-              letterSpacing: 1,
-            }}
-          >
-            Aún no forjamos tu plan
-          </Text>
-          <Text
-            style={{
-              color: colors.textMuted,
-              fontFamily: 'Inter-Regular',
-              fontSize: 14,
-              textAlign: 'center',
-              lineHeight: 20,
-            }}
-          >
-            Cuéntame tu objetivo y lo forjamos juntos.
-          </Text>
+          <View style={{ alignItems: 'center', gap: 8 }}>
+            <Text
+              className="uppercase"
+              style={{
+                color: colors.text,
+                fontFamily: 'BebasNeue-Regular',
+                fontSize: 26,
+                textAlign: 'center',
+                letterSpacing: 1,
+              }}
+            >
+              Aún no forjamos tu plan
+            </Text>
+            <Text
+              style={{
+                color: colors.textMuted,
+                fontFamily: 'Inter-Regular',
+                fontSize: 14,
+                textAlign: 'center',
+                lineHeight: 20,
+              }}
+            >
+              Cuéntame tu objetivo y lo forjamos juntos.
+            </Text>
+          </View>
+
+          <Button
+            label="Forjar mi plan"
+            variant="primary"
+            size="lg"
+            onPress={() => sheetRef.current?.expand()}
+            className="w-full"
+            style={{ width: '100%' }}
+          />
         </View>
-
-        <Button
-          label="Forjar mi plan"
-          variant="primary"
-          size="lg"
-          onPress={() => sheetRef.current?.expand()}
-          className="w-full"
-          style={{ width: '100%' }}
-        />
-      </View>
+      )}
 
       <GeneratePlanSheet
         ref={sheetRef}
