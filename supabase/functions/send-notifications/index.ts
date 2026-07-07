@@ -1,5 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { Receiver } from 'npm:@upstash/qstash@^2';
+import { passesPrefs } from './prefs.ts';
 
 interface NotificationTarget {
   user_id: string;
@@ -13,6 +14,8 @@ interface NotificationTarget {
   last_activity: string | null;    // TIMESTAMPTZ comes as ISO string
   first_weight: string | null;
   current_weight: string | null;
+  notif_reminders: boolean;
+  notif_updates: boolean;
 }
 
 interface NotificationPayload {
@@ -187,7 +190,7 @@ Deno.serve(async (req: Request) => {
   const selected: Array<{ target: NotificationTarget; payload: NotificationPayload }> = [];
   for (const target of targets) {
     const payload = decideNotification(target);
-    if (payload) selected.push({ target, payload });
+    if (payload && passesPrefs(payload.type, target)) selected.push({ target, payload });
   }
 
   if (selected.length === 0) {
