@@ -199,6 +199,8 @@ export type Database = {
           id: string
           is_active: boolean
           mode: string
+          modality: string | null
+          secondary_modalities: string[]
           sport_type: string | null
           target_date: string | null
           target_weight_kg: number | null
@@ -211,6 +213,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           mode?: string
+          modality?: string | null
+          secondary_modalities?: string[]
           sport_type?: string | null
           target_date?: string | null
           target_weight_kg?: number | null
@@ -223,6 +227,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           mode?: string
+          modality?: string | null
+          secondary_modalities?: string[]
           sport_type?: string | null
           target_date?: string | null
           target_weight_kg?: number | null
