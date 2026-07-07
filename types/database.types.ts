@@ -335,6 +335,8 @@ export type Database = {
           expo_push_token: string | null
           id: string
           language: string
+          notif_reminders: boolean
+          notif_updates: boolean
           onboarding_completed: boolean
           updated_at: string
         }
@@ -345,6 +347,8 @@ export type Database = {
           expo_push_token?: string | null
           id: string
           language?: string
+          notif_reminders?: boolean
+          notif_updates?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
@@ -355,6 +359,8 @@ export type Database = {
           expo_push_token?: string | null
           id?: string
           language?: string
+          notif_reminders?: boolean
+          notif_updates?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
