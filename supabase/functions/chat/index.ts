@@ -3,6 +3,17 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
 const FREE_DAILY_LIMIT = 20;
 
+const MODALITY_LABELS: Record<string, string> = {
+  gym_strength: 'fuerza en gimnasio (pesas y máquinas)',
+  functional: 'entrenamiento funcional / CrossFit / HIIT',
+  endurance: 'cardio de resistencia (correr, caminar, caminadora)',
+  cycling: 'ciclismo / spinning',
+  swimming: 'natación',
+  home_calisthenics: 'entrenamiento en casa / calistenia',
+  mobility: 'yoga / pilates / movilidad',
+  ball_sports: 'preparación física para deporte con balón',
+};
+
 const TONE_BY_LEVEL: Record<string, string> = {
   casual: 'TONO: paciente y celebratorio. El usuario está empezando — celebra cada pequeño logro, explica los porqués, nunca uses jerga sin explicarla.',
   intermediate: 'TONO: motivador y didáctico. Reconoce su constancia y rétalo a subir un escalón.',
@@ -102,7 +113,7 @@ Deno.serve(async (req) => {
     const [subResult, countResult, goalResult, planResult] = await Promise.all([
       supabase.from('subscriptions').select('status, plan').eq('user_id', user.id).maybeSingle(),
       supabase.rpc('get_daily_message_count', { p_user_id: user.id }),
-      supabase.from('goals').select('type, fitness_level').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
+      supabase.from('goals').select('type, fitness_level, modality, secondary_modalities, sport_type').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
       supabase.from('workout_plans').select('title, schedule').eq('user_id', user.id).eq('is_active', true).order('created_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
 
@@ -134,6 +145,18 @@ Deno.serve(async (req) => {
     // Construir contexto adaptativo del usuario
     const fitnessLevel = goalResult.data?.fitness_level ?? 'intermediate';
 
+    const goalData = goalResult.data as {
+      fitness_level?: string;
+      modality?: string | null;
+      secondary_modalities?: string[];
+      sport_type?: string | null;
+    } | null;
+    const modalityLine = goalData?.modality
+      ? `Disciplina principal del usuario: ${MODALITY_LABELS[goalData.modality] ?? goalData.modality}${
+          goalData.secondary_modalities?.length ? ` (también hace: ${goalData.secondary_modalities.map((s) => MODALITY_LABELS[s] ?? s).join(', ')})` : ''
+        }${goalData.sport_type ? ` — deporte: ${goalData.sport_type}` : ''}. Habla en el lenguaje de su disciplina.`
+      : '';
+
     // El plan activo es la fuente de verdad: sin esto Vulcano inventa rutinas
     // que contradicen lo que generó la pestaña Planes.
     const activePlan = planResult.data;
@@ -151,6 +174,7 @@ Este plan es la fuente de verdad. Responde dudas sobre él, motiva su cumplimien
 
     const userContextBlock = `━━━ CONTEXTO DEL USUARIO ━━━
 ${TONE_BY_LEVEL[fitnessLevel] ?? TONE_BY_LEVEL.intermediate}
+${modalityLine}
 
 ${planBlock}`;
 
