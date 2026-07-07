@@ -49,7 +49,7 @@ export default function Step2Body() {
     if (isNaN(a) || a < 12 || a > 100) { Alert.alert('Edad inválida', 'Ingresa una edad entre 12 y 100 años.'); return; }
 
     setStep2({ weightKg: w, heightCm: h, age: a, gender, activityLevel });
-    router.push('/(auth)/onboarding/step-3-level');
+    router.push('/(auth)/onboarding/step-4-level');
   }
 
   return (
@@ -63,7 +63,7 @@ export default function Step2Body() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">Paso 2 de 3</Text>
+          <Text className="text-text-muted text-sm font-medium mb-1">Paso 3 de 4</Text>
           <Text className="text-text font-bold text-3xl">Tu cuerpo</Text>
           <Text className="text-text-muted text-base mt-2">Para que tu coach calcule tu plan correctamente.</Text>
         </View>

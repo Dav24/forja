@@ -25,7 +25,7 @@ export default function Step1Goals() {
   function handleContinue() {
     if (!selected) return;
     setStep1({ goalType: selected });
-    router.push('/(auth)/onboarding/step-2-body');
+    router.push('/(auth)/onboarding/step-2-modality');
   }
 
   return (
@@ -45,7 +45,7 @@ export default function Step1Goals() {
         </View>
 
         <View className="pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">Paso 1 de 3</Text>
+          <Text className="text-text-muted text-sm font-medium mb-1">Paso 1 de 4</Text>
           <Text className="text-text font-bold text-3xl">¿Cuál es tu objetivo?</Text>
           <Text className="text-text-muted text-base mt-2">Tu coach se adapta a lo que quieres lograr.</Text>
         </View>

@@ -5,8 +5,9 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 
 const STEPS = [
   '/(auth)/onboarding/step-1-goals',
-  '/(auth)/onboarding/step-2-body',
-  '/(auth)/onboarding/step-3-level',
+  '/(auth)/onboarding/step-2-modality',
+  '/(auth)/onboarding/step-3-body',
+  '/(auth)/onboarding/step-4-level',
 ];
 
 export default function OnboardingLayout() {

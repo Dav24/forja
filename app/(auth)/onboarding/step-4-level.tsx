@@ -32,7 +32,7 @@ export default function Step3Level() {
   const [celebrating, setCelebrating] = useState(false);
 
   const { user } = useAuthStore();
-  const { goalType, targetWeightKg, weightKg, heightCm, age, gender, activityLevel } = useOnboardingStore();
+  const { goalType, targetWeightKg, modality, secondaryModalities, sportType, weightKg, heightCm, age, gender, activityLevel } = useOnboardingStore();
   const { setOnboardingCompleted } = useProfileStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -67,6 +67,9 @@ export default function Step3Level() {
         target_weight_kg: targetWeightKg ?? null,
         fitness_level: fitnessLevel,
         mode,
+        modality,
+        secondary_modalities: secondaryModalities,
+        sport_type: sportType,
       });
       if (goalError) throw goalError;
 
@@ -99,7 +102,7 @@ export default function Step3Level() {
         showsVerticalScrollIndicator={false}
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">Paso 3 de 3</Text>
+          <Text className="text-text-muted text-sm font-medium mb-1">Paso 4 de 4</Text>
           <Text className="text-text font-bold text-3xl">Tu nivel y estilo</Text>
           <Text className="text-text-muted text-base mt-2">Último paso. Tu coach ajustará la intensidad a esto.</Text>
         </View>
