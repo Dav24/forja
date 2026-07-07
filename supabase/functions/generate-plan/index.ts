@@ -7,6 +7,18 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const MODALITY_LABELS: Record<string, string> = {
+  gym_strength: 'fuerza en gimnasio (pesas y máquinas)',
+  functional: 'entrenamiento funcional / CrossFit / HIIT',
+  endurance: 'cardio de resistencia (correr, caminar, caminadora)',
+  cycling: 'ciclismo / spinning',
+  swimming: 'natación',
+  home_calisthenics: 'entrenamiento en casa / calistenia',
+  mobility: 'yoga / pilates / movilidad',
+  ball_sports: 'preparación física para deporte con balón',
+};
+const VALID_MODALITIES = new Set(Object.keys(MODALITY_LABELS));
+
 function buildPlanPrompt(userData: {
   goal_type: string;
   fitness_level: string;
@@ -21,6 +33,8 @@ function buildPlanPrompt(userData: {
   minutes_per_session: number;
   equipment: string;
   injuries: string;
+  modality: string | null;
+  secondary_modalities: string[];
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -48,6 +62,8 @@ PERFIL DEL USUARIO:
 - Días disponibles por semana: ${userData.days_per_week}
 - Minutos por sesión: ${userData.minutes_per_session}
 - Equipo disponible: ${userData.equipment}
+${userData.modality ? `- Disciplina PRINCIPAL: ${MODALITY_LABELS[userData.modality]}` : ''}
+${userData.secondary_modalities.length > 0 ? `- Disciplinas secundarias: ${userData.secondary_modalities.map((s) => MODALITY_LABELS[s]).join(', ')}` : ''}
 ${userData.weight_kg ? `- Peso: ${userData.weight_kg} kg` : ''}
 ${userData.height_cm ? `- Estatura: ${userData.height_cm} cm` : ''}
 ${userData.age ? `- Edad: ${userData.age} años` : ''}
@@ -92,6 +108,11 @@ FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
   ]
 }
 
+${userData.modality ? `INSTRUCCIONES DE DISCIPLINA:
+- El plan es de ${MODALITY_LABELS[userData.modality]}: TODOS los días de entrenamiento se centran en esa disciplina.
+- Adapta los campos del JSON semánticamente a la disciplina. Ejemplos: cardio → { "name": "Intervalos 6×400m", "sets": 6, "reps": "400m", "rest_seconds": 90 }; natación → { "name": "Series de crol", "sets": 8, "reps": "100m" }; yoga/movilidad → { "name": "Secuencia saludo al sol", "sets": 1, "reps": "5 rondas", "technique_notes": "Respiración ujjayi, un movimiento por respiración" }.
+${userData.secondary_modalities.length > 0 ? `- Si days_per_week >= 4, dedica 1 día a cada disciplina secundaria; si no, intégralas en progression_notes como recomendación.` : ''}
+${userData.modality === 'ball_sports' && userData.sport_type ? `- Orienta la preparación física al deporte: ${userData.sport_type}.` : ''}` : ''}
 Genera exactamente ${userData.days_per_week} días de entrenamiento y ${7 - userData.days_per_week} días de descanso distribuidos en la semana. Incluye calentamiento como primer ejercicio y vuelta a la calma como último en cada día de entrenamiento. El plan debe tener 7 entradas en "schedule" (un objeto por día de la semana). Máximo 8 ejercicios por día (incluyendo calentamiento y vuelta a la calma). "technique_notes" debe ser UNA frase corta (máximo 15 palabras). Sé específico pero conciso: la progresión semanal va en "progression_notes", no repetida en cada ejercicio.`;
 }
 
@@ -174,7 +195,15 @@ Deno.serve(async (req) => {
       minutes_per_session = 60,
       equipment = 'gym con máquinas y pesas libres',
       injuries = '',
+      modality = null,
+      secondary_modalities = [],
     } = body;
+
+    // Ids fuera del catálogo se descartan — la modalidad nunca tumba la generación
+    const safeModality = typeof modality === 'string' && VALID_MODALITIES.has(modality) ? modality : null;
+    const safeSecondary = Array.isArray(secondary_modalities)
+      ? secondary_modalities.filter((s: unknown): s is string => typeof s === 'string' && VALID_MODALITIES.has(s)).slice(0, 2)
+      : [];
 
     const [goalResult, bodyResult] = await Promise.all([
       supabase
@@ -237,6 +266,8 @@ Deno.serve(async (req) => {
       minutes_per_session,
       equipment,
       injuries,
+      modality: safeModality,
+      secondary_modalities: safeSecondary,
     });
 
     // Llamar a Sonnet para generar el plan
