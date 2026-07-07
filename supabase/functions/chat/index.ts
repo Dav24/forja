@@ -99,10 +99,11 @@ Deno.serve(async (req) => {
     }
 
     // Verificar suscripción, límite diario y goal activo del usuario
-    const [subResult, countResult, goalResult] = await Promise.all([
+    const [subResult, countResult, goalResult, planResult] = await Promise.all([
       supabase.from('subscriptions').select('status, plan').eq('user_id', user.id).maybeSingle(),
       supabase.rpc('get_daily_message_count', { p_user_id: user.id }),
       supabase.from('goals').select('type, fitness_level').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
+      supabase.from('workout_plans').select('title, schedule').eq('user_id', user.id).eq('is_active', true).order('created_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
 
     const isPremium = subResult.data?.status === 'active' && subResult.data?.plan !== 'free';
@@ -132,8 +133,26 @@ Deno.serve(async (req) => {
 
     // Construir contexto adaptativo del usuario
     const fitnessLevel = goalResult.data?.fitness_level ?? 'intermediate';
+
+    // El plan activo es la fuente de verdad: sin esto Vulcano inventa rutinas
+    // que contradicen lo que generó la pestaña Planes.
+    const activePlan = planResult.data;
+    let planBlock: string;
+    if (activePlan) {
+      const days = (activePlan.schedule as Array<{ day_name: string; focus: string; is_rest: boolean }>) ?? [];
+      const resumen = days
+        .map((d) => `${d.day_name}: ${d.is_rest ? 'descanso' : d.focus}`)
+        .join(' | ');
+      planBlock = `PLAN DE ENTRENAMIENTO ACTIVO: "${activePlan.title}". Semana → ${resumen}.
+Este plan es la fuente de verdad. Responde dudas sobre él, motiva su cumplimiento y NO propongas rutinas alternativas que lo contradigan. Ajustes puntuales de un día (sustituir un ejercicio por molestia o falta de equipo) están bien — acláralo como ajuste del día. Si el usuario quiere un plan distinto, dirígelo a regenerarlo en la pestaña Planes.`;
+    } else {
+      planBlock = `El usuario AÚN NO tiene un plan de entrenamiento activo. Si pide rutina, orienta brevemente y sugiérele generar su plan personalizado en la pestaña Planes.`;
+    }
+
     const userContextBlock = `━━━ CONTEXTO DEL USUARIO ━━━
-${TONE_BY_LEVEL[fitnessLevel] ?? TONE_BY_LEVEL.intermediate}`;
+${TONE_BY_LEVEL[fitnessLevel] ?? TONE_BY_LEVEL.intermediate}
+
+${planBlock}`;
 
     // Construir historial (últimos 10 mensajes para contexto)
     const messages = [

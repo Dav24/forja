@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 
 export interface ChatMessage {
@@ -17,6 +18,32 @@ export function useChat() {
   const [dailyCount, setDailyCount] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  // La EF ya persiste cada mensaje en `conversations` — al montar, recuperar
+  // los últimos 30 para que el chat sobreviva cierres de la app.
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    supabase
+      .from('conversations')
+      .select('id, role, content')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false })
+      .limit(30)
+      .then(({ data }) => {
+        if (cancelled || !data?.length) return;
+        setMessages(
+          [...data].reverse().map(r => ({
+            id: r.id,
+            role: r.role as 'user' | 'assistant',
+            content: r.content,
+          })),
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user.id]);
 
   const sendMessage = useCallback(async (text: string) => {
     if (!session || !text.trim() || isLoading || limitReached) return;
