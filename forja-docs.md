@@ -2,7 +2,7 @@
 
 > App móvil de entrenamiento con coach IA personal.  
 > Dominio: **forja.fit** · Empresa: **Physis Labs**  
-> Última actualización: 2026-07-04
+> Última actualización: 2026-07-07
 
 ---
 
@@ -27,7 +27,8 @@
 17. [Notificaciones Push](#17-notificaciones-push)
 18. [Load Testing](#18-load-testing)
 19. [Variables de Entorno](#19-variables-de-entorno)
-20. [Pasos de Construcción — Historial y Próximos](#20-pasos-de-construcción--historial-y-próximos)
+20. [Ajustes de cuenta](#20-ajustes-de-cuenta)
+21. [Pasos de Construcción — Historial y Próximos](#21-pasos-de-construcción--historial-y-próximos)
 
 ---
 
@@ -1193,7 +1194,62 @@ Ver detalle completo en la sección 8 (Integración de Pagos — Stripe).
 
 ---
 
-## 20. Pasos de Construcción — Historial y Próximos
+## 20. Ajustes de cuenta
+
+Hub de configuración en `app/(app)/settings/`, accesible desde Perfil. "Cerrar sesión" vive aquí (se movió de Perfil en este paso).
+
+### Mapa de rutas
+
+```
+app/(app)/settings/
+├── _layout.tsx          ← Stack anidado (patrón href: null para ocultar del tab bar)
+├── index.tsx             → /settings              Hub: grupos Cuenta / Preferencias / Suscripción / Legal / Soporte + cerrar sesión
+├── account.tsx            → /settings/account       Foto, nombre, correo, contraseña + zona de peligro (eliminar cuenta)
+├── delete-account.tsx      → /settings/delete-account  Confirmación escribiendo "ELIMINAR"
+├── training.tsx            → /settings/training      Objetivo/nivel/modo/modalidades + altura/edad/género
+├── notifications.tsx       → /settings/notifications  2 toggles (recordatorios / novedades)
+├── language.tsx            → /settings/language       Informativa; i18n real en Paso 14
+└── subscription.tsx        → /settings/subscription   Badge de plan + portal Stripe / CTA upgrade
+```
+
+Filas construidas con `components/settings/SettingsRow.tsx` (`SettingsGroup` + `SettingsRow`, prop `danger` para acciones destructivas).
+
+**Cambiar objetivo (`training.tsx`)**: un objetivo nuevo hace `INSERT` en `goals` y desactiva (`is_active = false`) el anterior — **no** regenera el plan de entrenamiento activo (evita costo de IA no solicitado); el copy de la pantalla lo advierte.
+
+### Migraciones 0007 / 0008
+
+**`0007_notification_prefs.sql`**: agrega `profiles.notif_reminders` y `profiles.notif_updates` (`BOOLEAN NOT NULL DEFAULT TRUE`) y redefine `get_notification_targets()` para incluir ambas columnas. La función es `SECURITY DEFINER` y expone datos de todos los usuarios, por lo que se hace `REVOKE ALL ... FROM PUBLIC, authenticated` y `GRANT EXECUTE ... TO service_role` — solo la Edge Function `send-notifications` (que ya respeta estas preferencias) puede invocarla.
+
+**`0008_avatars_bucket.sql`**: crea el bucket público `avatars` en Storage. Políticas RLS sobre `storage.objects`: lectura pública (`SELECT` sin restricción — no es dato sensible), escritura (`INSERT`/`UPDATE`/`DELETE`) solo del dueño y solo sobre su propio archivo `{uid}.jpg` (`name = auth.uid()::text || '.jpg'`).
+
+### Edge Function `delete-account`
+
+`supabase/functions/delete-account/` (`logic.ts` + `index.ts`, desarrollada TDD — `logic.test.ts` con 5 casos). Requiere **`STRIPE_SECRET_KEY`** en `supabase/.env` (o `supabase secrets set` en prod).
+
+**Orden fail-safe** (`deleteAccount()` en `logic.ts`): **Stripe → avatar → usuario**.
+1. Lee la suscripción; si tiene `stripe_subscription_id` y el status está en `['active', 'trialing', 'past_due', 'incomplete']`, cancela en Stripe (`DELETE /v1/subscriptions/:id`).
+2. Si Stripe falla, **aborta antes de tocar al usuario** — nunca deja una cuenta a medio borrar ni una suscripción cobrando a un fantasma. Tolera `resource_missing` (la suscripción ya no existe en Stripe) como éxito.
+3. Borra el avatar (`avatars/{uid}.jpg`) — no bloquea el flujo si falla (el bucket se limpia por mantenimiento).
+4. Borra el usuario con `admin.auth.admin.deleteUser(uid)` (cascada sobre las tablas con FK a `profiles`).
+
+La función valida el JWT contra el cliente anon y ejecuta las operaciones admin con la service role key.
+
+### Verificación de correo en registro
+
+`enable_confirmations = true` en `[auth.email]` de `supabase/config.toml`, con `forja://` agregado a `additional_redirect_urls` (deep link de retorno tras confirmar).
+
+- `register.tsx`: tras el signup muestra pantalla "Revisa tu correo" con opción de reenviar.
+- `login.tsx`: si el login falla por correo no confirmado, muestra el aviso con opción de reenvío.
+- **Local**: los correos se capturan en Mailpit (`http://127.0.0.1:54324`), no se envían de verdad.
+- **Producción**: pendiente configurar SMTP real (`[auth.email.smtp]`) y dominio propio antes de habilitarse — ver sección 21 → Próximos (Paso 15).
+
+### Flujo de foto de perfil (avatar)
+
+`hooks/useAvatarUpload.ts`: pide permiso de galería (`expo-image-picker`), permite recorte 1:1, redimensiona a 512×512 y comprime a JPEG (`expo-image-manipulator`, `compress: 0.7`), sube a `avatars/{uid}.jpg` (`upsert: true`) y actualiza `profiles.avatar_url` con cache-busting (`?v=timestamp`). Invalida la query `['profile']` de React Query al terminar. Se consume desde `profile.tsx` (avatar editable) y `settings/account.tsx`.
+
+---
+
+## 21. Pasos de Construcción — Historial y Próximos
 
 ### Completados (Pasos 1–9, 12–13)
 
@@ -1231,7 +1287,7 @@ Cada vez que se complete un paso o se agregue una feature al proyecto, actualiza
 3. **Nueva tabla en DB** → sección 4 (Base de Datos)
 4. **Nueva Edge Function** → sección 6 (Backend)
 5. **Cambio en límites Free/Premium** → sección 16
-6. **Nuevo paso completado** → sección 20 (mover de "próximos" a "completados")
+6. **Nuevo paso completado** → sección 21 (mover de "próximos" a "completados")
 7. **Nueva variable de entorno** → sección 19
 
 ---
