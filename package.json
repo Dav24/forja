@@ -52,7 +52,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "check-i18n": "node scripts/check-i18n.mjs"
   },
   "private": true
 }
