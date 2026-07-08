@@ -20,6 +20,9 @@ export default function AppLayout() {
 
   return (
     <Tabs
+      // Sin esto, back() desde un tab (p. ej. salir de Ajustes) cae al primer
+      // tab (dashboard) en vez de regresar al tab desde el que se navegó (Perfil).
+      backBehavior="history"
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,

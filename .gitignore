@@ -45,3 +45,6 @@ deno.lock
 /android
 .env.local
 .superpowers/
+
+# Secrets de Edge Functions locales (cargado automáticamente por supabase start)
+supabase/functions/.env

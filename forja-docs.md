@@ -690,6 +690,13 @@ cd web && pnpm dev   # http://localhost:3000
 
 Ambos `web/.env.local` y `supabase/.env` están en `.gitignore` — **nunca se commitean**.
 
+> ⚠️ **Secrets del edge runtime local:** `supabase start` NO carga `supabase/.env` — solo carga
+> `supabase/functions/.env` (también gitignorado). Ese archivo debe existir como copia de
+> `supabase/.env`; si falta, TODAS las EFs de IA fallan con `authentication_error: invalid x-api-key`
+> tras cualquier `supabase stop && supabase start` (bug 2026-07-08). Tras editar secrets:
+> actualizar ambos archivos y reiniciar. `--env-file supabase/.env` solo aplica a
+> `supabase functions serve` manual.
+
 ### Verificación E2E automatizada (Paso 13, Task 9)
 
 Verificado con Stripe CLI + curl contra el stack local:
