@@ -1,1 +1,23 @@
-{}
+{
+  "header": {
+    "name": "Vulcano",
+    "subtitle": "The Forger · your coach"
+  },
+  "empty": {
+    "greeting": "Hi, I'm Vulcano",
+    "subtitle": "Your coach at Forja. Tell me your goal and I'll forge you a personalized plan."
+  },
+  "input": {
+    "placeholder": "Message Vulcano..."
+  },
+  "limitBanner": {
+    "reachedTitle": "Daily limit reached",
+    "reachedSubtitle": "Come back tomorrow or go premium for unlimited messages.",
+    "premiumCta": "Premium",
+    "remainingOne": "You have {{count}} message left today on the free plan.",
+    "remainingOther": "You have {{count}} messages left today on the free plan."
+  },
+  "error": {
+    "generic": "Something went wrong. Try again."
+  }
+}

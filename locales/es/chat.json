@@ -1,1 +1,23 @@
-{}
+{
+  "header": {
+    "name": "Vulcano",
+    "subtitle": "El Forjador · tu coach"
+  },
+  "empty": {
+    "greeting": "Hola, soy Vulcano",
+    "subtitle": "Tu coach en Forja. Cuéntame cuál es tu objetivo y te armo un plan personalizado."
+  },
+  "input": {
+    "placeholder": "Escríbele a Vulcano..."
+  },
+  "limitBanner": {
+    "reachedTitle": "Límite diario alcanzado",
+    "reachedSubtitle": "Regresa mañana o hazte premium para mensajes ilimitados.",
+    "premiumCta": "Premium",
+    "remainingOne": "Te queda {{count}} mensaje hoy en el plan free.",
+    "remainingOther": "Te quedan {{count}} mensajes hoy en el plan free."
+  },
+  "error": {
+    "generic": "Ocurrió un error. Intenta de nuevo."
+  }
+}

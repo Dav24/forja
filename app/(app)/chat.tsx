@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { View, FlatList, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { MessageLimitBanner } from '@/components/chat/MessageLimitBanner';
@@ -9,6 +10,8 @@ import { useChat, type ChatMessage } from '@/hooks/useChat';
 import { colors } from '@/constants/colors';
 
 function EmptyState() {
+  const { t } = useTranslation('chat');
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
       <Text style={{ fontSize: 48 }}>💪</Text>
@@ -21,7 +24,7 @@ function EmptyState() {
           textAlign: 'center',
         }}
       >
-        Hola, soy Vulcano
+        {t('empty.greeting')}
       </Text>
       <Text
         style={{
@@ -33,7 +36,7 @@ function EmptyState() {
           lineHeight: 22,
         }}
       >
-        Tu coach en Forja. Cuéntame cuál es tu objetivo y te armo un plan personalizado.
+        {t('empty.subtitle')}
       </Text>
     </View>
   );
@@ -50,6 +53,7 @@ function renderItem({ item }: { item: ChatMessage }) {
 }
 
 export default function ChatScreen() {
+  const { t } = useTranslation('chat');
   const { messages, isLoading, dailyCount, limitReached, sendMessage } = useChat();
   const listRef = useRef<FlatList>(null);
 
@@ -82,8 +86,8 @@ export default function ChatScreen() {
         <View className="flex-row items-center gap-3">
           <VulcanoAvatar size={38} />
           <View>
-            <Text className="text-text font-bold text-base" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>Vulcano</Text>
-            <Text className="text-text-muted text-xs">El Forjador · tu coach</Text>
+            <Text className="text-text font-bold text-base" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>{t('header.name')}</Text>
+            <Text className="text-text-muted text-xs">{t('header.subtitle')}</Text>
           </View>
         </View>
       </View>

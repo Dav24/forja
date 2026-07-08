@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 
 interface ChatInputProps {
@@ -9,6 +10,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
+  const { t } = useTranslation('chat');
   const [text, setText] = useState('');
 
   const handleSend = () => {
@@ -27,7 +29,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
       <TextInput
         value={text}
         onChangeText={setText}
-        placeholder="Escríbele a Vulcano..."
+        placeholder={t('input.placeholder')}
         placeholderTextColor={colors.textMuted}
         multiline
         maxLength={500}

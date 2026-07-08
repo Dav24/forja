@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
+import i18n from '@/lib/i18n';
 
 export interface ChatMessage {
   id: string;
@@ -132,7 +133,7 @@ export function useChat() {
       setMessages(prev =>
         prev.map(m =>
           m.id === assistantId
-            ? { ...m, content: 'Ocurrió un error. Intenta de nuevo.', isStreaming: false }
+            ? { ...m, content: i18n.t('chat:error.generic'), isStreaming: false }
             : m,
         ),
       );

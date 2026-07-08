@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 import { FREE_LIMITS } from '@/lib/limits';
 
@@ -10,6 +11,7 @@ interface MessageLimitBannerProps {
 }
 
 export function MessageLimitBanner({ count, limitReached }: MessageLimitBannerProps) {
+  const { t } = useTranslation('chat');
   const remaining = FREE_LIMITS.MESSAGES_PER_DAY - count;
   const isLow = remaining <= 5 && remaining > 0;
 
@@ -32,10 +34,10 @@ export function MessageLimitBanner({ count, limitReached }: MessageLimitBannerPr
         <Ionicons name="warning-outline" size={18} color={colors.destructive} />
         <View style={{ flex: 1 }}>
           <Text style={{ color: colors.destructive, fontFamily: 'Inter-Bold', fontSize: 13 }}>
-            Límite diario alcanzado
+            {t('limitBanner.reachedTitle')}
           </Text>
           <Text style={{ color: colors.destructive + '99', fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
-            Regresa mañana o hazte premium para mensajes ilimitados.
+            {t('limitBanner.reachedSubtitle')}
           </Text>
         </View>
         <TouchableOpacity
@@ -44,7 +46,7 @@ export function MessageLimitBanner({ count, limitReached }: MessageLimitBannerPr
           style={{ backgroundColor: colors.primary, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 }}
         >
           <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 12 }}>
-            Premium
+            {t('limitBanner.premiumCta')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -70,7 +72,7 @@ export function MessageLimitBanner({ count, limitReached }: MessageLimitBannerPr
     >
       <Ionicons name="flash-outline" size={16} color={colors.warning} />
       <Text style={{ color: colors.warning, fontFamily: 'Inter-Regular', fontSize: 12, flex: 1 }}>
-        Te quedan {remaining} mensaje{remaining !== 1 ? 's' : ''} hoy en el plan free.
+        {t(remaining === 1 ? 'limitBanner.remainingOne' : 'limitBanner.remainingOther', { count: remaining })}
       </Text>
     </View>
   );
