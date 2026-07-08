@@ -8,7 +8,7 @@ import i18n, { setAppLanguage, type AppLanguage } from '@/lib/i18n';
 export function useSyncLanguage() {
   const { user } = useAuthStore();
   const { data: profile } = useProfile();
-  const updateProfile = useUpdateProfile();
+  const { mutate: mutateProfile } = useUpdateProfile();
   const wroteInitial = useRef(false);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function useSyncLanguage() {
       if (lang !== i18n.language) setAppLanguage(lang as AppLanguage);
     } else if (!wroteInitial.current) {
       wroteInitial.current = true;
-      updateProfile.mutate({ language: i18n.language as AppLanguage });
+      mutateProfile({ language: i18n.language as AppLanguage });
     }
-  }, [user, profile, updateProfile]);
+  }, [user, profile, mutateProfile]);
 }

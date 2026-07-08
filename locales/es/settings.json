@@ -3,6 +3,8 @@
     "title": "Idioma",
     "spanish": "Español",
     "english": "English",
-    "aiNote": "Vulcano y tus nuevos planes usarán este idioma. Los planes ya generados no cambian."
+    "aiNote": "Vulcano y tus nuevos planes usarán este idioma. Los planes ya generados no cambian.",
+    "saveErrorTitle": "No se pudo guardar",
+    "saveErrorBody": "Tu idioma cambió en este teléfono, pero no se guardó en tu cuenta. Revisa tu conexión."
   }
 }

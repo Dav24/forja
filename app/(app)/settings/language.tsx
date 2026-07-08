@@ -1,4 +1,4 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -19,7 +19,10 @@ export default function LanguageScreen() {
   function selectLanguage(lang: AppLanguage) {
     if (lang === i18n.language) return;
     setAppLanguage(lang);
-    updateProfile.mutate({ language: lang });
+    updateProfile.mutate(
+      { language: lang },
+      { onError: () => Alert.alert(t('language.saveErrorTitle'), t('language.saveErrorBody')) }
+    );
   }
 
   return (
