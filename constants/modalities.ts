@@ -10,67 +10,67 @@ export type ModalityId =
 
 export interface Modality {
   id: ModalityId;
-  label: string;
+  labelKey: string;
   icon: string;
-  description: string;
+  descriptionKey: string;
   equipmentPresets: string[];
 }
 
 export const MODALITIES: Modality[] = [
   {
     id: 'gym_strength',
-    label: 'Fuerza / Gym',
+    labelKey: 'onboarding:modalities.gym_strength.label',
     icon: '🏋️',
-    description: 'Pesas, máquinas y fuerza en el gimnasio',
+    descriptionKey: 'onboarding:modalities.gym_strength.description',
     equipmentPresets: ['Gimnasio completo', 'Gimnasio básico'],
   },
   {
     id: 'functional',
-    label: 'Funcional / CrossFit / HIIT',
+    labelKey: 'onboarding:modalities.functional.label',
     icon: '⚡',
-    description: 'Circuitos, WODs e intervalos de alta intensidad',
+    descriptionKey: 'onboarding:modalities.functional.description',
     equipmentPresets: ['Box completo', 'Kettlebells y cuerdas', 'Sin equipo'],
   },
   {
     id: 'endurance',
-    label: 'Cardio de resistencia',
+    labelKey: 'onboarding:modalities.endurance.label',
     icon: '🏃',
-    description: 'Correr, caminar o caminadora',
+    descriptionKey: 'onboarding:modalities.endurance.description',
     equipmentPresets: ['Aire libre', 'Caminadora'],
   },
   {
     id: 'cycling',
-    label: 'Ciclismo / Spinning',
+    labelKey: 'onboarding:modalities.cycling.label',
     icon: '🚴',
-    description: 'Ruta, bici fija o rodillo',
+    descriptionKey: 'onboarding:modalities.cycling.description',
     equipmentPresets: ['Bici de ruta', 'Bici fija / spinning', 'Rodillo'],
   },
   {
     id: 'swimming',
-    label: 'Natación',
+    labelKey: 'onboarding:modalities.swimming.label',
     icon: '🏊',
-    description: 'Entrenamiento en alberca',
+    descriptionKey: 'onboarding:modalities.swimming.description',
     equipmentPresets: ['Alberca corta (25m)', 'Alberca larga (50m)'],
   },
   {
     id: 'home_calisthenics',
-    label: 'En casa / Calistenia',
+    labelKey: 'onboarding:modalities.home_calisthenics.label',
     icon: '🏠',
-    description: 'Peso corporal y equipo mínimo en casa',
+    descriptionKey: 'onboarding:modalities.home_calisthenics.description',
     equipmentPresets: ['Sin equipo', 'Bandas', 'Mancuernas', 'Barra de dominadas'],
   },
   {
     id: 'mobility',
-    label: 'Yoga / Pilates / Movilidad',
+    labelKey: 'onboarding:modalities.mobility.label',
     icon: '🧘',
-    description: 'Flexibilidad, control y movilidad',
+    descriptionKey: 'onboarding:modalities.mobility.description',
     equipmentPresets: ['Tapete', 'Tapete y bloques'],
   },
   {
     id: 'ball_sports',
-    label: 'Deportes con balón',
+    labelKey: 'onboarding:modalities.ball_sports.label',
     icon: '⚽',
-    description: 'Fútbol, básquet, tenis y más',
+    descriptionKey: 'onboarding:modalities.ball_sports.description',
     equipmentPresets: ['Cancha y balón'],
   },
 ];

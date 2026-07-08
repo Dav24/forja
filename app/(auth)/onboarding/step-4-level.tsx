@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useOnboardingStore } from '@/store/onboarding.store';
@@ -11,6 +12,7 @@ import { colors } from '@/constants/colors';
 import { FITNESS_LEVELS, MODES, type FitnessLevel, type TrainingMode } from '@/constants/goals';
 
 export default function Step3Level() {
+  const { t } = useTranslation();
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
   const [mode, setMode] = useState<TrainingMode | null>(null);
   const [loading, setLoading] = useState(false);
@@ -105,9 +107,9 @@ export default function Step3Level() {
               >
                 <View className="flex-1">
                   <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-text'}`}>
-                    {level.label}
+                    {t(level.labelKey)}
                   </Text>
-                  <Text className="text-text-muted text-xs mt-0.5">{level.description}</Text>
+                  <Text className="text-text-muted text-xs mt-0.5">{t(level.descriptionKey)}</Text>
                 </View>
                 {isSelected && (
                   <View className="w-5 h-5 rounded-full bg-primary items-center justify-center">
@@ -133,7 +135,7 @@ export default function Step3Level() {
                 <View className="flex-row items-center gap-3 mb-2">
                   <Text className="text-2xl">{m.icon}</Text>
                   <Text className={`font-bold text-base ${isSelected ? 'text-primary' : 'text-text'}`}>
-                    {m.label}
+                    {t(m.labelKey)}
                   </Text>
                   {isSelected && (
                     <View className="ml-auto w-5 h-5 rounded-full bg-primary items-center justify-center">
@@ -141,7 +143,7 @@ export default function Step3Level() {
                     </View>
                   )}
                 </View>
-                <Text className="text-text-muted text-sm">{m.description}</Text>
+                <Text className="text-text-muted text-sm">{t(m.descriptionKey)}</Text>
               </TouchableOpacity>
             );
           })}

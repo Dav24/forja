@@ -4,6 +4,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfile, useActiveGoal } from '@/hooks/useProfile';
 import { useProfileStats } from '@/hooks/useProfileStats';
@@ -31,6 +32,7 @@ function daysInForja(createdAt: string | undefined): number {
 }
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { data: profile } = useProfile();
   const { data: goal } = useActiveGoal();
@@ -157,8 +159,8 @@ export default function ProfileScreen() {
               <View className="flex-row items-center gap-2">
                 <Text className="text-xl">{goalMeta.icon}</Text>
                 <Text className="flex-1" style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text }}>
-                  {goalMeta.title}
-                  {levelMeta ? ` · ${levelMeta.label}` : ''}
+                  {t(goalMeta.titleKey)}
+                  {levelMeta ? ` · ${t(levelMeta.labelKey)}` : ''}
                 </Text>
                 <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
@@ -169,7 +171,7 @@ export default function ProfileScreen() {
                   return (
                     <View key={id} className="bg-primary-dim rounded-full px-3 py-1">
                       <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, color: colors.primary }}>
-                        {m.icon} {m.label}
+                        {m.icon} {t(m.labelKey)}
                       </Text>
                     </View>
                   );

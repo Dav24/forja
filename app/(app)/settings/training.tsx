@@ -3,6 +3,7 @@ import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
@@ -43,6 +44,7 @@ function SectionTitle({ children }: { children: string }) {
 }
 
 export default function TrainingScreen() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { data: goal } = useActiveGoal();
   const { data: latestBody } = useLatestBodyData();
@@ -176,21 +178,21 @@ export default function TrainingScreen() {
         <SectionTitle>Objetivo</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {GOALS.map((g) => (
-            <Chip key={g.type} selected={goalType === g.type} label={`${g.icon} ${g.title}`} onPress={() => setGoalType(g.type)} />
+            <Chip key={g.type} selected={goalType === g.type} label={`${g.icon} ${t(g.titleKey)}`} onPress={() => setGoalType(g.type)} />
           ))}
         </View>
 
         <SectionTitle>Nivel</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {FITNESS_LEVELS.map((l) => (
-            <Chip key={l.value} selected={level === l.value} label={l.label} onPress={() => setLevel(l.value)} />
+            <Chip key={l.value} selected={level === l.value} label={t(l.labelKey)} onPress={() => setLevel(l.value)} />
           ))}
         </View>
 
         <SectionTitle>Modo</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {MODES.map((m) => (
-            <Chip key={m.value} selected={mode === m.value} label={`${m.icon} ${m.label}`} onPress={() => setMode(m.value)} />
+            <Chip key={m.value} selected={mode === m.value} label={`${m.icon} ${t(m.labelKey)}`} onPress={() => setMode(m.value)} />
           ))}
         </View>
 
@@ -200,7 +202,7 @@ export default function TrainingScreen() {
             <Chip
               key={m.id}
               selected={modality === m.id}
-              label={`${m.icon} ${m.label}`}
+              label={`${m.icon} ${t(m.labelKey)}`}
               onPress={() => {
                 setModality(m.id);
                 setSecondary((prev) => prev.filter((s) => s !== m.id));
@@ -212,7 +214,7 @@ export default function TrainingScreen() {
         <SectionTitle>Disciplinas secundarias (hasta 2)</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {MODALITIES.filter((m) => m.id !== modality).map((m) => (
-            <Chip key={m.id} selected={secondary.includes(m.id)} label={`${m.icon} ${m.label}`} onPress={() => toggleSecondary(m.id)} />
+            <Chip key={m.id} selected={secondary.includes(m.id)} label={`${m.icon} ${t(m.labelKey)}`} onPress={() => toggleSecondary(m.id)} />
           ))}
         </View>
 

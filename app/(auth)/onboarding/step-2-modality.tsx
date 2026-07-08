@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { Input } from '@/components/ui/Input';
 
 export default function Step2Modality() {
+  const { t } = useTranslation();
   const [principal, setPrincipal] = useState<ModalityId | null>(null);
   const [secondary, setSecondary] = useState<ModalityId[]>([]);
   const [sportType, setSportType] = useState('');
@@ -65,9 +67,9 @@ export default function Step2Modality() {
                   <Text className="text-3xl">{m.icon}</Text>
                   <View className="flex-1">
                     <Text className={`font-semibold text-base ${isSelected ? 'text-primary' : 'text-text'}`}>
-                      {m.label}
+                      {t(m.labelKey)}
                     </Text>
-                    <Text className="text-text-muted text-sm mt-0.5">{m.description}</Text>
+                    <Text className="text-text-muted text-sm mt-0.5">{t(m.descriptionKey)}</Text>
                   </View>
                   {isSelected && (
                     <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
@@ -95,7 +97,7 @@ export default function Step2Modality() {
                     activeOpacity={0.7}
                   >
                     <Text className={`text-sm ${on ? 'text-primary' : 'text-text'}`}>
-                      {m.icon} {m.label}
+                      {m.icon} {t(m.labelKey)}
                     </Text>
                   </TouchableOpacity>
                 );

@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
 import { Sheet } from '@/components/ui/Sheet';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -31,6 +32,7 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
   { onGenerate },
   ref,
 ) {
+  const { t } = useTranslation();
   const { data: goal } = useActiveGoal();
   const [modality, setModality] = useState<ModalityId | null>(null);
   const [days, setDays] = useState(4);
@@ -64,7 +66,7 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
       <Text className="text-text font-semibold text-base mb-2">Disciplina</Text>
       <View className="flex-row flex-wrap gap-2 mb-5">
         {MODALITIES.map((m) => (
-          <Chip key={m.id} label={`${m.icon} ${m.label}`} on={modality === m.id} onPress={() => selectModality(m.id)} />
+          <Chip key={m.id} label={`${m.icon} ${t(m.labelKey)}`} on={modality === m.id} onPress={() => selectModality(m.id)} />
         ))}
       </View>
 

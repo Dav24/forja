@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { GOALS, type GoalType } from '@/constants/goals';
 
 export default function Step1Goals() {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<GoalType | null>(null);
   const { setStep1 } = useOnboardingStore();
   const router = useRouter();
@@ -54,9 +56,9 @@ export default function Step1Goals() {
                   <Text className="text-3xl">{goal.icon}</Text>
                   <View className="flex-1">
                     <Text className={`font-semibold text-base ${isSelected ? 'text-primary' : 'text-text'}`}>
-                      {goal.title}
+                      {t(goal.titleKey)}
                     </Text>
-                    <Text className="text-text-muted text-sm mt-0.5">{goal.description}</Text>
+                    <Text className="text-text-muted text-sm mt-0.5">{t(goal.descriptionKey)}</Text>
                   </View>
                   {isSelected && (
                     <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">

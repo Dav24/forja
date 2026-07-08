@@ -1,1 +1,94 @@
-{}
+{
+  "goals": {
+    "weight_loss": {
+      "title": "Bajar de peso",
+      "description": "Perder grasa y mejorar composición corporal"
+    },
+    "muscle_gain": {
+      "title": "Ganar músculo",
+      "description": "Aumentar masa muscular y fuerza"
+    },
+    "recomposition": {
+      "title": "Recomposición",
+      "description": "Perder grasa y ganar músculo simultáneamente"
+    },
+    "powerlifting": {
+      "title": "Powerlifting",
+      "description": "Maximizar fuerza en sentadilla, press y peso muerto"
+    },
+    "sport_specific": {
+      "title": "Deporte específico",
+      "description": "Rendimiento para tu deporte o disciplina"
+    },
+    "general_fitness": {
+      "title": "Fitness general",
+      "description": "Mejorar salud, energía y bienestar general"
+    }
+  },
+  "levels": {
+    "casual": {
+      "label": "Casual",
+      "description": "Entreno esporádicamente o soy principiante"
+    },
+    "intermediate": {
+      "label": "Intermedio",
+      "description": "Entreno regularmente desde hace meses"
+    },
+    "intensive": {
+      "label": "Intensivo",
+      "description": "Entreno con seriedad, varias veces a la semana"
+    },
+    "advanced": {
+      "label": "Avanzado",
+      "description": "Años de entrenamiento consistente"
+    },
+    "elite": {
+      "label": "Élite",
+      "description": "Atleta competitivo o de alto rendimiento"
+    }
+  },
+  "modes": {
+    "flexible": {
+      "label": "Flexible",
+      "description": "Me adapto cuando la vida se complica. Prefiero consistencia a perfección."
+    },
+    "strict": {
+      "label": "Estricto",
+      "description": "Me comprometo al 100%. Sin excusas, sin saltarme sesiones."
+    }
+  },
+  "modalities": {
+    "gym_strength": {
+      "label": "Fuerza / Gym",
+      "description": "Pesas, máquinas y fuerza en el gimnasio"
+    },
+    "functional": {
+      "label": "Funcional / CrossFit / HIIT",
+      "description": "Circuitos, WODs e intervalos de alta intensidad"
+    },
+    "endurance": {
+      "label": "Cardio de resistencia",
+      "description": "Correr, caminar o caminadora"
+    },
+    "cycling": {
+      "label": "Ciclismo / Spinning",
+      "description": "Ruta, bici fija o rodillo"
+    },
+    "swimming": {
+      "label": "Natación",
+      "description": "Entrenamiento en alberca"
+    },
+    "home_calisthenics": {
+      "label": "En casa / Calistenia",
+      "description": "Peso corporal y equipo mínimo en casa"
+    },
+    "mobility": {
+      "label": "Yoga / Pilates / Movilidad",
+      "description": "Flexibilidad, control y movilidad"
+    },
+    "ball_sports": {
+      "label": "Deportes con balón",
+      "description": "Fútbol, básquet, tenis y más"
+    }
+  }
+}

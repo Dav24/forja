@@ -1,1 +1,94 @@
-{}
+{
+  "goals": {
+    "weight_loss": {
+      "title": "Lose weight",
+      "description": "Lose fat and improve body composition"
+    },
+    "muscle_gain": {
+      "title": "Build muscle",
+      "description": "Increase muscle mass and strength"
+    },
+    "recomposition": {
+      "title": "Recomposition",
+      "description": "Lose fat and build muscle simultaneously"
+    },
+    "powerlifting": {
+      "title": "Powerlifting",
+      "description": "Maximize strength in squat, bench press, and deadlift"
+    },
+    "sport_specific": {
+      "title": "Sport-specific",
+      "description": "Performance for your sport or discipline"
+    },
+    "general_fitness": {
+      "title": "General fitness",
+      "description": "Improve health, energy, and overall wellbeing"
+    }
+  },
+  "levels": {
+    "casual": {
+      "label": "Casual",
+      "description": "I train sporadically or I'm a beginner"
+    },
+    "intermediate": {
+      "label": "Intermediate",
+      "description": "I've been training regularly for months"
+    },
+    "intensive": {
+      "label": "Intensive",
+      "description": "I train seriously, several times a week"
+    },
+    "advanced": {
+      "label": "Advanced",
+      "description": "Years of consistent training"
+    },
+    "elite": {
+      "label": "Elite",
+      "description": "Competitive or high-performance athlete"
+    }
+  },
+  "modes": {
+    "flexible": {
+      "label": "Flexible",
+      "description": "I adapt when life gets complicated. I prefer consistency over perfection."
+    },
+    "strict": {
+      "label": "Strict",
+      "description": "I commit 100%. No excuses, no skipping sessions."
+    }
+  },
+  "modalities": {
+    "gym_strength": {
+      "label": "Strength / Gym",
+      "description": "Weights, machines, and strength training at the gym"
+    },
+    "functional": {
+      "label": "Functional / CrossFit / HIIT",
+      "description": "Circuits, WODs, and high-intensity intervals"
+    },
+    "endurance": {
+      "label": "Endurance cardio",
+      "description": "Running, walking, or treadmill"
+    },
+    "cycling": {
+      "label": "Cycling / Spinning",
+      "description": "Road, stationary bike, or trainer"
+    },
+    "swimming": {
+      "label": "Swimming",
+      "description": "Pool training"
+    },
+    "home_calisthenics": {
+      "label": "At home / Calisthenics",
+      "description": "Bodyweight and minimal equipment at home"
+    },
+    "mobility": {
+      "label": "Yoga / Pilates / Mobility",
+      "description": "Flexibility, control, and mobility"
+    },
+    "ball_sports": {
+      "label": "Ball sports",
+      "description": "Soccer, basketball, tennis, and more"
+    }
+  }
+}
