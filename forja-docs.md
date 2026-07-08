@@ -1202,7 +1202,7 @@ Hub de configuración en `app/(app)/settings/`, accesible desde Perfil. "Cerrar 
 
 ```
 app/(app)/settings/
-├── _layout.tsx          ← Stack anidado (patrón href: null para ocultar del tab bar)
+├── _layout.tsx          ← Stack anidado (el ocultamiento del tab bar vive en `app/(app)/_layout.tsx`, `Tabs.Screen name="settings"` con `href: null`)
 ├── index.tsx             → /settings              Hub: grupos Cuenta / Preferencias / Suscripción / Legal / Soporte + cerrar sesión
 ├── account.tsx            → /settings/account       Foto, nombre, correo, contraseña + zona de peligro (eliminar cuenta)
 ├── delete-account.tsx      → /settings/delete-account  Confirmación escribiendo "ELIMINAR"

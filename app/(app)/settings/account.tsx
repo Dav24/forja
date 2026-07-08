@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -113,9 +113,16 @@ export default function AccountScreen() {
           />
         </SettingsGroup>
         {permissionDenied ? (
-          <Text className="px-4 -mt-4 mb-6" style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.warning }}>
-            Permiso denegado. Actívalo en los ajustes del teléfono.
-          </Text>
+          <View className="px-4 -mt-4 mb-6 gap-1">
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.warning }}>
+              Permiso denegado. Actívalo en los ajustes del teléfono.
+            </Text>
+            <TouchableOpacity onPress={() => Linking.openSettings()}>
+              <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.primary }}>
+                Abrir ajustes del teléfono
+              </Text>
+            </TouchableOpacity>
+          </View>
         ) : null}
         {avatarError ? (
           <Text className="px-4 -mt-4 mb-6" style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.destructive }}>

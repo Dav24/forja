@@ -1,4 +1,4 @@
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
@@ -36,7 +36,7 @@ export default function ProfileScreen() {
   const { data: goal } = useActiveGoal();
   const { data: stats } = useProfileStats();
   const { data: streak } = useStreak();
-  const { pickAndUpload, uploading, error: avatarError } = useAvatarUpload();
+  const { pickAndUpload, uploading, error: avatarError, permissionDenied } = useAvatarUpload();
   const isPremium = useIsPremium();
   const { data: subscription } = useSubscription();
 
@@ -108,6 +108,18 @@ export default function ProfileScreen() {
                 <Ionicons name="camera" size={15} color={colors.primary} />
               </View>
             </TouchableOpacity>
+            {permissionDenied ? (
+              <View className="items-center gap-1">
+                <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.warning }}>
+                  Permiso denegado. Actívalo en los ajustes del teléfono.
+                </Text>
+                <TouchableOpacity onPress={() => Linking.openSettings()}>
+                  <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.primary }}>
+                    Abrir ajustes del teléfono
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
             {avatarError ? (
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.destructive }}>{avatarError}</Text>
             ) : null}
