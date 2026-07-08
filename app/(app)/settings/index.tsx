@@ -16,7 +16,9 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       <View className="flex-row items-center gap-3 px-4 py-3 border-b border-border">
-        <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
+        {/* Ajustes siempre se entra desde Perfil; back explícito para no depender
+            del historial del TabRouter (back() caía al primer tab = inicio) */}
+        <TouchableOpacity onPress={() => router.navigate('/(app)/profile' as never)} hitSlop={12}>
           <Ionicons name="chevron-back" size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
