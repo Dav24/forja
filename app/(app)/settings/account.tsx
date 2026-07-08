@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,6 +27,7 @@ export default function AccountScreen() {
   const { pickAndUpload, uploading, error: avatarError, permissionDenied } = useAvatarUpload();
 
   const [name, setName] = useState(profile?.display_name ?? '');
+  const [nameTouched, setNameTouched] = useState(false);
   const [savingName, setSavingName] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState<'idle' | 'saving' | 'sent'>('idle');
@@ -35,6 +36,10 @@ export default function AccountScreen() {
   const [pass2, setPass2] = useState('');
   const [passStatus, setPassStatus] = useState<'idle' | 'saving' | 'done'>('idle');
   const [passError, setPassError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!nameTouched && profile?.display_name) setName(profile.display_name);
+  }, [nameTouched, profile?.display_name]);
 
   async function handleSaveName() {
     const trimmed = name.trim();
@@ -120,7 +125,10 @@ export default function AccountScreen() {
 
         <View className="mb-6 gap-3">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, letterSpacing: 1, color: colors.textMuted }}>NOMBRE</Text>
-          <Input placeholder="Tu nombre" value={name} onChangeText={setName} autoCapitalize="words" />
+          <Input placeholder="Tu nombre" value={name} onChangeText={(t) => {
+            setNameTouched(true);
+            setName(t);
+          }} autoCapitalize="words" />
           <Button label="Guardar nombre" size="sm" variant="secondary" loading={savingName} onPress={handleSaveName} />
         </View>
 
