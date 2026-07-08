@@ -25,8 +25,14 @@ export default function DeleteAccountScreen() {
       setDeleting(false);
       return;
     }
-    // Cuenta borrada en el servidor: cerrar sesión local (el AuthGuard redirige a login)
-    await supabase.auth.signOut();
+    // Cuenta borrada en el servidor: cerrar sesión local (el AuthGuard redirige a login).
+    // Si el signOut global falla, limpiar solo la sesión local — la cuenta ya no existe.
+    const { error: signOutError } = await supabase.auth
+      .signOut()
+      .catch(() => ({ error: new Error('signout failed') }));
+    if (signOutError) {
+      await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+    }
   }
 
   return (
