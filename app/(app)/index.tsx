@@ -2,6 +2,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 import { useProfile, useActiveGoal } from '@/hooks/useProfile';
 import { useActiveWorkoutPlan } from '@/hooks/useWorkoutPlan';
 import { useLatestBodyData, useFirstBodyData } from '@/hooks/useBodyTracking';
@@ -14,14 +15,16 @@ import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { colors } from '@/constants/colors';
 
-const DAY_NAMES = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+const DAY_NAMES_ES = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+const DAY_NAMES_EN = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 function normalizeDayName(name: string) {
   return name.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 }
 
-function getTodayDayName() {
-  return DAY_NAMES[new Date().getDay()];
+function getTodayDayNames(): string[] {
+  const idx = new Date().getDay();
+  return [DAY_NAMES_ES[idx], DAY_NAMES_EN[idx]];
 }
 
 interface ScheduleDay {
@@ -33,14 +36,15 @@ interface ScheduleDay {
   exercises?: { name: string; order?: number; sets?: number | string; reps?: number | string }[];
 }
 
-function getGreeting() {
+function getGreetingPeriod(): 'morning' | 'afternoon' | 'evening' {
   const h = new Date().getHours();
-  if (h < 12) return 'Buenos días';
-  if (h < 19) return 'Buenas tardes';
-  return 'Buenas noches';
+  if (h < 12) return 'morning';
+  if (h < 19) return 'afternoon';
+  return 'evening';
 }
 
 export default function HomeScreen() {
+  const { t } = useTranslation('home');
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { data: profile } = useProfile();
@@ -50,13 +54,22 @@ export default function HomeScreen() {
   const { data: firstBody } = useFirstBodyData();
   const { data: streak = 0 } = useStreak();
 
-  const todayDayName = getTodayDayName();
+  const todayNames = getTodayDayNames();
   const schedule: ScheduleDay[] = Array.isArray(plan?.schedule) ? (plan.schedule as unknown as ScheduleDay[]) : [];
-  const todayWorkout = schedule.find((d) => normalizeDayName(d.day_name) === todayDayName);
+  const todayWorkout = schedule.find((d) => todayNames.includes(normalizeDayName(d.day_name)));
   const todayExercises = todayWorkout?.exercises ?? [];
 
-  const heroLine1 = !plan ? 'AÚN NO FORJAMOS' : todayWorkout && !todayWorkout.is_rest ? 'HOY SE FORJA' : 'HOY: DESCANSO';
-  const heroLine2 = !plan ? 'TU PLAN' : todayWorkout && !todayWorkout.is_rest ? (todayWorkout.focus ?? 'ENTRENAMIENTO').toUpperCase() : 'Y RECUPERACIÓN';
+  const greetingPeriod = getGreetingPeriod();
+  const greetingText =
+    greetingPeriod === 'morning'
+      ? t('greeting.morning')
+      : greetingPeriod === 'afternoon'
+        ? t('greeting.afternoon')
+        : t('greeting.evening');
+
+  const defaultFocus = t('hero.defaultFocus');
+  const heroLine1 = !plan ? t('hero.noPlanLine1') : todayWorkout && !todayWorkout.is_rest ? t('hero.workoutLine1') : t('hero.restLine1');
+  const heroLine2 = !plan ? t('hero.noPlanLine2') : todayWorkout && !todayWorkout.is_rest ? (todayWorkout.focus ?? defaultFocus).toUpperCase() : t('hero.restLine2');
 
   const goalProgressPct = (() => {
     const start = firstBody?.weight_kg;
@@ -85,7 +98,7 @@ export default function HomeScreen() {
       <Animated.View entering={FadeInUp.duration(250).delay(60)}>
         <View className="px-5 mb-4">
           <Text className="text-text-muted text-sm" style={{ fontFamily: 'Inter-Regular' }}>
-            {getGreeting()}, {profile?.display_name ?? 'atleta'}
+            {greetingText}, {profile?.display_name ?? t('greeting.fallbackName')}
           </Text>
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 34, lineHeight: 38, color: colors.text, letterSpacing: 1 }}>
             {heroLine1}
@@ -109,7 +122,10 @@ export default function HomeScreen() {
                 className="mb-2"
               >
                 {todayWorkout
-                  ? `DÍA ${todayWorkout.day_number} · ${(todayWorkout.focus ?? 'ENTRENAMIENTO').toUpperCase()}`
+                  ? t('today.dayHeader', {
+                      number: todayWorkout.day_number,
+                      focus: (todayWorkout.focus ?? defaultFocus).toUpperCase(),
+                    })
                   : plan.title.toUpperCase()}
               </Text>
 
@@ -141,23 +157,23 @@ export default function HomeScreen() {
                   ))}
                   {todayExercises.length > 3 && (
                     <Text className="text-text-muted text-sm pt-2">
-                      +{todayExercises.length - 3} ejercicios más →
+                      {t('today.moreExercises', { count: todayExercises.length - 3 })}
                     </Text>
                   )}
                 </>
               ) : (
                 <Text className="text-text-muted text-sm">
-                  {todayWorkout?.is_rest ? 'Día de descanso 💤 — recupera y descansa' : 'Sin entrenamiento asignado hoy'}
+                  {todayWorkout?.is_rest ? t('today.restDay') : t('today.noWorkout')}
                 </Text>
               )}
             </Card>
           ) : (
             <Card className="items-center py-6 gap-3">
               <Text className="text-text text-sm text-center" style={{ fontFamily: 'Inter-Medium' }}>
-                Tu coach IA generará un plan personalizado para ti
+                {t('empty.message')}
               </Text>
               <Button
-                label="Ir a planes"
+                label={t('empty.cta')}
                 size="sm"
                 variant="secondary"
                 onPress={() => router.push('/(app)/plans/workout')}
@@ -170,13 +186,13 @@ export default function HomeScreen() {
       {/* Section 3 — Stats + CTA */}
       <Animated.View entering={FadeInUp.duration(250).delay(180)}>
         <View className="px-5 mb-4 flex-row gap-2.5">
-          <StatCard value={bodyData?.weight_kg ?? '—'} decimals={1} suffix=" kg" label="Actual" />
-          <StatCard value={goal?.target_weight_kg ?? '—'} decimals={1} suffix=" kg" label="Meta" />
-          <StatCard value={goalProgressPct ?? '—'} suffix="%" label="Progreso" />
+          <StatCard value={bodyData?.weight_kg ?? '—'} decimals={1} suffix=" kg" label={t('stats.current')} />
+          <StatCard value={goal?.target_weight_kg ?? '—'} decimals={1} suffix=" kg" label={t('stats.goal')} />
+          <StatCard value={goalProgressPct ?? '—'} suffix="%" label={t('stats.progress')} />
         </View>
 
         <View className="px-5">
-          <Button label="⚒️  Hablar con Vulcano" size="md" onPress={() => router.push('/(app)/chat')} />
+          <Button label={t('chatCta')} size="md" onPress={() => router.push('/(app)/chat')} />
         </View>
       </Animated.View>
     </ScrollView>

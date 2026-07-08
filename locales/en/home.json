@@ -1,1 +1,32 @@
-{}
+{
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "fallbackName": "athlete"
+  },
+  "hero": {
+    "noPlanLine1": "WE HAVEN'T FORGED",
+    "noPlanLine2": "YOUR PLAN YET",
+    "workoutLine1": "FORGE TODAY",
+    "restLine1": "TODAY: REST",
+    "restLine2": "AND RECOVERY",
+    "defaultFocus": "WORKOUT"
+  },
+  "today": {
+    "dayHeader": "DAY {{number}} · {{focus}}",
+    "moreExercises": "+{{count}} more exercises →",
+    "restDay": "Rest day 💤 — recover and rest",
+    "noWorkout": "No workout assigned today"
+  },
+  "empty": {
+    "message": "Your AI coach will generate a personalized plan for you",
+    "cta": "Go to plans"
+  },
+  "stats": {
+    "current": "Current",
+    "goal": "Goal",
+    "progress": "Progress"
+  },
+  "chatCta": "⚒️  Talk to Vulcano"
+}

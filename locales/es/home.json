@@ -1,1 +1,32 @@
-{}
+{
+  "greeting": {
+    "morning": "Buenos días",
+    "afternoon": "Buenas tardes",
+    "evening": "Buenas noches",
+    "fallbackName": "atleta"
+  },
+  "hero": {
+    "noPlanLine1": "AÚN NO FORJAMOS",
+    "noPlanLine2": "TU PLAN",
+    "workoutLine1": "HOY SE FORJA",
+    "restLine1": "HOY: DESCANSO",
+    "restLine2": "Y RECUPERACIÓN",
+    "defaultFocus": "ENTRENAMIENTO"
+  },
+  "today": {
+    "dayHeader": "DÍA {{number}} · {{focus}}",
+    "moreExercises": "+{{count}} ejercicios más →",
+    "restDay": "Día de descanso 💤 — recupera y descansa",
+    "noWorkout": "Sin entrenamiento asignado hoy"
+  },
+  "empty": {
+    "message": "Tu coach IA generará un plan personalizado para ti",
+    "cta": "Ir a planes"
+  },
+  "stats": {
+    "current": "Actual",
+    "goal": "Meta",
+    "progress": "Progreso"
+  },
+  "chatCta": "⚒️  Hablar con Vulcano"
+}
