@@ -10,19 +10,21 @@ import {
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Link } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ForjaWordmark } from '@/components/brand/ForjaWordmark';
 
 export default function LoginScreen() {
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
     if (!email || !password) {
-      Alert.alert('Campos requeridos', 'Ingresa tu email y contraseña.');
+      Alert.alert(t('login.errors.missingFields.title'), t('login.errors.missingFields.body'));
       return;
     }
     setLoading(true);
@@ -31,21 +33,24 @@ export default function LoginScreen() {
     if (error) {
       if (error.message.toLowerCase().includes('email not confirmed')) {
         Alert.alert(
-          'Confirma tu correo',
-          'Tu cuenta existe pero falta confirmar el correo. ¿Te reenviamos el enlace?',
+          t('login.confirmEmail.title'),
+          t('login.confirmEmail.body'),
           [
-            { text: 'Ahora no', style: 'cancel' },
+            { text: t('login.confirmEmail.cancel'), style: 'cancel' },
             {
-              text: 'Reenviar',
+              text: t('login.confirmEmail.resend'),
               onPress: async () => {
                 const { error: resendErr } = await supabase.auth.resend({ type: 'signup', email });
-                Alert.alert(resendErr ? 'Error' : 'Enviado', resendErr ? 'No se pudo reenviar. Espera un momento.' : 'Revisa tu bandeja de entrada.');
+                Alert.alert(
+                  resendErr ? t('login.confirmEmail.resendError.title') : t('login.confirmEmail.resendSuccess.title'),
+                  resendErr ? t('login.confirmEmail.resendError.body') : t('login.confirmEmail.resendSuccess.body')
+                );
               },
             },
           ]
         );
       } else {
-        Alert.alert('Error al iniciar sesión', error.message);
+        Alert.alert(t('login.errors.signInFailed.title'), error.message);
       }
     }
   }
@@ -61,13 +66,13 @@ export default function LoginScreen() {
             <Animated.View entering={FadeIn.duration(700)} className="items-center mb-2">
               <ForjaWordmark size="lg" />
             </Animated.View>
-            <Text className="text-text-muted text-base text-center mt-2" style={{ fontFamily: 'Inter-Regular' }}>Fórjate. Un día a la vez.</Text>
+            <Text className="text-text-muted text-base text-center mt-2" style={{ fontFamily: 'Inter-Regular' }}>{t('tagline')}</Text>
           </View>
 
           <View className="gap-4">
             <Input
-              label="Email"
-              placeholder="hola@ejemplo.com"
+              label={t('login.emailLabel')}
+              placeholder={t('login.emailPlaceholder')}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -75,8 +80,8 @@ export default function LoginScreen() {
               autoComplete="email"
             />
             <Input
-              label="Contraseña"
-              placeholder="••••••••"
+              label={t('login.passwordLabel')}
+              placeholder={t('login.passwordPlaceholder')}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -85,18 +90,18 @@ export default function LoginScreen() {
 
             <Link href="/(auth)/forgot-password" asChild>
               <TouchableOpacity className="self-end">
-                <Text className="text-accent text-sm">¿Olvidaste tu contraseña?</Text>
+                <Text className="text-accent text-sm">{t('login.forgotPassword')}</Text>
               </TouchableOpacity>
             </Link>
 
-            <Button label="Iniciar sesión" loading={loading} onPress={handleLogin} className="mt-2" />
+            <Button label={t('login.submit')} loading={loading} onPress={handleLogin} className="mt-2" />
           </View>
 
           <View className="flex-row justify-center mt-8">
-            <Text className="text-text-muted text-sm">¿Nuevo aquí? </Text>
+            <Text className="text-text-muted text-sm">{t('login.noAccount')}</Text>
             <Link href="/(auth)/register" asChild>
               <TouchableOpacity>
-                <Text className="text-primary text-sm font-semibold">Crear cuenta</Text>
+                <Text className="text-primary text-sm font-semibold">{t('login.createAccount')}</Text>
               </TouchableOpacity>
             </Link>
           </View>

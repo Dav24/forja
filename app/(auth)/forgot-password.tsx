@@ -10,10 +10,12 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/constants/colors';
 
 export default function ForgotPasswordScreen() {
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -21,7 +23,7 @@ export default function ForgotPasswordScreen() {
 
   async function handleReset() {
     if (!email) {
-      Alert.alert('Campo requerido', 'Ingresa tu email.');
+      Alert.alert(t('forgotPassword.errors.missingEmail.title'), t('forgotPassword.errors.missingEmail.body'));
       return;
     }
     setLoading(true);
@@ -30,7 +32,7 @@ export default function ForgotPasswordScreen() {
     });
     setLoading(false);
     if (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert(t('forgotPassword.errors.resetFailed.title'), error.message);
     } else {
       setSent(true);
     }
@@ -40,15 +42,15 @@ export default function ForgotPasswordScreen() {
     return (
       <View className="flex-1 bg-background justify-center px-5">
         <Text className="text-primary text-5xl mb-4">✓</Text>
-        <Text className="text-text font-bold text-2xl mb-2">Revisa tu email</Text>
+        <Text className="text-text font-bold text-2xl mb-2">{t('forgotPassword.sent.title')}</Text>
         <Text className="text-text-muted text-base mb-8">
-          Te enviamos un enlace para restablecer tu contraseña a {email}.
+          {t('forgotPassword.sent.body', { email })}
         </Text>
         <TouchableOpacity
           className="bg-surface border border-border rounded-xl h-14 items-center justify-center"
           onPress={() => router.back()}
         >
-          <Text className="text-text font-semibold text-base">Regresar al login</Text>
+          <Text className="text-text font-semibold text-base">{t('forgotPassword.sent.backToLogin')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -61,20 +63,20 @@ export default function ForgotPasswordScreen() {
     >
       <View className="flex-1 justify-center px-5">
         <TouchableOpacity className="mb-8 self-start" onPress={() => router.back()}>
-          <Text className="text-accent text-base">← Regresar</Text>
+          <Text className="text-accent text-base">{t('forgotPassword.back')}</Text>
         </TouchableOpacity>
 
-        <Text className="text-text font-bold text-3xl mb-2">Recuperar contraseña</Text>
+        <Text className="text-text font-bold text-3xl mb-2">{t('forgotPassword.title')}</Text>
         <Text className="text-text-muted text-base mb-8">
-          Ingresa tu email y te enviaremos un enlace para crear una nueva contraseña.
+          {t('forgotPassword.body')}
         </Text>
 
         <View className="gap-4">
           <View>
-            <Text className="text-text text-sm font-medium mb-2">Email</Text>
+            <Text className="text-text text-sm font-medium mb-2">{t('forgotPassword.emailLabel')}</Text>
             <TextInput
               className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
-              placeholder="hola@ejemplo.com"
+              placeholder={t('forgotPassword.emailPlaceholder')}
               placeholderTextColor={colors.textMuted}
               value={email}
               onChangeText={setEmail}
@@ -91,7 +93,7 @@ export default function ForgotPasswordScreen() {
           >
             {loading
               ? <ActivityIndicator color={colors.background} />
-              : <Text className="text-background font-bold text-base">Enviar enlace</Text>
+              : <Text className="text-background font-bold text-base">{t('forgotPassword.submit')}</Text>
             }
           </TouchableOpacity>
         </View>

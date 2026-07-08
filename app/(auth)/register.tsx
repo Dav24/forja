@@ -10,12 +10,14 @@ import {
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Link } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ForjaWordmark } from '@/components/brand/ForjaWordmark';
 
 export default function RegisterScreen() {
+  const { t } = useTranslation('auth');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,11 +26,11 @@ export default function RegisterScreen() {
 
   async function handleRegister() {
     if (!name || !email || !password) {
-      Alert.alert('Campos requeridos', 'Completa todos los campos.');
+      Alert.alert(t('register.errors.missingFields.title'), t('register.errors.missingFields.body'));
       return;
     }
     if (password.length < 8) {
-      Alert.alert('Contraseña muy corta', 'Usa al menos 8 caracteres.');
+      Alert.alert(t('register.errors.passwordTooShort.title'), t('register.errors.passwordTooShort.body'));
       return;
     }
     setLoading(true);
@@ -39,7 +41,7 @@ export default function RegisterScreen() {
     });
     setLoading(false);
     if (error) {
-      Alert.alert('Error al crear cuenta', error.message);
+      Alert.alert(t('register.errors.signUpFailed.title'), error.message);
     } else if (!data.session) {
       // Confirmación por correo activada: no hay sesión hasta confirmar
       setSent(true);
@@ -48,24 +50,24 @@ export default function RegisterScreen() {
 
   async function handleResend() {
     const { error } = await supabase.auth.resend({ type: 'signup', email });
-    if (error) Alert.alert('Error', 'No se pudo reenviar. Espera un momento.');
-    else Alert.alert('Enviado', 'Revisa tu bandeja de entrada (y spam).');
+    if (error) Alert.alert(t('register.sent.resendError.title'), t('register.sent.resendError.body'));
+    else Alert.alert(t('register.sent.resendSuccess.title'), t('register.sent.resendSuccess.body'));
   }
 
   if (sent) {
     return (
       <View className="flex-1 bg-background justify-center px-5 gap-4">
         <Text className="text-center text-5xl">📬</Text>
-        <Text className="text-text font-bold text-2xl text-center">Revisa tu correo</Text>
+        <Text className="text-text font-bold text-2xl text-center">{t('register.sent.title')}</Text>
         <Text className="text-text-muted text-base text-center">
-          Te enviamos un enlace de confirmación a{'\n'}
+          {t('register.sent.bodyPre')}{'\n'}
           <Text className="text-text font-semibold">{email}</Text>
-          {'\n\n'}Confírmalo y vuelve aquí para iniciar sesión.
+          {'\n\n'}{t('register.sent.bodyPost')}
         </Text>
-        <Button label="Reenviar correo" variant="secondary" onPress={handleResend} className="mt-4" />
+        <Button label={t('register.sent.resend')} variant="secondary" onPress={handleResend} className="mt-4" />
         <Link href="/(auth)/login" asChild>
           <TouchableOpacity className="items-center py-3">
-            <Text className="text-primary text-sm font-semibold">Ir a iniciar sesión</Text>
+            <Text className="text-primary text-sm font-semibold">{t('register.sent.goToLogin')}</Text>
           </TouchableOpacity>
         </Link>
       </View>
@@ -83,22 +85,22 @@ export default function RegisterScreen() {
             <Animated.View entering={FadeIn.duration(700)} className="items-center mb-2">
               <ForjaWordmark size="lg" />
             </Animated.View>
-            <Text className="text-text-muted text-base text-center mt-2" style={{ fontFamily: 'Inter-Regular' }}>Fórjate. Un día a la vez.</Text>
-            <Text className="text-text font-bold text-2xl mt-6">Crea tu cuenta</Text>
+            <Text className="text-text-muted text-base text-center mt-2" style={{ fontFamily: 'Inter-Regular' }}>{t('tagline')}</Text>
+            <Text className="text-text font-bold text-2xl mt-6">{t('register.title')}</Text>
           </View>
 
           <View className="gap-4">
             <Input
-              label="Nombre"
-              placeholder="Tu nombre"
+              label={t('register.nameLabel')}
+              placeholder={t('register.namePlaceholder')}
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
               autoComplete="name"
             />
             <Input
-              label="Email"
-              placeholder="hola@ejemplo.com"
+              label={t('register.emailLabel')}
+              placeholder={t('register.emailPlaceholder')}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -106,21 +108,21 @@ export default function RegisterScreen() {
               autoComplete="email"
             />
             <Input
-              label="Contraseña"
-              placeholder="Mínimo 8 caracteres"
+              label={t('register.passwordLabel')}
+              placeholder={t('register.passwordPlaceholder')}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
               autoComplete="new-password"
             />
-            <Button label="Crear cuenta" loading={loading} onPress={handleRegister} className="mt-2" />
+            <Button label={t('register.submit')} loading={loading} onPress={handleRegister} className="mt-2" />
           </View>
 
           <View className="flex-row justify-center mt-8">
-            <Text className="text-text-muted text-sm">¿Ya tienes cuenta? </Text>
+            <Text className="text-text-muted text-sm">{t('register.haveAccount')}</Text>
             <Link href="/(auth)/login" asChild>
               <TouchableOpacity>
-                <Text className="text-primary text-sm font-semibold">Iniciar sesión</Text>
+                <Text className="text-primary text-sm font-semibold">{t('register.login')}</Text>
               </TouchableOpacity>
             </Link>
           </View>
