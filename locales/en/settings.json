@@ -1,1 +1,8 @@
-{}
+{
+  "language": {
+    "title": "Language",
+    "spanish": "Español",
+    "english": "English",
+    "aiNote": "Vulcano and your new plans will use this language. Already-generated plans keep theirs."
+  }
+}

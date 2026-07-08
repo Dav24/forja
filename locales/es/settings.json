@@ -1,1 +1,8 @@
-{}
+{
+  "language": {
+    "title": "Idioma",
+    "spanish": "Español",
+    "english": "English",
+    "aiNote": "Vulcano y tus nuevos planes usarán este idioma. Los planes ya generados no cambian."
+  }
+}

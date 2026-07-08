@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
+import { useSyncLanguage } from '@/hooks/useSyncLanguage';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -17,6 +18,7 @@ function TabIcon({ name, focused }: { name: IoniconsName; focused: boolean }) {
 
 export default function AppLayout() {
   const insets = useSafeAreaInsets();
+  useSyncLanguage();
 
   return (
     <Tabs
