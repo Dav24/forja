@@ -28,7 +28,26 @@ export default function LoginScreen() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) Alert.alert('Error al iniciar sesión', error.message);
+    if (error) {
+      if (error.message.toLowerCase().includes('email not confirmed')) {
+        Alert.alert(
+          'Confirma tu correo',
+          'Tu cuenta existe pero falta confirmar el correo. ¿Te reenviamos el enlace?',
+          [
+            { text: 'Ahora no', style: 'cancel' },
+            {
+              text: 'Reenviar',
+              onPress: async () => {
+                const { error: resendErr } = await supabase.auth.resend({ type: 'signup', email });
+                Alert.alert(resendErr ? 'Error' : 'Enviado', resendErr ? 'No se pudo reenviar. Espera un momento.' : 'Revisa tu bandeja de entrada.');
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Error al iniciar sesión', error.message);
+      }
+    }
   }
 
   return (

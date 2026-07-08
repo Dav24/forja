@@ -20,6 +20,7 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
   async function handleRegister() {
     if (!name || !email || !password) {
@@ -31,13 +32,44 @@ export default function RegisterScreen() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: name } },
+      options: { data: { display_name: name }, emailRedirectTo: 'forja://' },
     });
     setLoading(false);
-    if (error) Alert.alert('Error al crear cuenta', error.message);
+    if (error) {
+      Alert.alert('Error al crear cuenta', error.message);
+    } else if (!data.session) {
+      // Confirmación por correo activada: no hay sesión hasta confirmar
+      setSent(true);
+    }
+  }
+
+  async function handleResend() {
+    const { error } = await supabase.auth.resend({ type: 'signup', email });
+    if (error) Alert.alert('Error', 'No se pudo reenviar. Espera un momento.');
+    else Alert.alert('Enviado', 'Revisa tu bandeja de entrada (y spam).');
+  }
+
+  if (sent) {
+    return (
+      <View className="flex-1 bg-background justify-center px-5 gap-4">
+        <Text className="text-center text-5xl">📬</Text>
+        <Text className="text-text font-bold text-2xl text-center">Revisa tu correo</Text>
+        <Text className="text-text-muted text-base text-center">
+          Te enviamos un enlace de confirmación a{'\n'}
+          <Text className="text-text font-semibold">{email}</Text>
+          {'\n\n'}Confírmalo y vuelve aquí para iniciar sesión.
+        </Text>
+        <Button label="Reenviar correo" variant="secondary" onPress={handleResend} className="mt-4" />
+        <Link href="/(auth)/login" asChild>
+          <TouchableOpacity className="items-center py-3">
+            <Text className="text-primary text-sm font-semibold">Ir a iniciar sesión</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+    );
   }
 
   return (
