@@ -92,6 +92,15 @@ export default function TrainingScreen() {
 
   async function handleSave() {
     if (!user || !valid) return;
+
+    // Validar campos numéricos ANTES de cualquier escritura
+    const heightNum = heightCm.trim() ? Number(heightCm.trim().replace(',', '.')) : null;
+    const ageNum = age.trim() ? Number.parseInt(age.trim(), 10) : null;
+    if ((heightNum !== null && !Number.isFinite(heightNum)) || (ageNum !== null && !Number.isFinite(ageNum))) {
+      Alert.alert('Revisa tus datos', 'Altura y edad deben ser números.');
+      return;
+    }
+
     setSaving(true);
     try {
       // 1. Desactivar goal(s) activo(s) — conserva historial
@@ -114,12 +123,18 @@ export default function TrainingScreen() {
         secondary_modalities: secondary,
         sport_type: needsSport && sportType.trim() ? sportType.trim() : null,
       });
-      if (goalErr) throw goalErr;
+      if (goalErr) {
+        // Best-effort: reactivar el goal anterior para no dejar al usuario sin goal activo
+        if (goal?.id) {
+          await supabase.from('goals').update({ is_active: true }).eq('id', goal.id);
+        }
+        throw goalErr;
+      }
 
       // 3. Atributos corporales: UPDATE del último registro (INSERT si no hay)
       const bodyPatch = {
-        height_cm: heightCm ? parseFloat(heightCm) : null,
-        age: age ? parseInt(age, 10) : null,
+        height_cm: heightNum,
+        age: ageNum,
         gender,
       };
       if (latestBody?.id) {
