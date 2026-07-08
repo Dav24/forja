@@ -1,0 +1,9 @@
+{
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "retry": "Reintentar",
+  "loading": "Cargando...",
+  "error": "Error",
+  "genericError": "Algo salió mal. Intenta de nuevo.",
+  "comingSoon": "Próximamente"
+}
