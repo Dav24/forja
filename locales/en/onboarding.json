@@ -122,35 +122,43 @@
   "modalities": {
     "gym_strength": {
       "label": "Strength / Gym",
-      "description": "Weights, machines, and strength training at the gym"
+      "description": "Weights, machines, and strength training at the gym",
+      "presets": ["Full gym", "Basic gym"]
     },
     "functional": {
       "label": "Functional / CrossFit / HIIT",
-      "description": "Circuits, WODs, and high-intensity intervals"
+      "description": "Circuits, WODs, and high-intensity intervals",
+      "presets": ["Full box", "Kettlebells and ropes", "No equipment"]
     },
     "endurance": {
       "label": "Endurance cardio",
-      "description": "Running, walking, or treadmill"
+      "description": "Running, walking, or treadmill",
+      "presets": ["Outdoors", "Treadmill"]
     },
     "cycling": {
       "label": "Cycling / Spinning",
-      "description": "Road, stationary bike, or trainer"
+      "description": "Road, stationary bike, or trainer",
+      "presets": ["Road bike", "Stationary bike / spinning", "Indoor trainer"]
     },
     "swimming": {
       "label": "Swimming",
-      "description": "Pool training"
+      "description": "Pool training",
+      "presets": ["Short pool (25m)", "Long pool (50m)"]
     },
     "home_calisthenics": {
       "label": "At home / Calisthenics",
-      "description": "Bodyweight and minimal equipment at home"
+      "description": "Bodyweight and minimal equipment at home",
+      "presets": ["No equipment", "Bands", "Dumbbells", "Pull-up bar"]
     },
     "mobility": {
       "label": "Yoga / Pilates / Mobility",
-      "description": "Flexibility, control, and mobility"
+      "description": "Flexibility, control, and mobility",
+      "presets": ["Mat", "Mat and blocks"]
     },
     "ball_sports": {
       "label": "Ball sports",
-      "description": "Soccer, basketball, tennis, and more"
+      "description": "Soccer, basketball, tennis, and more",
+      "presets": ["Court and ball"]
     }
   }
 }

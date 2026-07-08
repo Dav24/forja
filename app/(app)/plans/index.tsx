@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { colors } from '@/constants/colors';
@@ -11,13 +12,12 @@ import { Badge } from '@/components/ui/Badge';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
 
-const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-
 function getTodayDayIndex() {
   return new Date().getDay(); // 0=Dom, 1=Lun...
 }
 
 export default function PlansScreen() {
+  const { t } = useTranslation('plans');
   const { data: activePlan, isLoading, refetch } = useActiveWorkoutPlan();
   const { generating, generate } = useGeneratePlan(refetch);
   const isPremium = useIsPremium();
@@ -61,10 +61,10 @@ export default function PlansScreen() {
         {/* Header */}
         <View style={{ marginBottom: 24 }}>
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
-            Planes
+            {t('hub.title')}
           </Text>
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 2 }}>
-            Tu rutina personalizada con IA
+            {t('hub.subtitle')}
           </Text>
         </View>
 
@@ -87,7 +87,7 @@ export default function PlansScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary }} />
-                  <Text style={{ color: colors.primary, fontFamily: 'Inter-Medium', fontSize: 12 }}>PLAN ACTIVO</Text>
+                  <Text style={{ color: colors.primary, fontFamily: 'Inter-Medium', fontSize: 12 }}>{t('hub.activePlanBadge')}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
@@ -126,7 +126,7 @@ export default function PlansScreen() {
                         fontSize: 10,
                         color: isToday ? colors.background : isRest ? colors.textMuted : colors.primary,
                       }}>
-                        {DAY_NAMES[jsDay]}
+                        {t(`common:daysShort.${jsDay}`)}
                       </Text>
                       <Ionicons
                         name={isRest ? 'moon-outline' : 'barbell-outline'}
@@ -151,13 +151,16 @@ export default function PlansScreen() {
                 borderColor: colors.border,
               }}>
                 <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 12, marginBottom: 8 }}>
-                  HOY — {todayWorkout.day_name.toUpperCase()}
+                  {t('hub.todayHeader', { day: todayWorkout.day_name.toUpperCase() })}
                 </Text>
                 <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, marginBottom: 4 }}>
                   {todayWorkout.focus}
                 </Text>
                 <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 13 }}>
-                  {todayWorkout.exercises.length} ejercicios · ~{todayWorkout.estimated_duration_minutes} min
+                  {t('hub.exercisesMeta', {
+                    n: todayWorkout.exercises.length,
+                    minutes: todayWorkout.estimated_duration_minutes,
+                  })}
                 </Text>
                 <TouchableOpacity
                   onPress={() => router.push(`/(app)/plans/workout/${(activePlan as { id: string }).id}`)}
@@ -165,7 +168,7 @@ export default function PlansScreen() {
                   style={{ marginTop: 12, backgroundColor: colors.primary, borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
                 >
                   <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 14 }}>
-                    Ver rutina completa
+                    {t('hub.viewFullRoutine')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -181,10 +184,10 @@ export default function PlansScreen() {
               }}>
                 <Ionicons name="moon-outline" size={28} color={colors.accent} style={{ marginBottom: 8 }} />
                 <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 16 }}>
-                  Día de descanso
+                  {t('hub.restDayTitle')}
                 </Text>
                 <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 13, marginTop: 4 }}>
-                  Hoy toca recuperación. Tu cuerpo también trabaja en reposo.
+                  {t('hub.restDaySubtitle')}
                 </Text>
               </View>
             ) : null}
@@ -212,7 +215,7 @@ export default function PlansScreen() {
                 <Ionicons name="refresh-outline" size={18} color={colors.textMuted} />
               )}
               <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 14 }}>
-                {generating ? 'Generando plan...' : 'Generar nuevo plan'}
+                {generating ? t('hub.generating') : t('hub.generateNew')}
               </Text>
             </TouchableOpacity>
           </>
@@ -231,10 +234,10 @@ export default function PlansScreen() {
               <Ionicons name="barbell-outline" size={36} color={colors.primary} />
             </View>
             <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 22, textAlign: 'center', marginBottom: 8 }}>
-              Sin plan activo
+              {t('hub.emptyTitle')}
             </Text>
             <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 15, textAlign: 'center', lineHeight: 22, marginBottom: 32 }}>
-              Genera tu primer plan personalizado con IA. Tarda menos de 30 segundos.
+              {t('hub.emptySubtitle')}
             </Text>
             <TouchableOpacity
               onPress={() => sheetRef.current?.expand()}
@@ -257,7 +260,7 @@ export default function PlansScreen() {
                 <Ionicons name="sparkles-outline" size={20} color={colors.background} />
               )}
               <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 16 }}>
-                {generating ? 'Generando tu plan...' : 'Generar mi plan'}
+                {generating ? t('hub.generatingMine') : t('hub.generateMine')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -285,12 +288,12 @@ export default function PlansScreen() {
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
               <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, flex: 1 }}>
-                Planes Alimenticios
+                {t('hub.mealPlansTitle')}
               </Text>
-              {!isPremium && <Badge label="PREMIUM" variant="premium" />}
+              {!isPremium && <Badge label={t('hub.premiumBadge')} variant="premium" />}
             </View>
             <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
-              Nutrición personalizada con IA
+              {t('hub.mealPlansSubtitle')}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { colors } from '@/constants/colors';
@@ -44,6 +45,7 @@ function getTodayDayIndex() {
 }
 
 export default function WorkoutPlanDetailScreen() {
+  const { t } = useTranslation('plans');
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const todayIndex = getTodayDayIndex();
@@ -70,7 +72,7 @@ export default function WorkoutPlanDetailScreen() {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator color={colors.primary} />
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 12 }}>
-            Cargando plan...
+            {t('workout.loading')}
           </Text>
         </View>
       </SafeAreaView>
@@ -82,10 +84,10 @@ export default function WorkoutPlanDetailScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, textAlign: 'center' }}>
-            Plan no encontrado
+            {t('workout.notFound')}
           </Text>
           <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 16 }}>
-            <Text style={{ color: colors.primary, fontFamily: 'Inter-Medium', fontSize: 15 }}>Volver</Text>
+            <Text style={{ color: colors.primary, fontFamily: 'Inter-Medium', fontSize: 15 }}>{t('workout.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -128,9 +130,9 @@ export default function WorkoutPlanDetailScreen() {
 
         {/* StatCards row */}
         <View className="flex-row gap-2.5 my-4">
-          <StatCard value={String(trainDays.length)} label="Días de forja" />
-          <StatCard value={String(restDays.length)} label="Descanso" />
-          <StatCard value={String(plan.duration_weeks ?? 8)} label="Semanas" />
+          <StatCard value={String(trainDays.length)} label={t('workout.statForgeDays')} />
+          <StatCard value={String(restDays.length)} label={t('workout.statRest')} />
+          <StatCard value={String(plan.duration_weeks ?? 8)} label={t('workout.statWeeks')} />
         </View>
 
         {/* Progression notes */}
@@ -146,7 +148,7 @@ export default function WorkoutPlanDetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
               <Ionicons name="trending-up-outline" size={16} color={colors.primary} />
               <Text style={{ color: colors.primary, fontFamily: 'SpaceGrotesk-Bold', fontSize: 11, letterSpacing: 1 }}>
-                PROGRESIÓN
+                {t('workout.progression')}
               </Text>
             </View>
             <Text style={{ color: colors.text, fontFamily: 'Inter-Regular', fontSize: 13, lineHeight: 18 }}>
@@ -160,7 +162,10 @@ export default function WorkoutPlanDetailScreen() {
           const jsDay = day.day_number === 7 ? 0 : day.day_number;
           const isToday = jsDay === todayIndex;
           const isExpanded = expandedDay === index;
-          const dayLabel = `DÍA ${day.day_number} · ${day.is_rest ? 'DESCANSO' : (day.focus ?? '').toUpperCase()}`;
+          const dayLabel = t('workout.dayHeader', {
+            number: day.day_number,
+            focus: day.is_rest ? t('workout.restUpper') : (day.focus ?? '').toUpperCase(),
+          });
 
           return (
             <TouchableOpacity
@@ -209,13 +214,16 @@ export default function WorkoutPlanDetailScreen() {
                     </Text>
                     {isToday && (
                       <View style={{ backgroundColor: colors.primary, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
-                        <Text style={{ color: colors.background, fontFamily: 'SpaceGrotesk-Bold', fontSize: 10 }}>HOY</Text>
+                        <Text style={{ color: colors.background, fontFamily: 'SpaceGrotesk-Bold', fontSize: 10 }}>{t('workout.todayBadge')}</Text>
                       </View>
                     )}
                   </View>
                   {!day.is_rest && (
                     <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
-                      {day.exercises.length} ejercicios · ~{day.estimated_duration_minutes}min
+                      {t('workout.exercisesMeta', {
+                        n: day.exercises.length,
+                        minutes: day.estimated_duration_minutes,
+                      })}
                     </Text>
                   )}
                 </View>

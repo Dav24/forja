@@ -1,4 +1,5 @@
 import { View, Text } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 
 interface MacroBarProps {
@@ -20,6 +21,7 @@ function MacroLabel({ color, label, grams, pct }: { color: string; label: string
 }
 
 export function MacroBar({ protein_g, carbs_g, fat_g, compact = false }: MacroBarProps) {
+  const { t } = useTranslation('plans');
   const total = protein_g + carbs_g + fat_g;
   if (total === 0) return null;
 
@@ -36,9 +38,9 @@ export function MacroBar({ protein_g, carbs_g, fat_g, compact = false }: MacroBa
       </View>
       {!compact && (
         <View className="flex-row justify-between mt-2">
-          <MacroLabel color={colors.primary} label="Proteína" grams={protein_g} pct={proteinPct} />
-          <MacroLabel color={colors.primaryBright} label="Carbs" grams={carbs_g} pct={carbsPct} />
-          <MacroLabel color={colors.textMuted} label="Grasa" grams={fat_g} pct={fatPct} />
+          <MacroLabel color={colors.primary} label={t('meal.macros.protein')} grams={protein_g} pct={proteinPct} />
+          <MacroLabel color={colors.primaryBright} label={t('meal.macros.carbs')} grams={carbs_g} pct={carbsPct} />
+          <MacroLabel color={colors.textMuted} label={t('meal.macros.fat')} grams={fat_g} pct={fatPct} />
         </View>
       )}
     </View>

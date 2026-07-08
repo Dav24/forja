@@ -3,11 +3,13 @@ import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { SparkBurst } from '@/components/effects/SparkBurst';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 
 export default function SuccessScreen() {
+  const { t } = useTranslation('plans');
   const queryClient = useQueryClient();
   const [burst, setBurst] = useState(false);
 
@@ -29,7 +31,7 @@ export default function SuccessScreen() {
             textAlign: 'center',
           }}
         >
-          EL ACERO ESTÁ FORJADO
+          {t('success.title')}
         </Text>
         <Text
           style={{
@@ -39,9 +41,9 @@ export default function SuccessScreen() {
             textAlign: 'center',
           }}
         >
-          Ya eres Maestro Forjador. Vulcano te espera.
+          {t('success.subtitle')}
         </Text>
-        <Button label="Empezar a forjar" onPress={() => router.replace('/(app)')} />
+        <Button label={t('success.cta')} onPress={() => router.replace('/(app)')} />
       </View>
     </SafeAreaView>
   );

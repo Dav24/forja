@@ -32,7 +32,7 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
   { onGenerate },
   ref,
 ) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('plans');
   const { data: goal } = useActiveGoal();
   const [modality, setModality] = useState<ModalityId | null>(null);
   const [days, setDays] = useState(4);
@@ -47,8 +47,14 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
     if (goalModality && !modality) setModality(goalModality);
   }, [goalModality]);
 
+  // equipmentPresets son claves i18n — se resuelven con t() al mostrar y al enviar
   const presets = MODALITIES.find((m) => m.id === modality)?.equipmentPresets ?? [];
-  const resolvedEquipment = showCustom ? customEquipment.trim() : (equipment ?? presets[0] ?? '');
+  const selectedPresetKey = equipment ?? presets[0];
+  const resolvedEquipment = showCustom
+    ? customEquipment.trim()
+    : selectedPresetKey
+      ? t(selectedPresetKey)
+      : '';
   const canSubmit = !!modality && resolvedEquipment.length > 0;
 
   function selectModality(id: ModalityId) {
@@ -60,24 +66,24 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
 
   return (
     <Sheet ref={ref} snapPoints={['85%']} scrollable>
-      <Text className="text-text font-bold text-2xl mb-1">Forjar tu plan</Text>
-      <Text className="text-text-muted text-sm mb-5">Dime cómo entrenas y lo armo a tu medida.</Text>
+      <Text className="text-text font-bold text-2xl mb-1">{t('generateSheet.title')}</Text>
+      <Text className="text-text-muted text-sm mb-5">{t('generateSheet.subtitle')}</Text>
 
-      <Text className="text-text font-semibold text-base mb-2">Disciplina</Text>
+      <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.discipline')}</Text>
       <View className="flex-row flex-wrap gap-2 mb-5">
         {MODALITIES.map((m) => (
           <Chip key={m.id} label={`${m.icon} ${t(m.labelKey)}`} on={modality === m.id} onPress={() => selectModality(m.id)} />
         ))}
       </View>
 
-      <Text className="text-text font-semibold text-base mb-2">Días por semana</Text>
+      <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.daysPerWeek')}</Text>
       <View className="flex-row gap-2 mb-5">
         {DAYS.map((d) => (
           <Chip key={d} label={`${d}`} on={days === d} onPress={() => setDays(d)} />
         ))}
       </View>
 
-      <Text className="text-text font-semibold text-base mb-2">Minutos por sesión</Text>
+      <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.minutesPerSession')}</Text>
       <View className="flex-row gap-2 mb-5">
         {MINUTES.map((m) => (
           <Chip key={m} label={`${m}`} on={minutes === m} onPress={() => setMinutes(m)} />
@@ -86,21 +92,21 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
 
       {modality && (
         <>
-          <Text className="text-text font-semibold text-base mb-2">Equipo disponible</Text>
+          <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.equipment')}</Text>
           <View className="flex-row flex-wrap gap-2 mb-3">
             {presets.map((p) => (
               <Chip
                 key={p}
-                label={p}
+                label={t(p)}
                 on={!showCustom && (equipment ?? presets[0]) === p}
                 onPress={() => { setEquipment(p); setShowCustom(false); }}
               />
             ))}
-            <Chip label="Otro…" on={showCustom} onPress={() => setShowCustom(true)} />
+            <Chip label={t('generateSheet.other')} on={showCustom} onPress={() => setShowCustom(true)} />
           </View>
           {showCustom && (
             <Input
-              placeholder="Describe tu equipo"
+              placeholder={t('generateSheet.customPlaceholder')}
               value={customEquipment}
               onChangeText={setCustomEquipment}
             />
@@ -110,7 +116,7 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
 
       <View className="mt-6">
         <Button
-          label="Forjar mi plan"
+          label={t('generateSheet.submit')}
           variant="primary"
           size="lg"
           disabled={!canSubmit}

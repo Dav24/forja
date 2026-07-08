@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
@@ -11,6 +12,7 @@ import { PlanGenerating } from '@/components/plans/PlanGenerating';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
 
 export default function WorkoutPlansIndex() {
+  const { t } = useTranslation('plans');
   const { data: activePlan, refetch } = useActiveWorkoutPlan();
   const { generating, generate } = useGeneratePlan(refetch);
   const sheetRef = useRef<BottomSheet>(null);
@@ -53,7 +55,7 @@ export default function WorkoutPlansIndex() {
                 letterSpacing: 1,
               }}
             >
-              Aún no forjamos tu plan
+              {t('workout.empty.title')}
             </Text>
             <Text
               style={{
@@ -64,12 +66,12 @@ export default function WorkoutPlansIndex() {
                 lineHeight: 20,
               }}
             >
-              Cuéntame tu objetivo y lo forjamos juntos.
+              {t('workout.empty.subtitle')}
             </Text>
           </View>
 
           <Button
-            label="Forjar mi plan"
+            label={t('workout.empty.cta')}
             variant="primary"
             size="lg"
             onPress={() => sheetRef.current?.expand()}

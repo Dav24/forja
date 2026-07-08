@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
 import { useIsPremium } from '@/hooks/useSubscription';
@@ -12,10 +13,13 @@ import { MacroBar } from '@/components/plans/MacroBar';
 import { MealPlanCard, type Meal } from '@/components/plans/MealPlanCard';
 import { PaywallBanner } from '@/components/premium/PaywallBanner';
 import { Badge } from '@/components/ui/Badge';
-
-const ALLERGY_OPTIONS = ['Ninguna', 'Gluten', 'Lactosa', 'Frutos secos', 'Mariscos'];
-const DIET_OPTIONS = ['Omnívoro', 'Vegetariano', 'Vegano', 'Sin gluten', 'Keto'];
-const AVAILABILITY_OPTIONS = ['Básica', 'Media', 'Amplia'];
+import {
+  ALLERGY_NONE,
+  ALLERGY_OPTIONS,
+  AVAILABILITY_OPTIONS,
+  DIET_OPTIONS,
+  type MealOption,
+} from '@/constants/mealOptions';
 
 type MealDay = { day_number: number; day_name: string; total_calories: number; meals: Meal[] };
 type MealPlanData = {
@@ -29,16 +33,17 @@ type MealPlanData = {
 function ChipGroup({
   options, selected, onSelect, multi = false,
 }: {
-  options: string[]; selected: string[]; onSelect: (val: string) => void; multi?: boolean;
+  options: MealOption[]; selected: string[]; onSelect: (val: string) => void; multi?: boolean;
 }) {
+  const { t } = useTranslation('plans');
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
       {options.map((opt) => {
-        const isSelected = selected.includes(opt);
+        const isSelected = selected.includes(opt.value);
         return (
           <TouchableOpacity
-            key={opt}
-            onPress={() => onSelect(opt)}
+            key={opt.value}
+            onPress={() => onSelect(opt.value)}
             activeOpacity={0.7}
             style={{
               paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20,
@@ -48,7 +53,7 @@ function ChipGroup({
             }}
           >
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: isSelected ? colors.primary : colors.textMuted }}>
-              {opt}
+              {t(opt.labelKey)}
             </Text>
           </TouchableOpacity>
         );
@@ -58,28 +63,30 @@ function ChipGroup({
 }
 
 export default function MealPlansScreen() {
+  const { t } = useTranslation('plans');
   const { data: activePlan, isLoading } = useActiveMealPlan();
   const { mutateAsync: generatePlan, isPending: generating } = useGenerateMealPlan();
   const isPremium = useIsPremium();
 
-  const [selectedAllergies, setSelectedAllergies] = useState<string[]>(['Ninguna']);
-  const [selectedDiet, setSelectedDiet] = useState<string[]>(['Omnívoro']);
-  const [selectedAvailability, setSelectedAvailability] = useState<string[]>(['Media']);
+  const [selectedAllergies, setSelectedAllergies] = useState<string[]>([ALLERGY_NONE]);
+  const [selectedDiet, setSelectedDiet] = useState<string[]>([DIET_OPTIONS[0].value]);
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([AVAILABILITY_OPTIONS[1].value]);
   const [selectedDay, setSelectedDay] = useState(0);
 
   function toggleAllergy(val: string) {
-    if (val === 'Ninguna') { setSelectedAllergies(['Ninguna']); return; }
+    if (val === ALLERGY_NONE) { setSelectedAllergies([ALLERGY_NONE]); return; }
     setSelectedAllergies(prev => {
-      const without = prev.filter(v => v !== 'Ninguna');
+      const without = prev.filter(v => v !== ALLERGY_NONE);
       const next = without.includes(val) ? without.filter(v => v !== val) : [...without, val];
-      return next.length === 0 ? ['Ninguna'] : next;
+      return next.length === 0 ? [ALLERGY_NONE] : next;
     });
   }
 
   async function handleGenerate() {
-    const allergies = selectedAllergies.filter(v => v !== 'Ninguna').join(', ') || 'ninguna';
-    const diet_type = (selectedDiet[0] ?? 'Omnívoro').toLowerCase();
-    const food_availability = (selectedAvailability[0] ?? 'Media').toLowerCase();
+    // Valores canónicos en español — contrato con la EF generate-meal-plan (ver constants/mealOptions.ts)
+    const allergies = selectedAllergies.filter(v => v !== ALLERGY_NONE).join(', ') || 'ninguna';
+    const diet_type = (selectedDiet[0] ?? DIET_OPTIONS[0].value).toLowerCase();
+    const food_availability = (selectedAvailability[0] ?? AVAILABILITY_OPTIONS[1].value).toLowerCase();
     try {
       await generatePlan({ allergies, diet_type, food_availability });
       setSelectedDay(0);
@@ -87,17 +94,15 @@ export default function MealPlansScreen() {
       const e = err as Record<string, unknown>;
       if (e?.error === 'meal_plan_limit_reached') {
         Alert.alert(
-          'Límite alcanzado',
-          isPremium
-            ? 'Has alcanzado el límite de 10 planes este mes.'
-            : 'Ya usaste tu plan gratuito. Actualiza a Premium para regenerar cuando quieras.',
+          t('meal.alerts.limitTitle'),
+          isPremium ? t('meal.alerts.limitPremium') : t('meal.alerts.limitFree'),
         );
       } else if (e?.error === 'generation_in_progress') {
-        Alert.alert('En proceso', 'Ya hay un plan siendo generado. Espera un momento.');
+        Alert.alert(t('meal.alerts.inProgressTitle'), t('meal.alerts.inProgressBody'));
       } else if (e?.error === 'no_active_goal') {
-        Alert.alert('Sin objetivo', 'Completa tu perfil con un objetivo activo primero.');
+        Alert.alert(t('meal.alerts.noGoalTitle'), t('meal.alerts.noGoalBody'));
       } else {
-        Alert.alert('Error', 'No se pudo generar el plan. Intenta de nuevo.');
+        Alert.alert(t('common:error'), t('meal.alerts.errorBody'));
       }
     }
   }
@@ -128,11 +133,14 @@ export default function MealPlansScreen() {
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 30 }}>
-            Plan Alimenticio
+            {t('meal.title')}
           </Text>
           {activePlan && planData && (
             <Text style={{ color: colors.accent, fontFamily: 'Inter-Medium', fontSize: 12, marginTop: 1 }}>
-              {activePlan.daily_calories} kcal · {planData.macros.protein_g}g proteína
+              {t('meal.headerMacros', {
+                calories: activePlan.daily_calories,
+                protein: planData.macros.protein_g,
+              })}
             </Text>
           )}
         </View>
@@ -147,7 +155,7 @@ export default function MealPlansScreen() {
               borderWidth: 1, borderColor: colors.border,
             }}>
               <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 11, marginBottom: 4 }}>
-                PROMEDIOS DIARIOS
+                {t('meal.dailyAverages')}
               </Text>
               <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, marginBottom: 12 }}>
                 {planData.title}
@@ -191,7 +199,7 @@ export default function MealPlansScreen() {
                     {currentDay.day_name}
                   </Text>
                   <Text style={{ color: colors.textMuted, fontFamily: 'JetBrainsMono-Medium', fontSize: 13 }}>
-                    {currentDay.total_calories} kcal
+                    {t('meal.dayCalories', { calories: currentDay.total_calories })}
                   </Text>
                 </View>
                 {currentDay.meals.map((meal, i) => (
@@ -214,14 +222,14 @@ export default function MealPlansScreen() {
                   ? <ActivityIndicator color={colors.primary} size="small" />
                   : <Ionicons name="refresh-outline" size={18} color={colors.textMuted} />}
                 <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 14 }}>
-                  {generating ? 'Generando plan...' : 'Regenerar plan'}
+                  {generating ? t('meal.generating') : t('meal.regenerate')}
                 </Text>
               </TouchableOpacity>
             ) : (
               <View style={{ marginTop: 16, gap: 8 }}>
-                <Badge label="PREMIUM" variant="premium" />
+                <Badge label={t('hub.premiumBadge')} variant="premium" />
                 <PaywallBanner
-                  message="Actualiza para crear nuevos planes cuando quieras"
+                  message={t('meal.upgradeBanner')}
                   onPress={() => router.push('/(app)/upgrade' as never)}
                 />
               </View>
@@ -239,10 +247,10 @@ export default function MealPlansScreen() {
                 <Ionicons name="nutrition-outline" size={28} color={colors.accent} />
               </View>
               <Text style={{ color: colors.text, fontFamily: 'SpaceGrotesk-Bold', fontSize: 20, textAlign: 'center', marginBottom: 8 }}>
-                Tu plan alimenticio
+                {t('meal.emptyTitle')}
               </Text>
               <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, textAlign: 'center', lineHeight: 21 }}>
-                Generado con IA según tu objetivo, cuerpo y preferencias.
+                {t('meal.emptySubtitle')}
               </Text>
             </View>
 
@@ -250,19 +258,19 @@ export default function MealPlansScreen() {
             <View style={{ gap: 20, marginBottom: 24 }}>
               <View>
                 <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14, marginBottom: 10 }}>
-                  Alergias o intolerancias
+                  {t('meal.form.allergiesLabel')}
                 </Text>
                 <ChipGroup options={ALLERGY_OPTIONS} selected={selectedAllergies} onSelect={toggleAllergy} multi />
               </View>
               <View>
                 <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14, marginBottom: 10 }}>
-                  Tipo de dieta
+                  {t('meal.form.dietLabel')}
                 </Text>
                 <ChipGroup options={DIET_OPTIONS} selected={selectedDiet} onSelect={(v) => setSelectedDiet([v])} />
               </View>
               <View>
                 <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14, marginBottom: 10 }}>
-                  Disponibilidad de alimentos
+                  {t('meal.form.availabilityLabel')}
                 </Text>
                 <ChipGroup options={AVAILABILITY_OPTIONS} selected={selectedAvailability} onSelect={(v) => setSelectedAvailability([v])} />
               </View>
@@ -280,13 +288,13 @@ export default function MealPlansScreen() {
                 ? <ActivityIndicator color={colors.background} size="small" />
                 : <Ionicons name="sparkles-outline" size={20} color={colors.background} />}
               <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 16 }}>
-                {generating ? 'Generando tu plan...' : 'Generar mi plan'}
+                {generating ? t('meal.generatingMine') : t('meal.generateMine')}
               </Text>
             </TouchableOpacity>
 
             {!isPremium && (
               <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, textAlign: 'center', marginTop: 12 }}>
-                Plan gratuito: {FREE_LIMITS.MEAL_PLANS_LIFETIME} generación de por vida · Premium: ilimitadas
+                {t('meal.freeLimitNote', { limit: FREE_LIMITS.MEAL_PLANS_LIFETIME })}
               </Text>
             )}
           </>

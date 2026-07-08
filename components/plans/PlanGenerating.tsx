@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { colors } from '@/constants/colors';
@@ -34,6 +35,7 @@ function useSimulatedProgress() {
 }
 
 export function PlanGenerating() {
+  const { t } = useTranslation('plans');
   const progress = useSimulatedProgress();
 
   return (
@@ -58,7 +60,7 @@ export function PlanGenerating() {
             textAlign: 'center',
           }}
         >
-          Vulcano está forjando tu plan…
+          {t('generating.title')}
         </Text>
         <Text
           style={{
@@ -69,7 +71,7 @@ export function PlanGenerating() {
             lineHeight: 20,
           }}
         >
-          El buen metal toma su tiempo. ~30 segundos.
+          {t('generating.subtitle')}
         </Text>
       </View>
 

@@ -1,1 +1,207 @@
-{}
+{
+  "hub": {
+    "title": "Planes",
+    "subtitle": "Tu rutina personalizada con IA",
+    "activePlanBadge": "PLAN ACTIVO",
+    "todayHeader": "HOY — {{day}}",
+    "exercisesMeta": "{{n}} ejercicios · ~{{minutes}} min",
+    "viewFullRoutine": "Ver rutina completa",
+    "restDayTitle": "Día de descanso",
+    "restDaySubtitle": "Hoy toca recuperación. Tu cuerpo también trabaja en reposo.",
+    "generating": "Generando plan...",
+    "generateNew": "Generar nuevo plan",
+    "emptyTitle": "Sin plan activo",
+    "emptySubtitle": "Genera tu primer plan personalizado con IA. Tarda menos de 30 segundos.",
+    "generatingMine": "Generando tu plan...",
+    "generateMine": "Generar mi plan",
+    "mealPlansTitle": "Planes Alimenticios",
+    "mealPlansSubtitle": "Nutrición personalizada con IA",
+    "premiumBadge": "PREMIUM"
+  },
+  "workout": {
+    "loading": "Cargando plan...",
+    "notFound": "Plan no encontrado",
+    "back": "Volver",
+    "statForgeDays": "Días de forja",
+    "statRest": "Descanso",
+    "statWeeks": "Semanas",
+    "progression": "PROGRESIÓN",
+    "dayHeader": "DÍA {{number}} · {{focus}}",
+    "restUpper": "DESCANSO",
+    "todayBadge": "HOY",
+    "exercisesMeta": "{{n}} ejercicios · ~{{minutes}}min",
+    "empty": {
+      "title": "Aún no forjamos tu plan",
+      "subtitle": "Cuéntame tu objetivo y lo forjamos juntos.",
+      "cta": "Forjar mi plan"
+    }
+  },
+  "meal": {
+    "title": "Plan Alimenticio",
+    "headerMacros": "{{calories}} kcal · {{protein}}g proteína",
+    "dailyAverages": "PROMEDIOS DIARIOS",
+    "dayCalories": "{{calories}} kcal",
+    "alerts": {
+      "limitTitle": "Límite alcanzado",
+      "limitPremium": "Has alcanzado el límite de 10 planes este mes.",
+      "limitFree": "Ya usaste tu plan gratuito. Actualiza a Premium para regenerar cuando quieras.",
+      "inProgressTitle": "En proceso",
+      "inProgressBody": "Ya hay un plan siendo generado. Espera un momento.",
+      "noGoalTitle": "Sin objetivo",
+      "noGoalBody": "Completa tu perfil con un objetivo activo primero.",
+      "errorBody": "No se pudo generar el plan. Intenta de nuevo."
+    },
+    "regenerate": "Regenerar plan",
+    "generating": "Generando plan...",
+    "upgradeBanner": "Actualiza para crear nuevos planes cuando quieras",
+    "emptyTitle": "Tu plan alimenticio",
+    "emptySubtitle": "Generado con IA según tu objetivo, cuerpo y preferencias.",
+    "form": {
+      "allergiesLabel": "Alergias o intolerancias",
+      "dietLabel": "Tipo de dieta",
+      "availabilityLabel": "Disponibilidad de alimentos",
+      "allergies": {
+        "none": "Ninguna",
+        "gluten": "Gluten",
+        "lactose": "Lactosa",
+        "nuts": "Frutos secos",
+        "shellfish": "Mariscos"
+      },
+      "diet": {
+        "omnivore": "Omnívoro",
+        "vegetarian": "Vegetariano",
+        "vegan": "Vegano",
+        "glutenFree": "Sin gluten",
+        "keto": "Keto"
+      },
+      "availability": {
+        "basic": "Básica",
+        "medium": "Media",
+        "wide": "Amplia"
+      }
+    },
+    "generateMine": "Generar mi plan",
+    "generatingMine": "Generando tu plan...",
+    "freeLimitNote": "Plan gratuito: {{limit}} generación de por vida · Premium: ilimitadas",
+    "card": {
+      "ingredients": "INGREDIENTES"
+    },
+    "macros": {
+      "protein": "Proteína",
+      "carbs": "Carbs",
+      "fat": "Grasa"
+    }
+  },
+  "generateSheet": {
+    "title": "Forjar tu plan",
+    "subtitle": "Dime cómo entrenas y lo armo a tu medida.",
+    "discipline": "Disciplina",
+    "daysPerWeek": "Días por semana",
+    "minutesPerSession": "Minutos por sesión",
+    "equipment": "Equipo disponible",
+    "other": "Otro…",
+    "customPlaceholder": "Describe tu equipo",
+    "submit": "Forjar mi plan"
+  },
+  "generating": {
+    "title": "Vulcano está forjando tu plan…",
+    "subtitle": "El buen metal toma su tiempo. ~30 segundos."
+  },
+  "upgrade": {
+    "navTitle": "Planes",
+    "heroTitle": "MAESTRO FORJADOR",
+    "heroSubtitle": "Forja tu mejor versión",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "yearlySavings": "Ahorras 40% con el plan anual",
+    "priceMonthly": "$179 MXN/mes",
+    "priceYearly": "$1,299 MXN/año",
+    "ctaMonthly": "Continuar — $179/mes",
+    "ctaYearly": "Continuar — $1,299/año",
+    "free": {
+      "title": "Aprendiz",
+      "price": "$0",
+      "currentBadge": "Actual",
+      "features": [
+        "20 mensajes al día con Vulcano",
+        "1 plan de entrenamiento al mes",
+        "1 plan alimenticio (de por vida)",
+        "14 días de historial corporal",
+        "Conexión de pulsera o reloj"
+      ]
+    },
+    "premium": {
+      "title": "MAESTRO FORJADOR",
+      "bestValueBadge": "MEJOR VALOR",
+      "recommendedBadge": "Recomendado",
+      "yearlyBreakdown": "$108/mes — 40% off",
+      "activeBadge": "✓ Activo",
+      "features": [
+        "Chat ilimitado con Vulcano",
+        "Planes de entrenamiento ilimitados",
+        "10 planes alimenticios al mes",
+        "365 días de historial corporal",
+        "Composición corporal (% grasa, músculo)",
+        "Vulcano analiza tus datos de actividad"
+      ]
+    },
+    "coming": {
+      "title": "EN CAMINO 🔥",
+      "features": [
+        "Fotos de comida con análisis IA",
+        "Análisis de técnica de ejercicio",
+        "Coaching en tiempo real"
+      ]
+    },
+    "promoQuestion": "¿Tienes un código?",
+    "promoPlaceholder": "FORJA2024",
+    "alreadyPremium": "Ya eres Maestro Forjador",
+    "manageSubscription": "Gestionar suscripción",
+    "legal": "Cancela cuando quieras · Procesado de forma segura con Stripe",
+    "sheet": {
+      "chartRange": {
+        "title": "Historial completo",
+        "bullets": [
+          "Hasta 365 días de datos",
+          "Rangos de 1 mes y 3 meses",
+          "Tendencias de largo plazo"
+        ]
+      },
+      "bodyComposition": {
+        "title": "Composición corporal",
+        "bullets": [
+          "% de grasa corporal",
+          "Masa muscular en kg",
+          "Seguimiento completo de tu cuerpo"
+        ]
+      },
+      "mealPlan": {
+        "title": "Planes ilimitados",
+        "bullets": [
+          "10 planes al mes",
+          "Actualiza según tu progreso",
+          "Vulcano ajusta según tus datos reales"
+        ]
+      },
+      "generic": {
+        "title": "Conviértete en Maestro",
+        "bullets": [
+          "Chat ilimitado con Vulcano",
+          "Planes de entrenamiento ilimitados",
+          "Vulcano analiza tus datos de actividad"
+        ]
+      },
+      "fromPrice": "Desde $1,299/año",
+      "cta": "Hazte Maestro →",
+      "seeAll": "Ver todos los beneficios ↗"
+    }
+  },
+  "paywall": {
+    "defaultCta": "Hazte Premium"
+  },
+  "success": {
+    "title": "EL ACERO ESTÁ FORJADO",
+    "subtitle": "Ya eres Maestro Forjador. Vulcano te espera.",
+    "cta": "Empezar a forjar"
+  }
+}

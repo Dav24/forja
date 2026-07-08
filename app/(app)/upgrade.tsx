@@ -5,6 +5,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
@@ -13,38 +14,39 @@ import { colors, gradients } from '@/constants/colors';
 import { useAuthStore } from '@/store/auth.store';
 import { buildPaymentURL, buildPortalURL, type Billing } from '@/lib/payments';
 
-const APRENDIZ_FEATURES = [
-  '20 mensajes al día con Vulcano',
-  '1 plan de entrenamiento al mes',
-  '1 plan alimenticio (de por vida)',
-  '14 días de historial corporal',
-  'Conexión de pulsera o reloj',
+const APRENDIZ_FEATURE_KEYS = [
+  'upgrade.free.features.0',
+  'upgrade.free.features.1',
+  'upgrade.free.features.2',
+  'upgrade.free.features.3',
+  'upgrade.free.features.4',
 ];
 
-const MAESTRO_FEATURES = [
-  'Chat ilimitado con Vulcano',
-  'Planes de entrenamiento ilimitados',
-  '10 planes alimenticios al mes',
-  '365 días de historial corporal',
-  'Composición corporal (% grasa, músculo)',
-  'Vulcano analiza tus datos de actividad',
+const MAESTRO_FEATURE_KEYS = [
+  'upgrade.premium.features.0',
+  'upgrade.premium.features.1',
+  'upgrade.premium.features.2',
+  'upgrade.premium.features.3',
+  'upgrade.premium.features.4',
+  'upgrade.premium.features.5',
 ];
 
-const COMING_FEATURES = [
-  'Fotos de comida con análisis IA',
-  'Análisis de técnica de ejercicio',
-  'Coaching en tiempo real',
+const COMING_FEATURE_KEYS = [
+  'upgrade.coming.features.0',
+  'upgrade.coming.features.1',
+  'upgrade.coming.features.2',
 ];
 
 export default function UpgradeScreen() {
+  const { t } = useTranslation('plans');
   const isPremium = useIsPremium();
   const userId = useAuthStore((s) => s.user?.id);
   const [billing, setBilling] = useState<Billing>('yearly');
   const [promoCode, setPromoCode] = useState('');
   const [promoOpen, setPromoOpen] = useState(false);
 
-  const price = billing === 'monthly' ? '$179 MXN/mes' : '$1,299 MXN/año';
-  const ctaLabel = billing === 'monthly' ? 'Continuar — $179/mes' : 'Continuar — $1,299/año';
+  const price = billing === 'monthly' ? t('upgrade.priceMonthly') : t('upgrade.priceYearly');
+  const ctaLabel = billing === 'monthly' ? t('upgrade.ctaMonthly') : t('upgrade.ctaYearly');
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
@@ -64,7 +66,7 @@ export default function UpgradeScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.text }}>
-          Planes
+          {t('upgrade.navTitle')}
         </Text>
       </View>
 
@@ -84,7 +86,7 @@ export default function UpgradeScreen() {
               letterSpacing: 1,
             }}
           >
-            MAESTRO FORJADOR
+            {t('upgrade.heroTitle')}
           </Text>
           <Text
             style={{
@@ -94,7 +96,7 @@ export default function UpgradeScreen() {
               textAlign: 'center',
             }}
           >
-            Forja tu mejor versión
+            {t('upgrade.heroSubtitle')}
           </Text>
         </View>
 
@@ -128,7 +130,7 @@ export default function UpgradeScreen() {
                   color: billing === b ? colors.background : colors.textMuted,
                 }}
               >
-                {b === 'monthly' ? 'Mensual' : 'Anual'}
+                {b === 'monthly' ? t('upgrade.monthly') : t('upgrade.yearly')}
               </Text>
             </TouchableOpacity>
           ))}
@@ -143,7 +145,7 @@ export default function UpgradeScreen() {
                 textAlign: 'center',
               }}
             >
-              Ahorras 40% con el plan anual
+              {t('upgrade.yearlySavings')}
             </Text>
           )}
         </View>
@@ -169,23 +171,23 @@ export default function UpgradeScreen() {
             }}
           >
             <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 22, color: colors.text }}>
-              Aprendiz
+              {t('upgrade.free.title')}
             </Text>
             <View style={{ alignItems: 'flex-end', gap: 4 }}>
               <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.text }}>
-                $0
+                {t('upgrade.free.price')}
               </Text>
-              {!isPremium && <Badge label="Actual" variant="muted" />}
+              {!isPremium && <Badge label={t('upgrade.free.currentBadge')} variant="muted" />}
             </View>
           </View>
-          {APRENDIZ_FEATURES.map((f, i) => (
+          {APRENDIZ_FEATURE_KEYS.map((f, i) => (
             <View
               key={i}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
             >
               <Ionicons name="checkmark" size={14} color={colors.textMuted} />
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
-                {f}
+                {t(f)}
               </Text>
             </View>
           ))}
@@ -215,12 +217,12 @@ export default function UpgradeScreen() {
             >
               <View style={{ gap: 6 }}>
                 <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 24, color: colors.text }}>
-                  MAESTRO FORJADOR
+                  {t('upgrade.premium.title')}
                 </Text>
                 {billing === 'yearly' ? (
-                  <Badge label="MEJOR VALOR" variant="premium" />
+                  <Badge label={t('upgrade.premium.bestValueBadge')} variant="premium" />
                 ) : (
-                  <Badge label="Recomendado" variant="primary" />
+                  <Badge label={t('upgrade.premium.recommendedBadge')} variant="primary" />
                 )}
               </View>
               <View style={{ alignItems: 'flex-end', gap: 4 }}>
@@ -237,20 +239,20 @@ export default function UpgradeScreen() {
                       color: colors.textMuted,
                     }}
                   >
-                    $108/mes — 40% off
+                    {t('upgrade.premium.yearlyBreakdown')}
                   </Text>
                 )}
-                {isPremium && <Badge label="✓ Activo" variant="accent" />}
+                {isPremium && <Badge label={t('upgrade.premium.activeBadge')} variant="accent" />}
               </View>
             </View>
-            {MAESTRO_FEATURES.map((f, i) => (
+            {MAESTRO_FEATURE_KEYS.map((f, i) => (
               <View
                 key={i}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
               >
                 <Ionicons name="checkmark-circle" size={14} color={colors.accent} />
                 <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.text }}>
-                  {f}
+                  {t(f)}
                 </Text>
               </View>
             ))}
@@ -264,16 +266,16 @@ export default function UpgradeScreen() {
                 marginBottom: 6,
               }}
             >
-              EN CAMINO 🔥
+              {t('upgrade.coming.title')}
             </Text>
-            {COMING_FEATURES.map((f, i) => (
+            {COMING_FEATURE_KEYS.map((f, i) => (
               <View
                 key={i}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}
               >
                 <Ionicons name="time-outline" size={14} color={colors.textMuted} />
                 <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
-                  {f}
+                  {t(f)}
                 </Text>
               </View>
             ))}
@@ -287,14 +289,14 @@ export default function UpgradeScreen() {
           style={{ alignItems: 'center', marginBottom: 12 }}
         >
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.textMuted }}>
-            ¿Tienes un código? {promoOpen ? '▲' : '▼'}
+            {t('upgrade.promoQuestion')} {promoOpen ? '▲' : '▼'}
           </Text>
         </TouchableOpacity>
         {promoOpen && (
           <Input
             value={promoCode}
             onChangeText={setPromoCode}
-            placeholder="FORJA2024"
+            placeholder={t('upgrade.promoPlaceholder')}
             autoCapitalize="characters"
             style={{ marginBottom: 20 }}
           />
@@ -310,12 +312,12 @@ export default function UpgradeScreen() {
               <Text
                 style={{ fontFamily: 'Inter-Bold', fontSize: 16, color: colors.primary }}
               >
-                Ya eres Maestro Forjador
+                {t('upgrade.alreadyPremium')}
               </Text>
             </View>
             <Button
               variant="secondary"
-              label="Gestionar suscripción"
+              label={t('upgrade.manageSubscription')}
               onPress={() => userId && Linking.openURL(buildPortalURL(userId))}
             />
           </View>
@@ -336,7 +338,7 @@ export default function UpgradeScreen() {
             marginTop: 16,
           }}
         >
-          Cancela cuando quieras · Procesado de forma segura con Stripe
+          {t('upgrade.legal')}
         </Text>
       </Animated.ScrollView>
     </SafeAreaView>

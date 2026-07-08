@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
@@ -15,44 +16,45 @@ interface UpgradeSheetProps {
   context?: UpgradeContext;
 }
 
-const COPY: Record<UpgradeContext, { title: string; bullets: string[] }> = {
+const COPY: Record<UpgradeContext, { titleKey: string; bulletKeys: string[] }> = {
   chart_range: {
-    title: 'Historial completo',
-    bullets: [
-      'Hasta 365 días de datos',
-      'Rangos de 1 mes y 3 meses',
-      'Tendencias de largo plazo',
+    titleKey: 'upgrade.sheet.chartRange.title',
+    bulletKeys: [
+      'upgrade.sheet.chartRange.bullets.0',
+      'upgrade.sheet.chartRange.bullets.1',
+      'upgrade.sheet.chartRange.bullets.2',
     ],
   },
   body_composition: {
-    title: 'Composición corporal',
-    bullets: [
-      '% de grasa corporal',
-      'Masa muscular en kg',
-      'Seguimiento completo de tu cuerpo',
+    titleKey: 'upgrade.sheet.bodyComposition.title',
+    bulletKeys: [
+      'upgrade.sheet.bodyComposition.bullets.0',
+      'upgrade.sheet.bodyComposition.bullets.1',
+      'upgrade.sheet.bodyComposition.bullets.2',
     ],
   },
   meal_plan: {
-    title: 'Planes ilimitados',
-    bullets: [
-      '10 planes al mes',
-      'Actualiza según tu progreso',
-      'Vulcano ajusta según tus datos reales',
+    titleKey: 'upgrade.sheet.mealPlan.title',
+    bulletKeys: [
+      'upgrade.sheet.mealPlan.bullets.0',
+      'upgrade.sheet.mealPlan.bullets.1',
+      'upgrade.sheet.mealPlan.bullets.2',
     ],
   },
   generic: {
-    title: 'Conviértete en Maestro',
-    bullets: [
-      'Chat ilimitado con Vulcano',
-      'Planes de entrenamiento ilimitados',
-      'Vulcano analiza tus datos de actividad',
+    titleKey: 'upgrade.sheet.generic.title',
+    bulletKeys: [
+      'upgrade.sheet.generic.bullets.0',
+      'upgrade.sheet.generic.bullets.1',
+      'upgrade.sheet.generic.bullets.2',
     ],
   },
 };
 
 export const UpgradeSheet = forwardRef<BottomSheet, UpgradeSheetProps>(
   function UpgradeSheet({ context = 'generic' }, ref) {
-    const { title, bullets } = COPY[context];
+    const { t } = useTranslation('plans');
+    const { titleKey, bulletKeys } = COPY[context];
     const userId = useAuthStore((s) => s.user?.id);
 
     function handleUpgrade() {
@@ -71,30 +73,30 @@ export const UpgradeSheet = forwardRef<BottomSheet, UpgradeSheetProps>(
           <View className="flex-row items-center gap-[10px]">
             <Ionicons name="lock-closed" size={22} color={colors.accent} />
             <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20, color: colors.text }}>
-              {title}
+              {t(titleKey)}
             </Text>
           </View>
 
           <View className="gap-[10px]">
-            {bullets.map((bullet, i) => (
+            {bulletKeys.map((bulletKey, i) => (
               <View key={i} className="flex-row items-center gap-[10px]">
                 <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
                 <Text className="flex-1" style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.text }}>
-                  {bullet}
+                  {t(bulletKey)}
                 </Text>
               </View>
             ))}
           </View>
 
           <Text className="text-center" style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
-            Desde $1,299/año
+            {t('upgrade.sheet.fromPrice')}
           </Text>
 
-          <Button label="Hazte Maestro →" onPress={handleUpgrade} />
+          <Button label={t('upgrade.sheet.cta')} onPress={handleUpgrade} />
 
           <TouchableOpacity onPress={handleSeeAll} activeOpacity={0.7} className="items-center">
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.accent }}>
-              Ver todos los beneficios ↗
+              {t('upgrade.sheet.seeAll')}
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,1 +1,207 @@
-{}
+{
+  "hub": {
+    "title": "Plans",
+    "subtitle": "Your AI-personalized routine",
+    "activePlanBadge": "ACTIVE PLAN",
+    "todayHeader": "TODAY — {{day}}",
+    "exercisesMeta": "{{n}} exercises · ~{{minutes}} min",
+    "viewFullRoutine": "View full routine",
+    "restDayTitle": "Rest day",
+    "restDaySubtitle": "Today is for recovery. Your body also works at rest.",
+    "generating": "Generating plan...",
+    "generateNew": "Generate new plan",
+    "emptyTitle": "No active plan",
+    "emptySubtitle": "Generate your first AI-personalized plan. It takes less than 30 seconds.",
+    "generatingMine": "Generating your plan...",
+    "generateMine": "Generate my plan",
+    "mealPlansTitle": "Meal Plans",
+    "mealPlansSubtitle": "AI-personalized nutrition",
+    "premiumBadge": "PREMIUM"
+  },
+  "workout": {
+    "loading": "Loading plan...",
+    "notFound": "Plan not found",
+    "back": "Go back",
+    "statForgeDays": "Forge days",
+    "statRest": "Rest",
+    "statWeeks": "Weeks",
+    "progression": "PROGRESSION",
+    "dayHeader": "DAY {{number}} · {{focus}}",
+    "restUpper": "REST",
+    "todayBadge": "TODAY",
+    "exercisesMeta": "{{n}} exercises · ~{{minutes}}min",
+    "empty": {
+      "title": "We haven't forged your plan yet",
+      "subtitle": "Tell me your goal and we'll forge it together.",
+      "cta": "Forge my plan"
+    }
+  },
+  "meal": {
+    "title": "Meal Plan",
+    "headerMacros": "{{calories}} kcal · {{protein}}g protein",
+    "dailyAverages": "DAILY AVERAGES",
+    "dayCalories": "{{calories}} kcal",
+    "alerts": {
+      "limitTitle": "Limit reached",
+      "limitPremium": "You've reached the limit of 10 plans this month.",
+      "limitFree": "You've already used your free plan. Upgrade to Premium to regenerate whenever you want.",
+      "inProgressTitle": "In progress",
+      "inProgressBody": "A plan is already being generated. Hang on a moment.",
+      "noGoalTitle": "No goal",
+      "noGoalBody": "Complete your profile with an active goal first.",
+      "errorBody": "The plan couldn't be generated. Try again."
+    },
+    "regenerate": "Regenerate plan",
+    "generating": "Generating plan...",
+    "upgradeBanner": "Upgrade to create new plans whenever you want",
+    "emptyTitle": "Your meal plan",
+    "emptySubtitle": "AI-generated from your goal, body, and preferences.",
+    "form": {
+      "allergiesLabel": "Allergies or intolerances",
+      "dietLabel": "Diet type",
+      "availabilityLabel": "Food availability",
+      "allergies": {
+        "none": "None",
+        "gluten": "Gluten",
+        "lactose": "Lactose",
+        "nuts": "Tree nuts",
+        "shellfish": "Shellfish"
+      },
+      "diet": {
+        "omnivore": "Omnivore",
+        "vegetarian": "Vegetarian",
+        "vegan": "Vegan",
+        "glutenFree": "Gluten-free",
+        "keto": "Keto"
+      },
+      "availability": {
+        "basic": "Basic",
+        "medium": "Medium",
+        "wide": "Wide"
+      }
+    },
+    "generateMine": "Generate my plan",
+    "generatingMine": "Generating your plan...",
+    "freeLimitNote": "Free plan: {{limit}} generation for life · Premium: unlimited",
+    "card": {
+      "ingredients": "INGREDIENTS"
+    },
+    "macros": {
+      "protein": "Protein",
+      "carbs": "Carbs",
+      "fat": "Fat"
+    }
+  },
+  "generateSheet": {
+    "title": "Forge your plan",
+    "subtitle": "Tell me how you train and I'll build it to fit you.",
+    "discipline": "Discipline",
+    "daysPerWeek": "Days per week",
+    "minutesPerSession": "Minutes per session",
+    "equipment": "Available equipment",
+    "other": "Other…",
+    "customPlaceholder": "Describe your equipment",
+    "submit": "Forge my plan"
+  },
+  "generating": {
+    "title": "Vulcano is forging your plan…",
+    "subtitle": "Good metal takes its time. ~30 seconds."
+  },
+  "upgrade": {
+    "navTitle": "Plans",
+    "heroTitle": "MASTER FORGER",
+    "heroSubtitle": "Forge your best self",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "yearlySavings": "Save 40% with the yearly plan",
+    "priceMonthly": "$179 MXN/mo",
+    "priceYearly": "$1,299 MXN/yr",
+    "ctaMonthly": "Continue — $179/mo",
+    "ctaYearly": "Continue — $1,299/yr",
+    "free": {
+      "title": "Apprentice",
+      "price": "$0",
+      "currentBadge": "Current",
+      "features": [
+        "20 messages a day with Vulcano",
+        "1 workout plan per month",
+        "1 meal plan (for life)",
+        "14 days of body history",
+        "Band or watch connection"
+      ]
+    },
+    "premium": {
+      "title": "MASTER FORGER",
+      "bestValueBadge": "BEST VALUE",
+      "recommendedBadge": "Recommended",
+      "yearlyBreakdown": "$108/mo — 40% off",
+      "activeBadge": "✓ Active",
+      "features": [
+        "Unlimited chat with Vulcano",
+        "Unlimited workout plans",
+        "10 meal plans per month",
+        "365 days of body history",
+        "Body composition (% fat, muscle)",
+        "Vulcano analyzes your activity data"
+      ]
+    },
+    "coming": {
+      "title": "ON THE WAY 🔥",
+      "features": [
+        "Food photos with AI analysis",
+        "Exercise technique analysis",
+        "Real-time coaching"
+      ]
+    },
+    "promoQuestion": "Have a code?",
+    "promoPlaceholder": "FORJA2024",
+    "alreadyPremium": "You're already a Master Forger",
+    "manageSubscription": "Manage subscription",
+    "legal": "Cancel anytime · Securely processed with Stripe",
+    "sheet": {
+      "chartRange": {
+        "title": "Full history",
+        "bullets": [
+          "Up to 365 days of data",
+          "1-month and 3-month ranges",
+          "Long-term trends"
+        ]
+      },
+      "bodyComposition": {
+        "title": "Body composition",
+        "bullets": [
+          "% body fat",
+          "Muscle mass in kg",
+          "Full tracking of your body"
+        ]
+      },
+      "mealPlan": {
+        "title": "Unlimited plans",
+        "bullets": [
+          "10 plans per month",
+          "Update as you progress",
+          "Vulcano adjusts to your real data"
+        ]
+      },
+      "generic": {
+        "title": "Become a Master",
+        "bullets": [
+          "Unlimited chat with Vulcano",
+          "Unlimited workout plans",
+          "Vulcano analyzes your activity data"
+        ]
+      },
+      "fromPrice": "From $1,299/yr",
+      "cta": "Become a Master →",
+      "seeAll": "See all benefits ↗"
+    }
+  },
+  "paywall": {
+    "defaultCta": "Go Premium"
+  },
+  "success": {
+    "title": "THE STEEL IS FORGED",
+    "subtitle": "You're now a Master Forger. Vulcano awaits.",
+    "cta": "Start forging"
+  }
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 import { MacroBar } from './MacroBar';
 
@@ -16,6 +17,7 @@ export interface Meal {
 }
 
 export function MealPlanCard({ meal }: { meal: Meal }) {
+  const { t } = useTranslation('plans');
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -71,7 +73,7 @@ export function MealPlanCard({ meal }: { meal: Meal }) {
       {expanded && (
         <View className="mt-3 gap-1">
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 11, marginBottom: 4 }}>
-            INGREDIENTES
+            {t('meal.card.ingredients')}
           </Text>
           {meal.ingredients.map((ing, i) => (
             <View key={i} className="flex-row items-center gap-2">

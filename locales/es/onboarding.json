@@ -122,35 +122,43 @@
   "modalities": {
     "gym_strength": {
       "label": "Fuerza / Gym",
-      "description": "Pesas, máquinas y fuerza en el gimnasio"
+      "description": "Pesas, máquinas y fuerza en el gimnasio",
+      "presets": ["Gimnasio completo", "Gimnasio básico"]
     },
     "functional": {
       "label": "Funcional / CrossFit / HIIT",
-      "description": "Circuitos, WODs e intervalos de alta intensidad"
+      "description": "Circuitos, WODs e intervalos de alta intensidad",
+      "presets": ["Box completo", "Kettlebells y cuerdas", "Sin equipo"]
     },
     "endurance": {
       "label": "Cardio de resistencia",
-      "description": "Correr, caminar o caminadora"
+      "description": "Correr, caminar o caminadora",
+      "presets": ["Aire libre", "Caminadora"]
     },
     "cycling": {
       "label": "Ciclismo / Spinning",
-      "description": "Ruta, bici fija o rodillo"
+      "description": "Ruta, bici fija o rodillo",
+      "presets": ["Bici de ruta", "Bici fija / spinning", "Rodillo"]
     },
     "swimming": {
       "label": "Natación",
-      "description": "Entrenamiento en alberca"
+      "description": "Entrenamiento en alberca",
+      "presets": ["Alberca corta (25m)", "Alberca larga (50m)"]
     },
     "home_calisthenics": {
       "label": "En casa / Calistenia",
-      "description": "Peso corporal y equipo mínimo en casa"
+      "description": "Peso corporal y equipo mínimo en casa",
+      "presets": ["Sin equipo", "Bandas", "Mancuernas", "Barra de dominadas"]
     },
     "mobility": {
       "label": "Yoga / Pilates / Movilidad",
-      "description": "Flexibilidad, control y movilidad"
+      "description": "Flexibilidad, control y movilidad",
+      "presets": ["Tapete", "Tapete y bloques"]
     },
     "ball_sports": {
       "label": "Deportes con balón",
-      "description": "Fútbol, básquet, tenis y más"
+      "description": "Fútbol, básquet, tenis y más",
+      "presets": ["Cancha y balón"]
     }
   }
 }

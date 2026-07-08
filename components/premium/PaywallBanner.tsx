@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 
 interface PaywallBannerProps {
@@ -8,7 +9,9 @@ interface PaywallBannerProps {
   onPress: () => void;
 }
 
-export function PaywallBanner({ message, ctaLabel = 'Hazte Premium', onPress }: PaywallBannerProps) {
+export function PaywallBanner({ message, ctaLabel, onPress }: PaywallBannerProps) {
+  const { t } = useTranslation('plans');
+  const resolvedCta = ctaLabel ?? t('paywall.defaultCta');
   return (
     <View
       style={{
@@ -39,7 +42,7 @@ export function PaywallBanner({ message, ctaLabel = 'Hazte Premium', onPress }: 
         }}
       >
         <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 12 }}>
-          {ctaLabel}
+          {resolvedCta}
         </Text>
       </TouchableOpacity>
     </View>

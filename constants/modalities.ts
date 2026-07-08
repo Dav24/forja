@@ -13,6 +13,7 @@ export interface Modality {
   labelKey: string;
   icon: string;
   descriptionKey: string;
+  /** Claves i18n (onboarding:modalities.<id>.presets.<n>) — resolver con t() */
   equipmentPresets: string[];
 }
 
@@ -22,55 +23,55 @@ export const MODALITIES: Modality[] = [
     labelKey: 'onboarding:modalities.gym_strength.label',
     icon: '🏋️',
     descriptionKey: 'onboarding:modalities.gym_strength.description',
-    equipmentPresets: ['Gimnasio completo', 'Gimnasio básico'],
+    equipmentPresets: ['onboarding:modalities.gym_strength.presets.0', 'onboarding:modalities.gym_strength.presets.1'],
   },
   {
     id: 'functional',
     labelKey: 'onboarding:modalities.functional.label',
     icon: '⚡',
     descriptionKey: 'onboarding:modalities.functional.description',
-    equipmentPresets: ['Box completo', 'Kettlebells y cuerdas', 'Sin equipo'],
+    equipmentPresets: ['onboarding:modalities.functional.presets.0', 'onboarding:modalities.functional.presets.1', 'onboarding:modalities.functional.presets.2'],
   },
   {
     id: 'endurance',
     labelKey: 'onboarding:modalities.endurance.label',
     icon: '🏃',
     descriptionKey: 'onboarding:modalities.endurance.description',
-    equipmentPresets: ['Aire libre', 'Caminadora'],
+    equipmentPresets: ['onboarding:modalities.endurance.presets.0', 'onboarding:modalities.endurance.presets.1'],
   },
   {
     id: 'cycling',
     labelKey: 'onboarding:modalities.cycling.label',
     icon: '🚴',
     descriptionKey: 'onboarding:modalities.cycling.description',
-    equipmentPresets: ['Bici de ruta', 'Bici fija / spinning', 'Rodillo'],
+    equipmentPresets: ['onboarding:modalities.cycling.presets.0', 'onboarding:modalities.cycling.presets.1', 'onboarding:modalities.cycling.presets.2'],
   },
   {
     id: 'swimming',
     labelKey: 'onboarding:modalities.swimming.label',
     icon: '🏊',
     descriptionKey: 'onboarding:modalities.swimming.description',
-    equipmentPresets: ['Alberca corta (25m)', 'Alberca larga (50m)'],
+    equipmentPresets: ['onboarding:modalities.swimming.presets.0', 'onboarding:modalities.swimming.presets.1'],
   },
   {
     id: 'home_calisthenics',
     labelKey: 'onboarding:modalities.home_calisthenics.label',
     icon: '🏠',
     descriptionKey: 'onboarding:modalities.home_calisthenics.description',
-    equipmentPresets: ['Sin equipo', 'Bandas', 'Mancuernas', 'Barra de dominadas'],
+    equipmentPresets: ['onboarding:modalities.home_calisthenics.presets.0', 'onboarding:modalities.home_calisthenics.presets.1', 'onboarding:modalities.home_calisthenics.presets.2', 'onboarding:modalities.home_calisthenics.presets.3'],
   },
   {
     id: 'mobility',
     labelKey: 'onboarding:modalities.mobility.label',
     icon: '🧘',
     descriptionKey: 'onboarding:modalities.mobility.description',
-    equipmentPresets: ['Tapete', 'Tapete y bloques'],
+    equipmentPresets: ['onboarding:modalities.mobility.presets.0', 'onboarding:modalities.mobility.presets.1'],
   },
   {
     id: 'ball_sports',
     labelKey: 'onboarding:modalities.ball_sports.label',
     icon: '⚽',
     descriptionKey: 'onboarding:modalities.ball_sports.description',
-    equipmentPresets: ['Cancha y balón'],
+    equipmentPresets: ['onboarding:modalities.ball_sports.presets.0'],
   },
 ];

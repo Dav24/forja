@@ -5,5 +5,6 @@
   "loading": "Loading...",
   "error": "Error",
   "genericError": "Something went wrong. Try again.",
-  "comingSoon": "Coming soon"
+  "comingSoon": "Coming soon",
+  "daysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 }
