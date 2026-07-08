@@ -58,7 +58,20 @@ export function useUpdateProfile() {
         .eq('id', user!.id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onMutate: async (updates) => {
+      await queryClient.cancelQueries({ queryKey: ['profile', user?.id] });
+      const previous = queryClient.getQueryData(['profile', user?.id]);
+      queryClient.setQueryData(['profile', user?.id], (old: unknown) =>
+        old ? { ...(old as Record<string, unknown>), ...updates } : old
+      );
+      return { previous };
+    },
+    onError: (_err, _updates, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(['profile', user?.id], context.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
