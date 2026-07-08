@@ -1,4 +1,66 @@
 {
+  "layout": {
+    "stepOf": "Paso {{current}} de {{total}}",
+    "continue": "Continuar"
+  },
+  "step1": {
+    "vulcanoTitle": "Soy Vulcano, forjador de atletas",
+    "vulcanoSubtitle": "Cuéntame de ti y forjaremos tu plan a la medida.",
+    "title": "¿Cuál es tu objetivo?",
+    "subtitle": "Tu coach se adapta a lo que quieres lograr."
+  },
+  "step2": {
+    "title": "¿Cómo entrenas?",
+    "subtitle": "Tu disciplina principal define tu plan.",
+    "secondaryTitle": "¿Combinas con algo más?",
+    "secondarySubtitle": "Opcional — hasta 2 disciplinas secundarias.",
+    "sportLabel": "¿Qué deporte?",
+    "sportPlaceholder": "Fútbol, básquet, tenis..."
+  },
+  "step3": {
+    "title": "Tu cuerpo",
+    "subtitle": "Para que tu coach calcule tu plan correctamente.",
+    "weightLabel": "Peso (kg)",
+    "weightPlaceholder": "70",
+    "heightLabel": "Altura (cm)",
+    "heightPlaceholder": "175",
+    "ageLabel": "Edad",
+    "agePlaceholder": "25",
+    "genderLabel": "Género",
+    "activityLabel": "Nivel de actividad actual",
+    "genders": {
+      "male": "Hombre",
+      "female": "Mujer",
+      "other": "Otro",
+      "preferNotToSay": "Prefiero no decir"
+    },
+    "activityLevels": {
+      "sedentary": { "label": "Sedentario", "description": "Poco o nada de ejercicio" },
+      "light": { "label": "Ligero", "description": "1-3 días/semana" },
+      "moderate": { "label": "Moderado", "description": "3-5 días/semana" },
+      "active": { "label": "Activo", "description": "6-7 días/semana" },
+      "veryActive": { "label": "Muy activo", "description": "Dos veces al día o trabajo físico" }
+    },
+    "errors": {
+      "missingFields": { "title": "Campos requeridos", "body": "Completa todos los campos para continuar." },
+      "invalidWeight": { "title": "Peso inválido", "body": "Ingresa un peso entre 20 y 300 kg." },
+      "invalidHeight": { "title": "Altura inválida", "body": "Ingresa una altura entre 100 y 250 cm." },
+      "invalidAge": { "title": "Edad inválida", "body": "Ingresa una edad entre 12 y 100 años." }
+    }
+  },
+  "step4": {
+    "title": "Tu nivel y estilo",
+    "subtitle": "Último paso. Tu coach ajustará la intensidad a esto.",
+    "levelQuestion": "¿Cuál es tu nivel actual?",
+    "modeQuestion": "¿Cómo prefieres entrenar?",
+    "finishButton": "Forjar mi plan 🔥",
+    "errors": {
+      "missingSelection": { "title": "Selecciona ambas opciones", "body": "Elige tu nivel y modo de entrenamiento." },
+      "missingData": { "title": "Error", "body": "Faltan datos del paso anterior." },
+      "saveFailed": { "title": "Error al guardar" },
+      "unknown": "Error desconocido"
+    }
+  },
   "goals": {
     "weight_loss": {
       "title": "Bajar de peso",

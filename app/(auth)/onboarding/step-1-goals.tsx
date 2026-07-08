@@ -8,7 +8,7 @@ import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { GOALS, type GoalType } from '@/constants/goals';
 
 export default function Step1Goals() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('onboarding');
   const [selected, setSelected] = useState<GoalType | null>(null);
   const { setStep1 } = useOnboardingStore();
   const router = useRouter();
@@ -29,17 +29,17 @@ export default function Step1Goals() {
         <View className="pt-6 items-center mb-6">
           <VulcanoAvatar size={72} />
           <Text className="text-text mt-3 text-center" style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20 }}>
-            Soy Vulcano, forjador de atletas
+            {t('step1.vulcanoTitle')}
           </Text>
           <Text className="text-text-muted text-sm text-center mt-1" style={{ fontFamily: 'Inter-Regular' }}>
-            Cuéntame de ti y forjaremos tu plan a la medida.
+            {t('step1.vulcanoSubtitle')}
           </Text>
         </View>
 
         <View className="pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">Paso 1 de 4</Text>
-          <Text className="text-text font-bold text-3xl">¿Cuál es tu objetivo?</Text>
-          <Text className="text-text-muted text-base mt-2">Tu coach se adapta a lo que quieres lograr.</Text>
+          <Text className="text-text-muted text-sm font-medium mb-1">{t('layout.stepOf', { current: 1, total: 4 })}</Text>
+          <Text className="text-text font-bold text-3xl">{t('step1.title')}</Text>
+          <Text className="text-text-muted text-base mt-2">{t('step1.subtitle')}</Text>
         </View>
 
         <View className="gap-3">
@@ -83,7 +83,7 @@ export default function Step1Goals() {
           disabled={!selected}
         >
           <Text className={`font-bold text-base ${selected ? 'text-background' : 'text-text-muted'}`}>
-            Continuar
+            {t('layout.continue')}
           </Text>
         </TouchableOpacity>
       </View>

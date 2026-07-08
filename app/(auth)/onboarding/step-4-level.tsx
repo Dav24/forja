@@ -12,7 +12,7 @@ import { colors } from '@/constants/colors';
 import { FITNESS_LEVELS, MODES, type FitnessLevel, type TrainingMode } from '@/constants/goals';
 
 export default function Step3Level() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('onboarding');
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
   const [mode, setMode] = useState<TrainingMode | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,11 +26,11 @@ export default function Step3Level() {
 
   async function handleFinish() {
     if (!fitnessLevel || !mode) {
-      Alert.alert('Selecciona ambas opciones', 'Elige tu nivel y modo de entrenamiento.');
+      Alert.alert(t('step4.errors.missingSelection.title'), t('step4.errors.missingSelection.body'));
       return;
     }
     if (!user || !goalType || !weightKg || !heightCm || !age || !gender || !activityLevel) {
-      Alert.alert('Error', 'Faltan datos del paso anterior.');
+      Alert.alert(t('step4.errors.missingData.title'), t('step4.errors.missingData.body'));
       return;
     }
 
@@ -75,8 +75,8 @@ export default function Step3Level() {
       const message =
         typeof err === 'object' && err !== null && 'message' in err
           ? String((err as { message: unknown }).message)
-          : 'Error desconocido';
-      Alert.alert('Error al guardar', message);
+          : t('step4.errors.unknown');
+      Alert.alert(t('step4.errors.saveFailed.title'), message);
     } finally {
       setLoading(false);
     }
@@ -89,13 +89,13 @@ export default function Step3Level() {
         showsVerticalScrollIndicator={false}
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">Paso 4 de 4</Text>
-          <Text className="text-text font-bold text-3xl">Tu nivel y estilo</Text>
-          <Text className="text-text-muted text-base mt-2">Último paso. Tu coach ajustará la intensidad a esto.</Text>
+          <Text className="text-text-muted text-sm font-medium mb-1">{t('layout.stepOf', { current: 4, total: 4 })}</Text>
+          <Text className="text-text font-bold text-3xl">{t('step4.title')}</Text>
+          <Text className="text-text-muted text-base mt-2">{t('step4.subtitle')}</Text>
         </View>
 
         {/* Nivel de fitness */}
-        <Text className="text-text font-semibold text-base mb-3">¿Cuál es tu nivel actual?</Text>
+        <Text className="text-text font-semibold text-base mb-3">{t('step4.levelQuestion')}</Text>
         <View className="gap-2 mb-8">
           {FITNESS_LEVELS.map((level) => {
             const isSelected = fitnessLevel === level.value;
@@ -122,7 +122,7 @@ export default function Step3Level() {
         </View>
 
         {/* Modo */}
-        <Text className="text-text font-semibold text-base mb-3">¿Cómo prefieres entrenar?</Text>
+        <Text className="text-text font-semibold text-base mb-3">{t('step4.modeQuestion')}</Text>
         <View className="gap-3">
           {MODES.map((m) => {
             const isSelected = mode === m.value;
@@ -162,7 +162,7 @@ export default function Step3Level() {
           {loading
             ? <ActivityIndicator color={colors.background} />
             : <Text className={`font-bold text-base ${fitnessLevel && mode ? 'text-background' : 'text-text-muted'}`}>
-                Forjar mi plan 🔥
+                {t('step4.finishButton')}
               </Text>
           }
         </TouchableOpacity>

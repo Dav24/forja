@@ -8,7 +8,7 @@ import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { Input } from '@/components/ui/Input';
 
 export default function Step2Modality() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('onboarding');
   const [principal, setPrincipal] = useState<ModalityId | null>(null);
   const [secondary, setSecondary] = useState<ModalityId[]>([]);
   const [sportType, setSportType] = useState('');
@@ -48,9 +48,9 @@ export default function Step2Modality() {
         showsVerticalScrollIndicator={false}
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">Paso 2 de 4</Text>
-          <Text className="text-text font-bold text-3xl">¿Cómo entrenas?</Text>
-          <Text className="text-text-muted text-base mt-2">Tu disciplina principal define tu plan.</Text>
+          <Text className="text-text-muted text-sm font-medium mb-1">{t('layout.stepOf', { current: 2, total: 4 })}</Text>
+          <Text className="text-text font-bold text-3xl">{t('step2.title')}</Text>
+          <Text className="text-text-muted text-base mt-2">{t('step2.subtitle')}</Text>
         </View>
 
         <View className="gap-3">
@@ -84,8 +84,8 @@ export default function Step2Modality() {
 
         {principal && (
           <View className="mt-8">
-            <Text className="text-text font-semibold text-lg">¿Combinas con algo más?</Text>
-            <Text className="text-text-muted text-sm mt-1 mb-3">Opcional — hasta 2 disciplinas secundarias.</Text>
+            <Text className="text-text font-semibold text-lg">{t('step2.secondaryTitle')}</Text>
+            <Text className="text-text-muted text-sm mt-1 mb-3">{t('step2.secondarySubtitle')}</Text>
             <View className="flex-row flex-wrap gap-2">
               {MODALITIES.filter((m) => m.id !== principal).map((m) => {
                 const on = secondary.includes(m.id);
@@ -108,8 +108,8 @@ export default function Step2Modality() {
 
         {needsSport && (
           <View className="mt-6">
-            <Text className="text-text font-semibold text-base mb-2">¿Qué deporte?</Text>
-            <Input placeholder="Fútbol, básquet, tenis..." value={sportType} onChangeText={setSportType} />
+            <Text className="text-text font-semibold text-base mb-2">{t('step2.sportLabel')}</Text>
+            <Input placeholder={t('step2.sportPlaceholder')} value={sportType} onChangeText={setSportType} />
           </View>
         )}
       </ScrollView>
@@ -124,7 +124,7 @@ export default function Step2Modality() {
           disabled={!principal}
         >
           <Text className={`font-bold text-base ${principal ? 'text-background' : 'text-text-muted'}`}>
-            Continuar
+            {t('layout.continue')}
           </Text>
         </TouchableOpacity>
       </View>

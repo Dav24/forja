@@ -5,28 +5,30 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { colors } from '@/constants/colors';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
 
-const GENDERS: { value: Gender; label: string }[] = [
-  { value: 'male',              label: 'Hombre' },
-  { value: 'female',            label: 'Mujer' },
-  { value: 'other',             label: 'Otro' },
-  { value: 'prefer_not_to_say', label: 'Prefiero no decir' },
+const GENDERS: { value: Gender; labelKey: string }[] = [
+  { value: 'male',              labelKey: 'step3.genders.male' },
+  { value: 'female',            labelKey: 'step3.genders.female' },
+  { value: 'other',             labelKey: 'step3.genders.other' },
+  { value: 'prefer_not_to_say', labelKey: 'step3.genders.preferNotToSay' },
 ];
 
-const ACTIVITY_LEVELS: { value: ActivityLevel; label: string; description: string }[] = [
-  { value: 'sedentary',  label: 'Sedentario',   description: 'Poco o nada de ejercicio' },
-  { value: 'light',      label: 'Ligero',        description: '1-3 días/semana' },
-  { value: 'moderate',   label: 'Moderado',      description: '3-5 días/semana' },
-  { value: 'active',     label: 'Activo',        description: '6-7 días/semana' },
-  { value: 'very_active',label: 'Muy activo',    description: 'Dos veces al día o trabajo físico' },
+const ACTIVITY_LEVELS: { value: ActivityLevel; labelKey: string; descriptionKey: string }[] = [
+  { value: 'sedentary',   labelKey: 'step3.activityLevels.sedentary.label',   descriptionKey: 'step3.activityLevels.sedentary.description' },
+  { value: 'light',       labelKey: 'step3.activityLevels.light.label',       descriptionKey: 'step3.activityLevels.light.description' },
+  { value: 'moderate',    labelKey: 'step3.activityLevels.moderate.label',    descriptionKey: 'step3.activityLevels.moderate.description' },
+  { value: 'active',      labelKey: 'step3.activityLevels.active.label',      descriptionKey: 'step3.activityLevels.active.description' },
+  { value: 'very_active', labelKey: 'step3.activityLevels.veryActive.label',  descriptionKey: 'step3.activityLevels.veryActive.description' },
 ];
 
 export default function Step2Body() {
+  const { t } = useTranslation('onboarding');
   const [weight, setWeight] = useState('');
   const [height, setHeight] = useState('');
   const [age, setAge] = useState('');
@@ -38,15 +40,15 @@ export default function Step2Body() {
 
   function handleContinue() {
     if (!weight || !height || !age || !gender || !activityLevel) {
-      Alert.alert('Campos requeridos', 'Completa todos los campos para continuar.');
+      Alert.alert(t('step3.errors.missingFields.title'), t('step3.errors.missingFields.body'));
       return;
     }
     const w = parseFloat(weight);
     const h = parseFloat(height);
     const a = parseInt(age, 10);
-    if (isNaN(w) || w < 20 || w > 300) { Alert.alert('Peso inválido', 'Ingresa un peso entre 20 y 300 kg.'); return; }
-    if (isNaN(h) || h < 100 || h > 250) { Alert.alert('Altura inválida', 'Ingresa una altura entre 100 y 250 cm.'); return; }
-    if (isNaN(a) || a < 12 || a > 100) { Alert.alert('Edad inválida', 'Ingresa una edad entre 12 y 100 años.'); return; }
+    if (isNaN(w) || w < 20 || w > 300) { Alert.alert(t('step3.errors.invalidWeight.title'), t('step3.errors.invalidWeight.body')); return; }
+    if (isNaN(h) || h < 100 || h > 250) { Alert.alert(t('step3.errors.invalidHeight.title'), t('step3.errors.invalidHeight.body')); return; }
+    if (isNaN(a) || a < 12 || a > 100) { Alert.alert(t('step3.errors.invalidAge.title'), t('step3.errors.invalidAge.body')); return; }
 
     setStep2({ weightKg: w, heightCm: h, age: a, gender, activityLevel });
     router.push('/(auth)/onboarding/step-4-level');
@@ -63,18 +65,18 @@ export default function Step2Body() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">Paso 3 de 4</Text>
-          <Text className="text-text font-bold text-3xl">Tu cuerpo</Text>
-          <Text className="text-text-muted text-base mt-2">Para que tu coach calcule tu plan correctamente.</Text>
+          <Text className="text-text-muted text-sm font-medium mb-1">{t('layout.stepOf', { current: 3, total: 4 })}</Text>
+          <Text className="text-text font-bold text-3xl">{t('step3.title')}</Text>
+          <Text className="text-text-muted text-base mt-2">{t('step3.subtitle')}</Text>
         </View>
 
         {/* Peso y altura en fila */}
         <View className="flex-row gap-3 mb-4">
           <View className="flex-1">
-            <Text className="text-text text-sm font-medium mb-2">Peso (kg)</Text>
+            <Text className="text-text text-sm font-medium mb-2">{t('step3.weightLabel')}</Text>
             <TextInput
               className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
-              placeholder="70"
+              placeholder={t('step3.weightPlaceholder')}
               placeholderTextColor={colors.textMuted}
               value={weight}
               onChangeText={setWeight}
@@ -82,10 +84,10 @@ export default function Step2Body() {
             />
           </View>
           <View className="flex-1">
-            <Text className="text-text text-sm font-medium mb-2">Altura (cm)</Text>
+            <Text className="text-text text-sm font-medium mb-2">{t('step3.heightLabel')}</Text>
             <TextInput
               className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
-              placeholder="175"
+              placeholder={t('step3.heightPlaceholder')}
               placeholderTextColor={colors.textMuted}
               value={height}
               onChangeText={setHeight}
@@ -96,10 +98,10 @@ export default function Step2Body() {
 
         {/* Edad */}
         <View className="mb-6">
-          <Text className="text-text text-sm font-medium mb-2">Edad</Text>
+          <Text className="text-text text-sm font-medium mb-2">{t('step3.ageLabel')}</Text>
           <TextInput
             className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
-            placeholder="25"
+            placeholder={t('step3.agePlaceholder')}
             placeholderTextColor={colors.textMuted}
             value={age}
             onChangeText={setAge}
@@ -109,7 +111,7 @@ export default function Step2Body() {
 
         {/* Género */}
         <View className="mb-6">
-          <Text className="text-text text-sm font-medium mb-3">Género</Text>
+          <Text className="text-text text-sm font-medium mb-3">{t('step3.genderLabel')}</Text>
           <View className="flex-row flex-wrap gap-2">
             {GENDERS.map((g) => (
               <TouchableOpacity
@@ -118,7 +120,7 @@ export default function Step2Body() {
                 className={`px-4 h-10 rounded-full border items-center justify-center ${gender === g.value ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
               >
                 <Text className={`text-sm font-medium ${gender === g.value ? 'text-primary' : 'text-text'}`}>
-                  {g.label}
+                  {t(g.labelKey)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -127,7 +129,7 @@ export default function Step2Body() {
 
         {/* Nivel de actividad */}
         <View className="mb-6">
-          <Text className="text-text text-sm font-medium mb-3">Nivel de actividad actual</Text>
+          <Text className="text-text text-sm font-medium mb-3">{t('step3.activityLabel')}</Text>
           <View className="gap-2">
             {ACTIVITY_LEVELS.map((level) => {
               const isSelected = activityLevel === level.value;
@@ -139,9 +141,9 @@ export default function Step2Body() {
                 >
                   <View className="flex-1">
                     <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-text'}`}>
-                      {level.label}
+                      {t(level.labelKey)}
                     </Text>
-                    <Text className="text-text-muted text-xs mt-0.5">{level.description}</Text>
+                    <Text className="text-text-muted text-xs mt-0.5">{t(level.descriptionKey)}</Text>
                   </View>
                   {isSelected && (
                     <View className="w-5 h-5 rounded-full bg-primary items-center justify-center">
@@ -163,7 +165,7 @@ export default function Step2Body() {
           className="bg-primary rounded-xl h-14 items-center justify-center"
           onPress={handleContinue}
         >
-          <Text className="text-background font-bold text-base">Continuar</Text>
+          <Text className="text-background font-bold text-base">{t('layout.continue')}</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
