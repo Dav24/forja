@@ -1,6 +1,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { Receiver } from 'npm:@upstash/qstash@^2';
 import { passesPrefs } from './prefs.ts';
+import { getNotificationText, type PayloadKind } from './texts.ts';
 
 interface NotificationTarget {
   user_id: string;
@@ -20,8 +21,8 @@ interface NotificationTarget {
 
 interface NotificationPayload {
   type: 'progress_update' | 'missed_workout' | 'goal_milestone';
-  title: string;
-  body: string;
+  kind: PayloadKind;
+  params: { daysLeft?: number };
 }
 
 interface ExpoMessage {
@@ -74,8 +75,8 @@ function decideNotification(target: NotificationTarget): NotificationPayload | n
       if (totalChange > 0 && achieved / totalChange >= 1.0) {
         return {
           type: 'goal_milestone',
-          title: '¡Lo lograste! 🏆',
-          body: 'Alcanzaste tu meta de peso. ¡Es momento de celebrar!',
+          kind: 'goal_achieved',
+          params: {},
         };
       }
     }
@@ -87,8 +88,8 @@ function decideNotification(target: NotificationTarget): NotificationPayload | n
         const daysLeft = Math.ceil(daysToGoal);
         return {
           type: 'goal_milestone',
-          title: '¡Tu meta se acerca!',
-          body: `Quedan ${daysLeft} días. Memo revisa tu progreso contigo.`,
+          kind: 'goal_approaching',
+          params: { daysLeft },
         };
       }
     }
@@ -97,16 +98,16 @@ function decideNotification(target: NotificationTarget): NotificationPayload | n
     if (inactive >= 2) {
       return {
         type: 'missed_workout',
-        title: '2 días sin entrenar',
-        body: 'Tu racha está en riesgo. Memo tiene tu plan listo.',
+        kind: 'missed_workout_premium',
+        params: {},
       };
     }
 
     // Daily greeting
     return {
       type: 'progress_update',
-      title: '¡Hola, forjador! 💪',
-      body: 'Memo está aquí. ¿Qué vamos a trabajar hoy?',
+      kind: 'greeting_premium',
+      params: {},
     };
   }
 
@@ -114,15 +115,15 @@ function decideNotification(target: NotificationTarget): NotificationPayload | n
   if (inactive >= 2) {
     return {
       type: 'missed_workout',
-      title: 'Te extrañamos 🔥',
-      body: 'Memo tiene un mensaje para ti. ¿Volvemos?',
+      kind: 'missed_workout_free',
+      params: {},
     };
   }
 
   return {
     type: 'progress_update',
-    title: '¡Hola, forjador! 💪',
-    body: 'Memo está aquí. ¿Qué vamos a trabajar hoy?',
+    kind: 'greeting_free',
+    params: {},
   };
 }
 
@@ -199,13 +200,28 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  const messages: ExpoMessage[] = selected.map(({ target, payload }) => ({
-    to: target.expo_push_token,
-    title: payload.title,
-    body: payload.body,
-    data: { type: payload.type },
-    sound: 'default',
-  }));
+  // Resolve each user's preferred language for localized push text
+  const { data: langRows } = await supabase
+    .from('profiles')
+    .select('id, language')
+    .in('id', targets.map((t) => t.user_id));
+  const langMap = new Map(
+    langRows?.map((r: { id: string; language: string | null }) => [
+      r.id,
+      r.language === 'en' ? ('en' as const) : ('es' as const),
+    ])
+  );
+
+  const messages: ExpoMessage[] = selected.map(({ target, payload }) => {
+    const text = getNotificationText(payload.kind, langMap.get(target.user_id) ?? 'es', payload.params);
+    return {
+      to: target.expo_push_token,
+      title: text.title,
+      body: text.body,
+      data: { type: payload.type },
+      sound: 'default',
+    };
+  });
 
   const tickets = await sendBatch(messages);
 
@@ -243,11 +259,12 @@ Deno.serve(async (req: Request) => {
     if (ticket.status === 'error' && ticket.details?.error === 'DeviceNotRegistered') {
       invalidUserIds.push(target.user_id);
     } else if (ticket.status === 'ok' && !alreadySentIds.has(target.user_id)) {
+      const text = getNotificationText(payload.kind, langMap.get(target.user_id) ?? 'es', payload.params);
       notificationInserts.push({
         user_id: target.user_id,
         type: payload.type,
-        title: payload.title,
-        body: payload.body,
+        title: text.title,
+        body: text.body,
       });
     }
   });
