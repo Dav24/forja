@@ -8,5 +8,12 @@
   "comingSoon": "Próximamente",
   "daysShort": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
   "show": "Ver",
-  "hide": "Ocultar"
+  "hide": "Ocultar",
+  "tabs": {
+    "home": "Inicio",
+    "coach": "Coach",
+    "plans": "Planes",
+    "progress": "Progreso",
+    "profile": "Perfil"
+  }
 }

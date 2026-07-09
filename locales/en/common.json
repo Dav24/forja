@@ -8,5 +8,12 @@
   "comingSoon": "Coming soon",
   "daysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   "show": "Show",
-  "hide": "Hide"
+  "hide": "Hide",
+  "tabs": {
+    "home": "Home",
+    "coach": "Coach",
+    "plans": "Plans",
+    "progress": "Progress",
+    "profile": "Profile"
+  }
 }

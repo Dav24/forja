@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 import { useSyncLanguage } from '@/hooks/useSyncLanguage';
 
@@ -18,6 +19,7 @@ function TabIcon({ name, focused }: { name: IoniconsName; focused: boolean }) {
 
 export default function AppLayout() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('common');
   useSyncLanguage();
 
   return (
@@ -44,35 +46,35 @@ export default function AppLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: t('tabs.home'),
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'home' : 'home-outline'} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Coach',
+          title: t('tabs.coach'),
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="plans"
         options={{
-          title: 'Planes',
+          title: t('tabs.plans'),
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'barbell' : 'barbell-outline'} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
-          title: 'Progreso',
+          title: t('tabs.progress'),
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'trending-up' : 'trending-up-outline'} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Perfil',
+          title: t('tabs.profile'),
           tabBarIcon: ({ focused }) => <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} />,
         }}
       />
