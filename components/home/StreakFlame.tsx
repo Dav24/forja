@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 
 interface StreakFlameProps {
@@ -45,6 +46,7 @@ function Flame({ size, dead }: { size: number; dead: boolean }) {
 }
 
 export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
+  const { t } = useTranslation('home');
   const dead = streak === 0;
   const flicker = useSharedValue(1);
 
@@ -92,7 +94,7 @@ export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
       <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 20, color: dead ? colors.textMuted : colors.primaryBright }}>
         {streak}
       </Text>
-      <Text className="text-text-muted text-xs">{dead ? 'reaviva tu racha' : 'días'}</Text>
+      <Text className="text-text-muted text-xs">{dead ? t('streak.revive') : t('streak.days')}</Text>
     </View>
   );
 }

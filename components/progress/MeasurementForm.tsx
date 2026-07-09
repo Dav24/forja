@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -21,6 +22,7 @@ interface MeasurementFormProps {
 }
 
 export function MeasurementForm({ initialValues, isUpdate = false, existingId, onSuccess }: MeasurementFormProps) {
+  const { t } = useTranslation('progress');
   const isPremium = useIsPremium();
   const { mutate, isPending: insertPending, error: insertError } = useLogBodyData();
   const { mutate: updateBody, isPending: isUpdating, error: updateError } = useUpdateBodyData();
@@ -35,14 +37,14 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
 
   function validate(): string | null {
     const w = parseFloat(weightKg);
-    if (!weightKg || isNaN(w) || w < 20 || w > 300) return 'El peso debe estar entre 20 y 300 kg';
+    if (!weightKg || isNaN(w) || w < 20 || w > 300) return t('form.weightError');
     if (isPremium && bodyFatPct) {
       const bf = parseFloat(bodyFatPct);
-      if (isNaN(bf) || bf < 2 || bf > 60) return 'La grasa corporal debe estar entre 2 y 60 %';
+      if (isNaN(bf) || bf < 2 || bf > 60) return t('form.fatError');
     }
     if (isPremium && muscleMassKg) {
       const mm = parseFloat(muscleMassKg);
-      if (isNaN(mm) || mm < 10 || mm > 150) return 'La masa muscular debe estar entre 10 y 150 kg';
+      if (isNaN(mm) || mm < 10 || mm > 150) return t('form.muscleError');
     }
     return null;
   }
@@ -73,11 +75,11 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
   return (
     <View className="gap-4">
       <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: typography.sizes.h3, color: colors.text }}>
-        {isUpdate ? 'Actualizar medidas' : 'Registrar medidas'}
+        {isUpdate ? t('form.titleUpdate') : t('form.titleCreate')}
       </Text>
 
       <Input
-        label="Peso (kg)"
+        label={t('form.weightLabel')}
         value={weightKg}
         onChangeText={setWeightKg}
         placeholder="70.5"
@@ -87,9 +89,9 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
       <View className="gap-1.5">
         <View className="flex-row items-center justify-between">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>
-            Grasa corporal (%)
+            {t('form.fatLabel')}
           </Text>
-          {!isPremium && <Badge label="Premium" variant="accent" />}
+          {!isPremium && <Badge label={t('form.premiumBadge')} variant="accent" />}
         </View>
         <TouchableOpacity
           activeOpacity={1}
@@ -109,9 +111,9 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
       <View className="gap-1.5">
         <View className="flex-row items-center justify-between">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>
-            Masa muscular (kg)
+            {t('form.muscleLabel')}
           </Text>
-          {!isPremium && <Badge label="Premium" variant="accent" />}
+          {!isPremium && <Badge label={t('form.premiumBadge')} variant="accent" />}
         </View>
         <TouchableOpacity
           activeOpacity={1}
@@ -130,12 +132,12 @@ export function MeasurementForm({ initialValues, isUpdate = false, existingId, o
 
       {(validationError || error) && (
         <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.destructive }}>
-          {validationError ?? 'Error al guardar. Intenta de nuevo.'}
+          {validationError ?? t('form.saveError')}
         </Text>
       )}
 
       <Button
-        label={isUpdate ? 'Actualizar' : 'Registrar'}
+        label={isUpdate ? t('form.submitUpdate') : t('form.submitCreate')}
         onPress={handleSubmit}
         loading={isPending}
         disabled={!weightKg}

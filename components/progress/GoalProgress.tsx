@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Badge } from '@/components/ui/Badge';
 import { useActiveGoal } from '@/hooks/useProfile';
@@ -7,16 +8,8 @@ import { useLatestBodyData, useFirstBodyData } from '@/hooks/useBodyTracking';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 
-const GOAL_LABELS: Record<string, string> = {
-  weight_loss: 'Pérdida de peso',
-  muscle_gain: 'Ganancia muscular',
-  recomposition: 'Recomposición corporal',
-  powerlifting: 'Powerlifting',
-  sport_specific: 'Deporte específico',
-  general_fitness: 'Fitness general',
-};
-
 export function GoalProgress() {
+  const { t } = useTranslation('progress');
   const { data: goal } = useActiveGoal();
   const { data: latest } = useLatestBodyData();
   const { data: first } = useFirstBodyData();
@@ -29,13 +22,13 @@ export function GoalProgress() {
       >
         <Ionicons name="flag-outline" size={20} color={colors.textMuted} />
         <Text className="flex-1" style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.textMuted }}>
-          Define tu meta en Perfil para ver tu progreso
+          {t('goal.noGoalPrompt')}
         </Text>
       </View>
     );
   }
 
-  const goalLabel = GOAL_LABELS[goal.type] ?? goal.type;
+  const goalLabel = t(`goal.labels.${goal.type}`, { defaultValue: goal.type });
   const showWeightProgress =
     (goal.type === 'weight_loss' || goal.type === 'muscle_gain') &&
     goal.target_weight_kg != null;
@@ -64,7 +57,7 @@ export function GoalProgress() {
     >
       <View className="flex-row justify-between items-center mb-3">
         <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: colors.textMuted, letterSpacing: 0.5 }}>
-          META ACTIVA
+          {t('goal.activeLabel')}
         </Text>
         <Badge label={goalLabel} variant="primary" />
       </View>
@@ -76,11 +69,11 @@ export function GoalProgress() {
               {currentWeight.toFixed(1)}
             </Text>
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.textMuted }}>
-              kg actuales
+              {t('goal.currentSuffix')}
             </Text>
             <View className="flex-1" />
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.textMuted }}>
-              Meta: {goal.target_weight_kg!.toFixed(1)} kg
+              {t('goal.targetLabel', { value: goal.target_weight_kg!.toFixed(1) })}
             </Text>
           </View>
 
@@ -88,11 +81,11 @@ export function GoalProgress() {
 
           <View className="flex-row justify-between mt-2">
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.primary }}>
-              {progressPct >= 100 ? '¡Meta alcanzada!' : `${progressPct.toFixed(0)}% completado`}
+              {progressPct >= 100 ? t('goal.goalReached') : t('goal.percentComplete', { pct: progressPct.toFixed(0) })}
             </Text>
             {daysLeft !== null && (
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
-                {daysLeft > 0 ? `${daysLeft} días restantes` : daysLeft === 0 ? 'Hoy es tu fecha meta' : 'Fecha meta superada'}
+                {daysLeft > 0 ? t('goal.daysLeftRestantes', { count: daysLeft }) : daysLeft === 0 ? t('goal.daysLeftToday') : t('goal.daysLeftPast')}
               </Text>
             )}
           </View>
@@ -101,19 +94,19 @@ export function GoalProgress() {
         <View className="gap-1.5">
           {!latest ? (
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
-              Registra tu primera medida para ver tu avance
+              {t('goal.firstMeasurementPrompt')}
             </Text>
           ) : (
             <View className="flex-row items-center gap-1.5">
               <Ionicons name="checkmark-circle-outline" size={16} color={colors.success} />
               <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.textMuted }}>
-                {currentWeight != null ? `${currentWeight.toFixed(1)} kg registrados` : 'Medida registrada'}
+                {currentWeight != null ? t('goal.weightRecorded', { weight: currentWeight.toFixed(1) }) : t('goal.measurementRecorded')}
               </Text>
             </View>
           )}
           {daysLeft !== null && (
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
-              {daysLeft > 0 ? `${daysLeft} días para tu meta` : 'Fecha meta superada'}
+              {daysLeft > 0 ? t('goal.daysToGoal', { count: daysLeft }) : t('goal.daysLeftPast')}
             </Text>
           )}
         </View>

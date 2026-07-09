@@ -1,1 +1,59 @@
-{}
+{
+  "title": "Progress",
+  "lastRecord": "Last record: {{weight}} kg",
+  "stats": {
+    "weight": "Weight",
+    "fat": "Fat",
+    "muscle": "Muscle"
+  },
+  "recentRecords": {
+    "title": "LATEST MEASUREMENTS",
+    "fatSuffix": "{{pct}}% fat"
+  },
+  "goal": {
+    "noGoalPrompt": "Set your goal in Profile to see your progress",
+    "activeLabel": "ACTIVE GOAL",
+    "currentSuffix": "kg current",
+    "targetLabel": "Target: {{value}} kg",
+    "goalReached": "Goal reached!",
+    "percentComplete": "{{pct}}% complete",
+    "daysLeftRestantes": "{{count}} days left",
+    "daysLeftToday": "Today is your target date",
+    "daysLeftPast": "Target date passed",
+    "firstMeasurementPrompt": "Log your first measurement to see your progress",
+    "weightRecorded": "{{weight}} kg logged",
+    "measurementRecorded": "Measurement logged",
+    "daysToGoal": "{{count}} days to your goal",
+    "labels": {
+      "weight_loss": "Weight loss",
+      "muscle_gain": "Muscle gain",
+      "recomposition": "Body recomposition",
+      "powerlifting": "Powerlifting",
+      "sport_specific": "Sport specific",
+      "general_fitness": "General fitness"
+    }
+  },
+  "chart": {
+    "title": "BODY WEIGHT",
+    "ranges": {
+      "twoWeeks": "2 wk",
+      "oneMonth": "1 mo",
+      "threeMonths": "3 mo"
+    },
+    "empty": "Log your weight to see your progress here"
+  },
+  "form": {
+    "titleUpdate": "Update measurements",
+    "titleCreate": "Log measurements",
+    "weightLabel": "Weight (kg)",
+    "fatLabel": "Body fat (%)",
+    "muscleLabel": "Muscle mass (kg)",
+    "premiumBadge": "Premium",
+    "weightError": "Weight must be between 20 and 300 kg",
+    "fatError": "Body fat must be between 2 and 60%",
+    "muscleError": "Muscle mass must be between 10 and 150 kg",
+    "saveError": "Error saving. Try again.",
+    "submitUpdate": "Update",
+    "submitCreate": "Log"
+  }
+}

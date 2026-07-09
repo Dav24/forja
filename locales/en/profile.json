@@ -1,1 +1,25 @@
-{}
+{
+  "title": "Profile",
+  "fallbackName": "User",
+  "memberSince": "Forging since {{date}}",
+  "premiumBadge": "MASTER FORGER",
+  "freeBadge": "APPRENTICE",
+  "avatar": {
+    "permissionDenied": "Permission denied. Enable it in your phone settings.",
+    "openSettings": "Open phone settings"
+  },
+  "stats": {
+    "plans": "Plans",
+    "records": "Records",
+    "daysInForja": "Days in Forja"
+  },
+  "goal": {
+    "defineCta": "Set your goal"
+  },
+  "upgrade": {
+    "title": "Unlock Vulcano's full potential",
+    "description": "Unlimited chat, unrestricted plans, and full body tracking.",
+    "cta": "Become a Master"
+  },
+  "renewal": "Your subscription renews on {{date}}"
+}

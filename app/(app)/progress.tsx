@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { GoalProgress } from '@/components/progress/GoalProgress';
 import { WeightChart } from '@/components/progress/WeightChart';
 import { MeasurementForm } from '@/components/progress/MeasurementForm';
@@ -10,8 +11,10 @@ import { Sheet } from '@/components/ui/Sheet';
 import { StatCard } from '@/components/ui/StatCard';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
 import { colors } from '@/constants/colors';
+import { formatDate } from '@/lib/formatDate';
 
 export default function ProgressScreen() {
+  const { t } = useTranslation('progress');
   const sheetRef = useRef<any>(null);
   const { data: history } = useBodyHistory();
   const { data: latestBodyData } = useLatestBodyData();
@@ -46,14 +49,14 @@ export default function ProgressScreen() {
         {/* Header */}
         <View className="mb-5">
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text }}>
-            Progreso
+            {t('title')}
           </Text>
           {latestBodyData?.weight_kg && (
             <Text
               className="mt-0.5 text-sm"
               style={{ fontFamily: 'Inter-Regular', color: colors.textMuted }}
             >
-              Último registro: {latestBodyData.weight_kg.toFixed(1)} kg
+              {t('lastRecord', { weight: latestBodyData.weight_kg.toFixed(1) })}
             </Text>
           )}
         </View>
@@ -62,19 +65,19 @@ export default function ProgressScreen() {
         <View className="flex-row gap-3 mb-4">
           <StatCard
             value={latestBodyData?.weight_kg ?? '—'}
-            label="Peso"
+            label={t('stats.weight')}
             suffix=" kg"
             decimals={1}
           />
           <StatCard
             value={latestBodyData?.body_fat_pct ?? '—'}
-            label="Grasa"
+            label={t('stats.fat')}
             suffix="%"
             decimals={1}
           />
           <StatCard
             value={latestBodyData?.muscle_mass_kg ?? '—'}
-            label="Músculo"
+            label={t('stats.muscle')}
             suffix=" kg"
             decimals={1}
           />
@@ -104,12 +107,11 @@ export default function ProgressScreen() {
                 className="text-[13px] tracking-[0.5px]"
                 style={{ fontFamily: 'SpaceGrotesk-Bold', color: colors.textMuted }}
               >
-                ÚLTIMAS MEDIDAS
+                {t('recentRecords.title')}
               </Text>
             </View>
             {recentRecords.map((record, i) => {
-              const date = new Date(record.recorded_at);
-              const dateStr = date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+              const dateStr = formatDate(record.recorded_at, { day: 'numeric', month: 'short' });
               const isLast = i === recentRecords.length - 1;
               return (
                 <View
@@ -138,7 +140,7 @@ export default function ProgressScreen() {
                         className="text-xs"
                         style={{ fontFamily: 'JetBrainsMono-Medium', color: colors.textMuted }}
                       >
-                        {record.body_fat_pct.toFixed(1)}% grasa
+                        {t('recentRecords.fatSuffix', { pct: record.body_fat_pct.toFixed(1) })}
                       </Text>
                     )}
                   </View>

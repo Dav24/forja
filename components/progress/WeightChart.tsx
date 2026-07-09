@@ -2,8 +2,10 @@ import { useMemo, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { colors } from '@/constants/colors';
+import { formatDate } from '@/lib/formatDate';
 import { UpgradeSheet } from '@/components/premium/UpgradeSheet';
 
 const CHART_HEIGHT = 160;
@@ -18,10 +20,10 @@ interface DataPoint {
 
 type RangeKey = '2w' | '1m' | '3m';
 
-const RANGES: { key: RangeKey; label: string; days: number }[] = [
-  { key: '2w', label: '2 sem', days: 14 },
-  { key: '1m', label: '1 mes', days: 30 },
-  { key: '3m', label: '3 mes', days: 90 },
+const RANGES: { key: RangeKey; labelKey: string; days: number }[] = [
+  { key: '2w', labelKey: 'chart.ranges.twoWeeks', days: 14 },
+  { key: '1m', labelKey: 'chart.ranges.oneMonth', days: 30 },
+  { key: '3m', labelKey: 'chart.ranges.threeMonths', days: 90 },
 ];
 
 function filterByDays(data: DataPoint[], days: number): DataPoint[] {
@@ -77,6 +79,7 @@ interface WeightChartProps {
 }
 
 export function WeightChart({ data }: WeightChartProps) {
+  const { t } = useTranslation('progress');
   const isPremium = useIsPremium();
   const { width: screenW } = useWindowDimensions();
   const [range, setRange] = useState<RangeKey>('2w');
@@ -104,8 +107,8 @@ export function WeightChart({ data }: WeightChartProps) {
     for (let i = step; i < filtered.length - 1; i += step) indices.add(i);
     indices.add(filtered.length - 1);
     return [...indices].map((i) => {
-      const d = new Date(filtered[i].recorded_at);
-      return { label: `${d.getDate()}/${d.getMonth() + 1}`, x: points[i]?.x ?? 0 };
+      const label = formatDate(filtered[i].recorded_at, { day: 'numeric', month: 'numeric' });
+      return { label, x: points[i]?.x ?? 0 };
     });
   }, [filtered, points]);
 
@@ -117,10 +120,10 @@ export function WeightChart({ data }: WeightChartProps) {
       {/* Header + range selector */}
       <View className="flex-row justify-between items-center mb-3">
         <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: colors.textMuted, letterSpacing: 0.5 }}>
-          PESO CORPORAL
+          {t('chart.title')}
         </Text>
         <View className="flex-row gap-1">
-          {RANGES.map(({ key, label, days }) => {
+          {RANGES.map(({ key, labelKey, days }) => {
             const locked = !isPremium && days > 14;
             const active = range === key;
             return (
@@ -144,7 +147,7 @@ export function WeightChart({ data }: WeightChartProps) {
                   fontFamily: 'Inter-Medium', fontSize: 11,
                   color: locked ? colors.textMuted : active ? colors.primary : colors.textMuted,
                 }}>
-                  {label}
+                  {t(labelKey)}
                 </Text>
                 {locked && <Ionicons name="lock-closed" size={9} color={colors.accent} />}
               </TouchableOpacity>
@@ -161,7 +164,7 @@ export function WeightChart({ data }: WeightChartProps) {
             className="text-center"
             style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}
           >
-            Registra tu peso para ver tu progreso aquí
+            {t('chart.empty')}
           </Text>
         </View>
       ) : (

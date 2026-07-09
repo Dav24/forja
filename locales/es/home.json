@@ -28,5 +28,9 @@
     "goal": "Meta",
     "progress": "Progreso"
   },
-  "chatCta": "⚒️  Hablar con Vulcano"
+  "chatCta": "⚒️  Hablar con Vulcano",
+  "streak": {
+    "revive": "reaviva tu racha",
+    "days": "días"
+  }
 }

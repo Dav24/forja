@@ -1,1 +1,59 @@
-{}
+{
+  "title": "Progreso",
+  "lastRecord": "Último registro: {{weight}} kg",
+  "stats": {
+    "weight": "Peso",
+    "fat": "Grasa",
+    "muscle": "Músculo"
+  },
+  "recentRecords": {
+    "title": "ÚLTIMAS MEDIDAS",
+    "fatSuffix": "{{pct}}% grasa"
+  },
+  "goal": {
+    "noGoalPrompt": "Define tu meta en Perfil para ver tu progreso",
+    "activeLabel": "META ACTIVA",
+    "currentSuffix": "kg actuales",
+    "targetLabel": "Meta: {{value}} kg",
+    "goalReached": "¡Meta alcanzada!",
+    "percentComplete": "{{pct}}% completado",
+    "daysLeftRestantes": "{{count}} días restantes",
+    "daysLeftToday": "Hoy es tu fecha meta",
+    "daysLeftPast": "Fecha meta superada",
+    "firstMeasurementPrompt": "Registra tu primera medida para ver tu avance",
+    "weightRecorded": "{{weight}} kg registrados",
+    "measurementRecorded": "Medida registrada",
+    "daysToGoal": "{{count}} días para tu meta",
+    "labels": {
+      "weight_loss": "Pérdida de peso",
+      "muscle_gain": "Ganancia muscular",
+      "recomposition": "Recomposición corporal",
+      "powerlifting": "Powerlifting",
+      "sport_specific": "Deporte específico",
+      "general_fitness": "Fitness general"
+    }
+  },
+  "chart": {
+    "title": "PESO CORPORAL",
+    "ranges": {
+      "twoWeeks": "2 sem",
+      "oneMonth": "1 mes",
+      "threeMonths": "3 mes"
+    },
+    "empty": "Registra tu peso para ver tu progreso aquí"
+  },
+  "form": {
+    "titleUpdate": "Actualizar medidas",
+    "titleCreate": "Registrar medidas",
+    "weightLabel": "Peso (kg)",
+    "fatLabel": "Grasa corporal (%)",
+    "muscleLabel": "Masa muscular (kg)",
+    "premiumBadge": "Premium",
+    "weightError": "El peso debe estar entre 20 y 300 kg",
+    "fatError": "La grasa corporal debe estar entre 2 y 60 %",
+    "muscleError": "La masa muscular debe estar entre 10 y 150 kg",
+    "saveError": "Error al guardar. Intenta de nuevo.",
+    "submitUpdate": "Actualizar",
+    "submitCreate": "Registrar"
+  }
+}

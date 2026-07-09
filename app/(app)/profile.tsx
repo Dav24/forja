@@ -18,13 +18,7 @@ import { StreakFlame } from '@/components/home/StreakFlame';
 import { MODALITIES } from '@/constants/modalities';
 import { GOALS, FITNESS_LEVELS } from '@/constants/goals';
 import { colors } from '@/constants/colors';
-
-function memberSince(createdAt: string | undefined): string | null {
-  if (!createdAt) return null;
-  const d = new Date(createdAt);
-  const label = d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
-  return `Forjador desde ${label}`;
-}
+import { formatDate } from '@/lib/formatDate';
 
 function daysInForja(createdAt: string | undefined): number {
   if (!createdAt) return 0;
@@ -32,7 +26,7 @@ function daysInForja(createdAt: string | undefined): number {
 }
 
 export default function ProfileScreen() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['profile']);
   const { user } = useAuthStore();
   const { data: profile } = useProfile();
   const { data: goal } = useActiveGoal();
@@ -42,18 +36,18 @@ export default function ProfileScreen() {
   const isPremium = useIsPremium();
   const { data: subscription } = useSubscription();
 
-  const displayName = profile?.display_name ?? user?.email?.split('@')[0] ?? 'Usuario';
+  const displayName = profile?.display_name ?? user?.email?.split('@')[0] ?? t('fallbackName');
   const initial = displayName.charAt(0).toUpperCase();
   const goalMeta = GOALS.find((g) => g.type === goal?.type);
   const levelMeta = FITNESS_LEVELS.find((l) => l.value === goal?.fitness_level);
   const modalityIds = goal ? [goal.modality, ...(goal.secondary_modalities ?? [])].filter(Boolean) : [];
 
   const periodEnd = subscription?.current_period_end
-    ? new Date(subscription.current_period_end).toLocaleDateString('es-MX', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
+    ? formatDate(subscription.current_period_end, { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
+
+  const memberSinceLabel = profile?.created_at
+    ? t('memberSince', { date: formatDate(profile.created_at, { month: 'long', year: 'numeric' }) })
     : null;
 
   return (
@@ -61,7 +55,7 @@ export default function ProfileScreen() {
       {/* Header con engrane */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
-          Perfil
+          {t('title')}
         </Text>
         <TouchableOpacity onPress={() => router.push('/(app)/settings' as never)} hitSlop={12}>
           <Ionicons name="settings-outline" size={24} color={colors.textMuted} />
@@ -113,11 +107,11 @@ export default function ProfileScreen() {
             {permissionDenied ? (
               <View className="items-center gap-1">
                 <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.warning }}>
-                  Permiso denegado. Actívalo en los ajustes del teléfono.
+                  {t('avatar.permissionDenied')}
                 </Text>
                 <TouchableOpacity onPress={() => Linking.openSettings()}>
                   <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.primary }}>
-                    Abrir ajustes del teléfono
+                    {t('avatar.openSettings')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -128,10 +122,10 @@ export default function ProfileScreen() {
             <View className="items-center gap-1.5">
               <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20, color: colors.text }}>{displayName}</Text>
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.textMuted }}>{user?.email}</Text>
-              {isPremium ? <Badge label="MAESTRO FORJADOR" variant="premium" /> : <Badge label="APRENDIZ" variant="muted" />}
-              {memberSince(profile?.created_at) ? (
+              {isPremium ? <Badge label={t('premiumBadge')} variant="premium" /> : <Badge label={t('freeBadge')} variant="muted" />}
+              {memberSinceLabel ? (
                 <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
-                  {memberSince(profile?.created_at)}
+                  {memberSinceLabel}
                 </Text>
               ) : null}
             </View>
@@ -144,9 +138,9 @@ export default function ProfileScreen() {
 
           {/* Stats */}
           <View className="flex-row gap-3">
-            <StatCard value={stats?.plansGenerated ?? 0} label="Planes" />
-            <StatCard value={stats?.bodyRecords ?? 0} label="Registros" />
-            <StatCard value={daysInForja(profile?.created_at)} label="Días en Forja" />
+            <StatCard value={stats?.plansGenerated ?? 0} label={t('stats.plans')} />
+            <StatCard value={stats?.bodyRecords ?? 0} label={t('stats.records')} />
+            <StatCard value={daysInForja(profile?.created_at)} label={t('stats.daysInForja')} />
           </View>
 
           {/* Objetivo activo */}
@@ -186,7 +180,7 @@ export default function ProfileScreen() {
             >
               <Text className="text-xl">🎯</Text>
               <Text className="flex-1" style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>
-                Define tu objetivo
+                {t('goal.defineCta')}
               </Text>
               <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </TouchableOpacity>
@@ -214,16 +208,16 @@ export default function ProfileScreen() {
                     flex: 1,
                   }}
                 >
-                  Desbloquea todo el potencial de Vulcano
+                  {t('upgrade.title')}
                 </Text>
               </View>
               <Text
                 style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}
               >
-                Chat ilimitado, planes sin restricciones y seguimiento completo de tu cuerpo.
+                {t('upgrade.description')}
               </Text>
               <Button
-                label="Hazte Maestro"
+                label={t('upgrade.cta')}
                 onPress={() => router.push('/(app)/upgrade' as never)}
               />
             </View>
@@ -252,7 +246,7 @@ export default function ProfileScreen() {
                   flex: 1,
                 }}
               >
-                Tu suscripción se renueva el {periodEnd}
+                {t('renewal', { date: periodEnd })}
               </Text>
             </View>
           )}

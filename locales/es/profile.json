@@ -1,1 +1,25 @@
-{}
+{
+  "title": "Perfil",
+  "fallbackName": "Usuario",
+  "memberSince": "Forjador desde {{date}}",
+  "premiumBadge": "MAESTRO FORJADOR",
+  "freeBadge": "APRENDIZ",
+  "avatar": {
+    "permissionDenied": "Permiso denegado. Actívalo en los ajustes del teléfono.",
+    "openSettings": "Abrir ajustes del teléfono"
+  },
+  "stats": {
+    "plans": "Planes",
+    "records": "Registros",
+    "daysInForja": "Días en Forja"
+  },
+  "goal": {
+    "defineCta": "Define tu objetivo"
+  },
+  "upgrade": {
+    "title": "Desbloquea todo el potencial de Vulcano",
+    "description": "Chat ilimitado, planes sin restricciones y seguimiento completo de tu cuerpo.",
+    "cta": "Hazte Maestro"
+  },
+  "renewal": "Tu suscripción se renueva el {{date}}"
+}
