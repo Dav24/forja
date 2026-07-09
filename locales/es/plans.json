@@ -114,13 +114,13 @@
     "monthly": "Mensual",
     "yearly": "Anual",
     "yearlySavings": "Ahorras 40% con el plan anual",
-    "priceMonthly": "$179 MXN/mes",
-    "priceYearly": "$1,299 MXN/año",
-    "ctaMonthly": "Continuar — $179/mes",
-    "ctaYearly": "Continuar — $1,299/año",
+    "priceMonthly": "{{price}}/mes",
+    "priceYearly": "{{price}}/año",
+    "ctaMonthly": "Continuar — {{price}}/mes",
+    "ctaYearly": "Continuar — {{price}}/año",
     "free": {
       "title": "Aprendiz",
-      "price": "$0",
+      "price": "{{price}}",
       "currentBadge": "Actual",
       "features": [
         "20 mensajes al día con Vulcano",
@@ -134,7 +134,7 @@
       "title": "MAESTRO FORJADOR",
       "bestValueBadge": "MEJOR VALOR",
       "recommendedBadge": "Recomendado",
-      "yearlyBreakdown": "$108/mes — 40% off",
+      "yearlyBreakdown": "{{price}}/mes — 40% off",
       "activeBadge": "✓ Activo",
       "features": [
         "Chat ilimitado con Vulcano",
@@ -191,7 +191,7 @@
           "Vulcano analiza tus datos de actividad"
         ]
       },
-      "fromPrice": "Desde $1,299/año",
+      "fromPrice": "Desde {{price}}/año",
       "cta": "Hazte Maestro →",
       "seeAll": "Ver todos los beneficios ↗"
     }

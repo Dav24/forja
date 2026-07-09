@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { useAuthStore } from '@/store/auth.store';
 import { buildPaymentURL } from '@/lib/payments';
+import { PRICE_YEARLY } from '@/constants/pricing';
 
 export type UpgradeContext = 'chart_range' | 'body_composition' | 'meal_plan' | 'generic';
 
@@ -89,7 +90,7 @@ export const UpgradeSheet = forwardRef<BottomSheet, UpgradeSheetProps>(
           </View>
 
           <Text className="text-center" style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted }}>
-            {t('upgrade.sheet.fromPrice')}
+            {t('upgrade.sheet.fromPrice', { price: PRICE_YEARLY })}
           </Text>
 
           <Button label={t('upgrade.sheet.cta')} onPress={handleUpgrade} />

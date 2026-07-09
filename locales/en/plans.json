@@ -114,13 +114,13 @@
     "monthly": "Monthly",
     "yearly": "Yearly",
     "yearlySavings": "Save 40% with the yearly plan",
-    "priceMonthly": "$179 MXN/mo",
-    "priceYearly": "$1,299 MXN/yr",
-    "ctaMonthly": "Continue — $179/mo",
-    "ctaYearly": "Continue — $1,299/yr",
+    "priceMonthly": "{{price}}/mo",
+    "priceYearly": "{{price}}/yr",
+    "ctaMonthly": "Continue — {{price}}/mo",
+    "ctaYearly": "Continue — {{price}}/yr",
     "free": {
       "title": "Apprentice",
-      "price": "$0",
+      "price": "{{price}}",
       "currentBadge": "Current",
       "features": [
         "20 messages a day with Vulcano",
@@ -134,7 +134,7 @@
       "title": "MASTER FORGER",
       "bestValueBadge": "BEST VALUE",
       "recommendedBadge": "Recommended",
-      "yearlyBreakdown": "$108/mo — 40% off",
+      "yearlyBreakdown": "{{price}}/mo — 40% off",
       "activeBadge": "✓ Active",
       "features": [
         "Unlimited chat with Vulcano",
@@ -191,7 +191,7 @@
           "Vulcano analyzes your activity data"
         ]
       },
-      "fromPrice": "From $1,299/yr",
+      "fromPrice": "From {{price}}/yr",
       "cta": "Become a Master →",
       "seeAll": "See all benefits ↗"
     }

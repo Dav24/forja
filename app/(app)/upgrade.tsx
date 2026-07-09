@@ -13,6 +13,14 @@ import { useIsPremium } from '@/hooks/useSubscription';
 import { colors, gradients } from '@/constants/colors';
 import { useAuthStore } from '@/store/auth.store';
 import { buildPaymentURL, buildPortalURL, type Billing } from '@/lib/payments';
+import {
+  PRICE_FREE,
+  PRICE_MONTHLY,
+  PRICE_MONTHLY_MXN,
+  PRICE_YEARLY,
+  PRICE_YEARLY_MXN,
+  PRICE_YEARLY_MONTHLY_EQUIVALENT,
+} from '@/constants/pricing';
 
 const APRENDIZ_FEATURE_KEYS = [
   'upgrade.free.features.0',
@@ -45,8 +53,14 @@ export default function UpgradeScreen() {
   const [promoCode, setPromoCode] = useState('');
   const [promoOpen, setPromoOpen] = useState(false);
 
-  const price = billing === 'monthly' ? t('upgrade.priceMonthly') : t('upgrade.priceYearly');
-  const ctaLabel = billing === 'monthly' ? t('upgrade.ctaMonthly') : t('upgrade.ctaYearly');
+  const price =
+    billing === 'monthly'
+      ? t('upgrade.priceMonthly', { price: PRICE_MONTHLY_MXN })
+      : t('upgrade.priceYearly', { price: PRICE_YEARLY_MXN });
+  const ctaLabel =
+    billing === 'monthly'
+      ? t('upgrade.ctaMonthly', { price: PRICE_MONTHLY })
+      : t('upgrade.ctaYearly', { price: PRICE_YEARLY });
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
@@ -175,7 +189,7 @@ export default function UpgradeScreen() {
             </Text>
             <View style={{ alignItems: 'flex-end', gap: 4 }}>
               <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 18, color: colors.text }}>
-                {t('upgrade.free.price')}
+                {t('upgrade.free.price', { price: PRICE_FREE })}
               </Text>
               {!isPremium && <Badge label={t('upgrade.free.currentBadge')} variant="muted" />}
             </View>
@@ -239,7 +253,9 @@ export default function UpgradeScreen() {
                       color: colors.textMuted,
                     }}
                   >
-                    {t('upgrade.premium.yearlyBreakdown')}
+                    {t('upgrade.premium.yearlyBreakdown', {
+                      price: PRICE_YEARLY_MONTHLY_EQUIVALENT,
+                    })}
                   </Text>
                 )}
                 {isPremium && <Badge label={t('upgrade.premium.activeBadge')} variant="accent" />}
