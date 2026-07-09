@@ -2,7 +2,7 @@
 
 > App móvil de entrenamiento con coach IA personal.  
 > Dominio: **forja.fit** · Empresa: **Physis Labs**  
-> Última actualización: 2026-07-07
+> Última actualización: 2026-07-08
 
 ---
 
@@ -1077,29 +1077,81 @@ Colores personalizados definidos en `global.css` y referenciables como `bg-backg
 
 ---
 
-## 15. Internacionalización (i18n)
+## 15. Internacionalización (i18n) — Paso 14
 
-Implementada con `i18next` + `react-i18next`. El idioma por defecto es `es-MX` (México).
+Implementada con `i18next` + `react-i18next` + `expo-localization`. Dos idiomas soportados: **español (`es`)** e **inglés (`en`)**. Cierre completo en Paso 14 (Tasks 1–13): toda la UI migrada, EFs de IA y push localizados, `npx tsc --noEmit` y `npm run check-i18n` en verde, 11/11 tests Deno.
 
-### Estructura de archivos
+### Arquitectura de namespaces
 
 ```
 locales/
-├── es-MX/
-│   ├── common.json      → textos generales (botones, errores comunes)
-│   ├── onboarding.json  → textos del flujo de onboarding
-│   ├── chat.json        → textos de la pantalla de chat
-│   ├── plans.json       → textos de planes de entrenamiento y alimentación
-│   └── progress.json    → textos de la pantalla de progreso
+├── es/
+│   ├── index.ts        → agrega los 9 namespaces en un solo resource bundle
+│   ├── common.json      → botones, errores comunes, estados compartidos
+│   ├── auth.json         → login / register / forgot-password
+│   ├── onboarding.json    → flujo de 3 pasos
+│   ├── home.json          → Dashboard
+│   ├── chat.json           → pantalla de chat con Vulcano
+│   ├── plans.json          → planes de entrenamiento y alimentación
+│   ├── progress.json       → pantalla de progreso
+│   ├── profile.json        → perfil
+│   └── settings.json       → hub de ajustes de cuenta (sección 20)
 └── en/
-    └── common.json      → textos en inglés (para expansión futura)
+    └── (mismos 9 namespaces, misma forma de claves — la paridad la exige check-i18n)
 ```
 
-### Configuración (`lib/i18n.ts`)
+Cada pantalla consume su namespace con `useTranslation('<namespace>')`; claves cruzadas se referencian como `t('otherNs:key')`. `defaultNS` es `common`.
 
-Detecta el idioma del dispositivo con `expo-localization`. Cae a `es-MX` si el idioma detectado no tiene traducción disponible.
+> **Nota de housekeeping**: existe un directorio `locales/es-MX/` remanente del baseline inicial (pre-Task 1), con 5 archivos que ya no se importan desde ningún lado (`lib/i18n.ts` sólo usa `locales/es` y `locales/en`). No se tocó en este paso por estar fuera de alcance (solo doc + commit); queda para el review final de la rama (`i18n: review final whole-branch`) eliminarlo.
 
-El idioma preferido del usuario se guarda en `profiles.language` para mantener consistencia entre dispositivos.
+### Flujo de detección y persistencia del idioma
+
+1. **Detección de dispositivo** (`detectDeviceLanguage()` en `lib/i18n.ts`): lee `expo-localization`; si el código de idioma empieza con `es` → `'es'`, si no → `'en'` (fallback también `'es'`, ver `fallbackLng`).
+2. **Rehidratación desde `AsyncStorage`** (clave `forja.language`): al iniciar `i18n.ts`, si hay un valor guardado distinto al detectado, se aplica sin bloquear el primer render (promesa `.then()`, no `await`).
+3. **`profiles.language` manda cuando existe** (`hooks/useSyncLanguage.ts`, montado en `app/(app)/_layout.tsx`): si el perfil trae `'es'`/`'en'`, sincroniza la app a ese valor con `setAppLanguage()`. Si `profiles.language` es `NULL` (alta nueva o usuario pre-i18n), escribe **una sola vez** (`useRef` guard) el idioma activo de la app hacia el perfil — así el valor persiste entre dispositivos desde la primera sesión.
+4. **Cambio manual** (`app/(app)/settings/language.tsx`): el usuario elige es/en → `setAppLanguage()` cambia i18next y persiste en `AsyncStorage` inmediatamente, y `useUpdateProfile()` escribe `profiles.language` en la misma acción (con `Alert` de error si falla el guardado remoto, aunque el cambio local de idioma ya se aplicó).
+
+Orden de precedencia en cualquier momento dado: **`profiles.language` (si no es NULL) > valor persistido en `AsyncStorage` > detección de dispositivo**.
+
+### Cómo agregar un string nuevo
+
+1. Elegir el namespace correcto (o `common` si es genérico) y agregar la clave en **`locales/es/<namespace>.json` Y `locales/en/<namespace>.json`** — siempre las dos, nunca una sola.
+2. Usarla en el componente con `t('clave')` (o `t('namespace:clave')` si es de otro namespace al del hook).
+3. Correr `npm run check-i18n` antes de dar el string por terminado. El script (`scripts/check-i18n.mjs`) verifica tres cosas:
+   - **Paridad es↔en**: toda clave que existe en un idioma debe existir en el otro.
+   - **Claves usadas sin definir**: escanea `app/ components/ hooks/ constants/ lib/` en busca de llamadas a `t()` que apunten a claves inexistentes.
+   - **Copy sin migrar** (heurística): strings literales en español dentro del código de UI (acentos, `¿`/`¡`) que deberían ser `t()`. Es heurística, no garantía — frases sin acentos (p. ej. "Continuar") no se detectan; la migración real depende de la revisión por tarea. `scripts/check-i18n-allowlist.json` excluye patrones legítimos (`Bebas`, `es-MX`, `Vulcano`, `Forja`).
+   - Salida esperada: `check-i18n: OK` y exit code 0.
+
+### Cómo agregar un idioma futuro (p. ej. `pt`)
+
+1. Duplicar `locales/en/` → `locales/pt/` (misma estructura de 9 archivos + `index.ts`) y traducir cada valor.
+2. Agregar `'pt'` al tipo `AppLanguage` en `lib/i18n.ts`, importar el nuevo `index.ts` y sumarlo a `resources`.
+3. Sumar el nuevo código a la heurística de `detectDeviceLanguage()` si aplica, y agregar la opción en `OPTIONS` de `settings/language.tsx`.
+4. Sumar `'pt'` a `NAMESPACES`/chequeos de `scripts/check-i18n.mjs` si el script asume una lista fija de idiomas (revisar el script — a Paso 14 sólo contempla `es`/`en`).
+5. Considerar si las Edge Functions de IA (`chat`, `generate-plan`, `generate-meal-plan`) y `send-notifications/texts.ts` necesitan una rama nueva de `languageLine`/textos para el idioma agregado.
+
+### Comportamiento de contenido generado por IA
+
+- Las Edge Functions `chat`, `generate-plan` y `generate-meal-plan` leen `profiles.language` del usuario (`select('language')` sobre la tabla) y arman una instrucción de idioma para el prompt (p. ej. `languageLine` en `chat/index.ts`: *"IMPORTANT: Reply ALWAYS in English..."* cuando `language === 'en'`). El **schema JSON de salida no cambia** — sólo el idioma del contenido en lenguaje natural que Claude genera dentro de esos campos.
+- **Detalle de caché de prompt**: `languageLine` vive en el bloque de contexto de usuario (`userContextBlock`, ya es per-user y no se cachea), **nunca** en `SYSTEM_PROMPT` (compartido entre usuarios y cacheado con Prompt Caching) — meterlo ahí filtraría el idioma de un usuario hacia el prompt cacheado de otro.
+- **No hay retraducción retroactiva**: un plan de entrenamiento, plan alimenticio o mensaje de chat ya generado se queda en el idioma en que se generó. Si el usuario cambia de idioma después, sólo el contenido nuevo (próximo plan, próximo mensaje) sale en el idioma nuevo.
+- Vulcano (persona del coach) responde siempre en el idioma activo del usuario al momento de generar, manteniendo su voz de "mentor herrero" en ambos idiomas.
+
+### Push localizado (`send-notifications`)
+
+La Edge Function `send-notifications` resuelve el idioma **por usuario** (lookup de `profiles.language` por cada destinatario, no un idioma global del batch) y arma título/cuerpo con `supabase/functions/send-notifications/texts.ts`, desarrollado con TDD (`texts.test.ts`, 3 casos: default es, traducción en, y un test de regresión que garantiza que ningún texto menciona al antiguo nombre "Memo" — el coach se renombró a **Vulcano** durante este mismo paso).
+
+### Fechas (`lib/formatDate.ts`)
+
+`i18nLocale()` mapea `i18n.language` a un locale de `Intl`: `'es'` → `'es-MX'`, `'en'` → `'en-US'`. `formatDate()` envuelve `Intl.DateTimeFormat(i18nLocale(), options)`, usado en perfil, suscripción y progreso para que las fechas salgan en el formato del idioma activo.
+
+### Fuera de alcance (Paso 14)
+
+- **`web/` (Next.js, pagos)**: sigue en español fijo (`<html lang="es-MX">` en `web/app/layout.tsx`); no se tradujo — es una superficie separada de la app y no forma parte del alcance de este paso.
+- **Precios**: se mantienen en MXN sin localizar a otras monedas (`constants/pricing.ts` interpola montos MXN dentro de strings ya traducidos, pero no hay conversión de moneda).
+- **Retraducción de contenido de IA ya generado**: ver arriba — por diseño, no automático.
+- **Emails de Supabase Auth** (confirmación, recuperación de contraseña): siguen las plantillas por defecto de Supabase hasta que haya SMTP de producción configurado; no se localizaron en este paso.
 
 ---
 
@@ -1215,7 +1267,7 @@ app/(app)/settings/
 ├── delete-account.tsx      → /settings/delete-account  Confirmación escribiendo "ELIMINAR"
 ├── training.tsx            → /settings/training      Objetivo/nivel/modo/modalidades + altura/edad/género
 ├── notifications.tsx       → /settings/notifications  2 toggles (recordatorios / novedades)
-├── language.tsx            → /settings/language       Informativa; i18n real en Paso 14
+├── language.tsx            → /settings/language       Selector es/en funcional (i18n real, Paso 14) — ver sección 15
 └── subscription.tsx        → /settings/subscription   Badge de plan + portal Stripe / CTA upgrade
 ```
 
@@ -1258,7 +1310,7 @@ La función valida el JWT contra el cliente anon y ejecuta las operaciones admin
 
 ## 21. Pasos de Construcción — Historial y Próximos
 
-### Completados (Pasos 1–9, 12–13)
+### Completados (Pasos 1–9, 12–14)
 
 | Paso | Descripción |
 |---|---|
@@ -1273,14 +1325,14 @@ La función valida el JWT contra el cliente anon y ejecuta las operaciones admin
 | 9 | **Planes Alimenticios (Premium)**: Edge Function `generate-meal-plan` llama a Claude Sonnet (`claude-sonnet-4-6`, `max_tokens: 8192`) con JWT auth. Límites: free = 1 plan de por vida, premium = 10 planes/mes. Hooks `useActiveMealPlan()` (query) y `useGenerateMealPlan()` (mutation). Componentes: `MacroBar` (barra 3 segmentos: proteína/carbs/grasa), `MealPlanCard` (colapsable con macros/ingredientes). Pantalla `/plans/meal/`: form intake (tipo dieta, alergias, disponibilidad) → generación → vista 7 días con navegador + macros globales. Integración completa con TanStack Query v5. |
 | 12 | **Freemium Gates y Upgrade + Rediseño de Marca**: PaywallBanner, UpgradeSheet, flujos de límite, y rediseño completo de marca (paleta Ember/brasa, Vulcano, Bebas Neue) — ver secciones 11 y 14. |
 | 13 | **Web de Pagos**: Stripe Checkout en `web/` (Next.js, pensado para `pay.forja.fit`), `/api/checkout` + `/api/portal` + landing SSR por `uid`, Edge Function `stripe-webhook` (checkout.session.completed / customer.subscription.updated / customer.subscription.deleted), deep link `forja://success` de retorno en la app, refetch de suscripción en foreground. Producto + precios + cupón `VULCANO100` creados en Stripe test mode y verificados end-to-end (ver sección 8). Pendiente: deploy a producción (Paso 15) y verificación humana de pago real desde teléfono. |
+| 14 | **i18n**: es/en completo con `i18next` + `react-i18next` (9 namespaces), detección de idioma de dispositivo → `AsyncStorage` → `profiles.language`, selector en `/settings/language`, EFs de IA y push localizados por usuario, `scripts/check-i18n.mjs` en CI/local. Ver sección 15. Pendiente: E2E humano guiado en Expo Go (checklist §7.3 de la spec). |
 
-### Próximos (Pasos 10, 11, 14–15)
+### Próximos (Pasos 10, 11, 15)
 
 | Paso | Descripción |
 |---|---|
 | 10 | **Seguimiento Corporal**: gráfica de peso con Skia, formulario de mediciones, GoalProgress |
 | 11 | **Notificaciones Push**: integración completa con expo-notifications y `lib/notifications.ts` |
-| 14 | **i18n**: activar todas las traducciones, detección de idioma del dispositivo |
 | 15 | **Load Testing + Deploy**: k6 completo, EAS Build, App Store + Play Store, deploy de `web/` a Vercel + dominio `pay.forja.fit` + Stripe live mode + `stripe webhook_endpoints create` |
 
 ---
