@@ -6,5 +6,7 @@
   "error": "Error",
   "genericError": "Algo salió mal. Intenta de nuevo.",
   "comingSoon": "Próximamente",
-  "daysShort": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+  "daysShort": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+  "show": "Ver",
+  "hide": "Ocultar"
 }

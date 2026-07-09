@@ -3,14 +3,15 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { colors } from '@/constants/colors';
 
-const CONFIRM_WORD = 'ELIMINAR';
-
 export default function DeleteAccountScreen() {
+  const { t } = useTranslation('settings');
+  const CONFIRM_WORD = t('deleteAccount.confirmWord');
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export default function DeleteAccountScreen() {
     setError(null);
     const { error: fnError } = await supabase.functions.invoke('delete-account', { method: 'POST' });
     if (fnError) {
-      setError('No se pudo eliminar la cuenta. Intenta de nuevo o contacta soporte.');
+      setError(t('deleteAccount.error'));
       setDeleting(false);
       return;
     }
@@ -42,7 +43,7 @@ export default function DeleteAccountScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.destructive, letterSpacing: 1 }}>
-          Eliminar cuenta
+          {t('deleteAccount.title')}
         </Text>
       </View>
 
@@ -51,19 +52,18 @@ export default function DeleteAccountScreen() {
           <View className="flex-row items-center gap-2">
             <Ionicons name="warning" size={20} color={colors.destructive} />
             <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text }}>
-              Esto es irreversible
+              {t('deleteAccount.warningTitle')}
             </Text>
           </View>
           <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.textMuted, lineHeight: 20 }}>
-            Se borra TODO de forma permanente: tu perfil, planes de entrenamiento y alimentación,
-            historial de chat con Vulcano, registros corporales, racha y foto de perfil.
-            {'\n\n'}Si tienes una suscripción activa, se cancela en este momento (sin reembolso del
-            periodo en curso).
+            {t('deleteAccount.warningBody')}
           </Text>
         </View>
 
         <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.text }}>
-          Escribe <Text style={{ fontFamily: 'Inter-Medium', color: colors.destructive }}>{CONFIRM_WORD}</Text> para confirmar:
+          {t('deleteAccount.typePromptPrefix')}
+          <Text style={{ fontFamily: 'Inter-Medium', color: colors.destructive }}>{CONFIRM_WORD}</Text>
+          {t('deleteAccount.typePromptSuffix')}
         </Text>
         <Input placeholder={CONFIRM_WORD} value={confirmText} onChangeText={setConfirmText} autoCapitalize="characters" />
 
@@ -72,13 +72,13 @@ export default function DeleteAccountScreen() {
         ) : null}
 
         <Button
-          label={deleting ? 'Eliminando...' : 'Eliminar mi cuenta para siempre'}
+          label={deleting ? t('deleteAccount.deleting') : t('deleteAccount.deleteForever')}
           variant="destructive"
           disabled={!enabled}
           loading={deleting}
           onPress={handleDelete}
         />
-        <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
+        <Button label={t('deleteAccount.cancel')} variant="ghost" onPress={() => router.back()} />
       </ScrollView>
     </SafeAreaView>
   );

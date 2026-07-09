@@ -2,11 +2,13 @@ import { Linking, ScrollView, Switch, Text, TouchableOpacity, View } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsRow';
 import { colors } from '@/constants/colors';
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation('settings');
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
 
@@ -25,22 +27,22 @@ export default function NotificationsScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
-          Notificaciones
+          {t('notifications.title')}
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <SettingsGroup title="Push">
+        <SettingsGroup title={t('notifications.pushGroupTitle')}>
           <SettingsRow
             icon="barbell-outline"
-            label="Recordatorios de entrenamiento y dieta"
+            label={t('notifications.reminders')}
             rightElement={
               <Switch {...switchProps} value={reminders} onValueChange={(v) => updateProfile.mutate({ notif_reminders: v })} />
             }
           />
           <SettingsRow
             icon="trending-up-outline"
-            label="Progreso y planes"
+            label={t('notifications.updates')}
             rightElement={
               <Switch {...switchProps} value={updates} onValueChange={(v) => updateProfile.mutate({ notif_updates: v })} />
             }
@@ -48,10 +50,10 @@ export default function NotificationsScreen() {
         </SettingsGroup>
 
         <Text className="px-1" style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted, lineHeight: 18 }}>
-          Si las notificaciones están apagadas a nivel del sistema, actívalas en los ajustes del teléfono.
+          {t('notifications.systemOffNotice')}
         </Text>
         <TouchableOpacity onPress={() => Linking.openSettings()} className="mt-2 px-1">
-          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.primary }}>Abrir ajustes del teléfono</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.primary }}>{t('notifications.openSettings')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 
 interface InputProps extends TextInputProps {
@@ -8,6 +9,7 @@ interface InputProps extends TextInputProps {
 }
 
 export function Input({ label, error, secureTextEntry, className = '', ...props }: InputProps) {
+  const { t } = useTranslation('common');
   const [visible, setVisible] = useState(false);
 
   return (
@@ -27,7 +29,7 @@ export function Input({ label, error, secureTextEntry, className = '', ...props 
             className="absolute right-4 top-0 bottom-0 justify-center"
             onPress={() => setVisible((v) => !v)}
           >
-            <Text className="text-text-muted text-sm">{visible ? 'Ocultar' : 'Ver'}</Text>
+            <Text className="text-text-muted text-sm">{visible ? t('hide') : t('show')}</Text>
           </TouchableOpacity>
         )}
       </View>

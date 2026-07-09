@@ -3,6 +3,7 @@ import { Alert, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
@@ -12,15 +13,17 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { colors } from '@/constants/colors';
 
-function friendlyAuthError(message: string): string {
-  const m = message.toLowerCase();
-  if (m.includes('already registered') || m.includes('already been registered')) return 'Ese correo ya está en uso.';
-  if (m.includes('password should be')) return 'Contraseña muy corta. Usa al menos 8 caracteres.';
-  if (m.includes('rate limit')) return 'Demasiados intentos. Espera un momento.';
-  return 'Algo salió mal. Intenta de nuevo.';
-}
-
 export default function AccountScreen() {
+  const { t } = useTranslation('settings');
+
+  function friendlyAuthError(message: string): string {
+    const m = message.toLowerCase();
+    if (m.includes('already registered') || m.includes('already been registered')) return t('account.errors.emailInUse');
+    if (m.includes('password should be')) return t('account.errors.passwordShort');
+    if (m.includes('rate limit')) return t('account.errors.rateLimit');
+    return t('account.errors.generic');
+  }
+
   const { user } = useAuthStore();
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
@@ -49,7 +52,7 @@ export default function AccountScreen() {
       { display_name: trimmed },
       {
         onSettled: () => setSavingName(false),
-        onError: () => Alert.alert('Error', 'No se pudo guardar el nombre.'),
+        onError: () => Alert.alert(t('common:error'), t('account.saveNameError')),
       }
     );
   }
@@ -57,7 +60,7 @@ export default function AccountScreen() {
   async function handleChangeEmail() {
     const email = newEmail.trim().toLowerCase();
     if (!email || !email.includes('@')) {
-      setEmailError('Escribe un correo válido.');
+      setEmailError(t('account.emailInvalid'));
       return;
     }
     setEmailError(null);
@@ -73,11 +76,11 @@ export default function AccountScreen() {
 
   async function handleChangePassword() {
     if (pass1.length < 8) {
-      setPassError('Usa al menos 8 caracteres.');
+      setPassError(t('account.passwordTooShort'));
       return;
     }
     if (pass1 !== pass2) {
-      setPassError('Las contraseñas no coinciden.');
+      setPassError(t('account.passwordMismatch'));
       return;
     }
     setPassError(null);
@@ -100,26 +103,26 @@ export default function AccountScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
-          Cuenta
+          {t('account.title')}
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-        <SettingsGroup title="Foto de perfil">
+        <SettingsGroup title={t('account.photoGroupTitle')}>
           <SettingsRow
             icon="camera-outline"
-            label={uploading ? 'Subiendo...' : 'Cambiar foto de perfil'}
+            label={uploading ? t('account.uploading') : t('account.changePhoto')}
             onPress={uploading ? undefined : pickAndUpload}
           />
         </SettingsGroup>
         {permissionDenied ? (
           <View className="px-4 -mt-4 mb-6 gap-1">
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.warning }}>
-              Permiso denegado. Actívalo en los ajustes del teléfono.
+              {t('account.avatar.permissionDenied')}
             </Text>
             <TouchableOpacity onPress={() => Linking.openSettings()}>
               <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: colors.primary }}>
-                Abrir ajustes del teléfono
+                {t('account.avatar.openSettings')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -131,27 +134,27 @@ export default function AccountScreen() {
         ) : null}
 
         <View className="mb-6 gap-3">
-          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, letterSpacing: 1, color: colors.textMuted }}>NOMBRE</Text>
-          <Input placeholder="Tu nombre" value={name} onChangeText={(t) => {
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, letterSpacing: 1, color: colors.textMuted }}>{t('account.nameLabel')}</Text>
+          <Input placeholder={t('account.namePlaceholder')} value={name} onChangeText={(text) => {
             setNameTouched(true);
-            setName(t);
+            setName(text);
           }} autoCapitalize="words" />
-          <Button label="Guardar nombre" size="sm" variant="secondary" loading={savingName} onPress={handleSaveName} />
+          <Button label={t('account.saveName')} size="sm" variant="secondary" loading={savingName} onPress={handleSaveName} />
         </View>
 
         <View className="mb-6 gap-3">
-          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, letterSpacing: 1, color: colors.textMuted }}>CORREO</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, letterSpacing: 1, color: colors.textMuted }}>{t('account.emailLabel')}</Text>
           <Text style={{ fontFamily: 'Inter-Regular', fontSize: 14, color: colors.text }}>{user?.email}</Text>
           {emailStatus === 'sent' ? (
             <View className="bg-surface border border-border rounded-xl p-3">
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.success }}>
-                Te enviamos un enlace de confirmación a ambos correos. El cambio se aplica al confirmar los dos.
+                {t('account.emailSentNotice')}
               </Text>
             </View>
           ) : (
             <>
               <Input
-                placeholder="nuevo@correo.com"
+                placeholder={t('account.emailPlaceholder')}
                 value={newEmail}
                 onChangeText={setNewEmail}
                 autoCapitalize="none"
@@ -160,33 +163,33 @@ export default function AccountScreen() {
               {emailError ? (
                 <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.destructive }}>{emailError}</Text>
               ) : null}
-              <Button label="Cambiar correo" size="sm" variant="secondary" loading={emailStatus === 'saving'} onPress={handleChangeEmail} />
+              <Button label={t('account.changeEmail')} size="sm" variant="secondary" loading={emailStatus === 'saving'} onPress={handleChangeEmail} />
             </>
           )}
         </View>
 
         <View className="mb-6 gap-3">
-          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, letterSpacing: 1, color: colors.textMuted }}>CONTRASEÑA</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, letterSpacing: 1, color: colors.textMuted }}>{t('account.passwordLabel')}</Text>
           {passStatus === 'done' ? (
             <View className="bg-surface border border-border rounded-xl p-3">
-              <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.success }}>Contraseña actualizada ✓</Text>
+              <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.success }}>{t('account.passwordUpdated')}</Text>
             </View>
           ) : (
             <>
-              <Input placeholder="Nueva contraseña (mín. 8)" value={pass1} onChangeText={setPass1} secureTextEntry autoComplete="new-password" />
-              <Input placeholder="Confirmar contraseña" value={pass2} onChangeText={setPass2} secureTextEntry autoComplete="new-password" />
+              <Input placeholder={t('account.newPasswordPlaceholder')} value={pass1} onChangeText={setPass1} secureTextEntry autoComplete="new-password" />
+              <Input placeholder={t('account.confirmPasswordPlaceholder')} value={pass2} onChangeText={setPass2} secureTextEntry autoComplete="new-password" />
               {passError ? (
                 <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.destructive }}>{passError}</Text>
               ) : null}
-              <Button label="Cambiar contraseña" size="sm" variant="secondary" loading={passStatus === 'saving'} onPress={handleChangePassword} />
+              <Button label={t('account.changePassword')} size="sm" variant="secondary" loading={passStatus === 'saving'} onPress={handleChangePassword} />
             </>
           )}
         </View>
 
-        <SettingsGroup title="Zona de peligro">
+        <SettingsGroup title={t('account.dangerZone')}>
           <SettingsRow
             icon="trash-outline"
-            label="Eliminar cuenta"
+            label={t('account.deleteAccountRow')}
             danger
             onPress={() => router.push('/(app)/settings/delete-account' as never)}
           />

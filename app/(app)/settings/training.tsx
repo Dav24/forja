@@ -16,11 +16,11 @@ import { Input } from '@/components/ui/Input';
 import { colors } from '@/constants/colors';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
-const GENDERS: { value: Gender; label: string }[] = [
-  { value: 'male', label: 'Hombre' },
-  { value: 'female', label: 'Mujer' },
-  { value: 'other', label: 'Otro' },
-  { value: 'prefer_not_to_say', label: 'Prefiero no decir' },
+const GENDERS: { value: Gender; labelKey: string }[] = [
+  { value: 'male', labelKey: 'training.genderMale' },
+  { value: 'female', labelKey: 'training.genderFemale' },
+  { value: 'other', labelKey: 'training.genderOther' },
+  { value: 'prefer_not_to_say', labelKey: 'training.genderPreferNotToSay' },
 ];
 
 function Chip({ selected, label, onPress }: { selected: boolean; label: string; onPress: () => void }) {
@@ -44,7 +44,7 @@ function SectionTitle({ children }: { children: string }) {
 }
 
 export default function TrainingScreen() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('settings');
   const { user } = useAuthStore();
   const { data: goal } = useActiveGoal();
   const { data: latestBody } = useLatestBodyData();
@@ -99,7 +99,7 @@ export default function TrainingScreen() {
     const heightNum = heightCm.trim() ? Number(heightCm.trim().replace(',', '.')) : null;
     const ageNum = age.trim() ? Number.parseInt(age.trim(), 10) : null;
     if ((heightNum !== null && !Number.isFinite(heightNum)) || (ageNum !== null && !Number.isFinite(ageNum))) {
-      Alert.alert('Revisa tus datos', 'Altura y edad deben ser números.');
+      Alert.alert(t('training.invalidNumbersTitle'), t('training.invalidNumbersBody'));
       return;
     }
 
@@ -150,14 +150,14 @@ export default function TrainingScreen() {
       queryClient.invalidateQueries({ queryKey: ['goal'] });
       queryClient.invalidateQueries({ queryKey: ['body_data'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
-      Alert.alert('Guardado 🔥', 'Los cambios aplican a tu próximo plan generado.');
+      Alert.alert(t('training.savedTitle'), t('training.savedBody'));
       router.back();
     } catch (err: unknown) {
       const message =
         typeof err === 'object' && err !== null && 'message' in err
           ? String((err as { message: unknown }).message)
-          : 'Error desconocido';
-      Alert.alert('Error al guardar', message);
+          : t('training.unknownError');
+      Alert.alert(t('training.saveErrorTitle'), message);
     } finally {
       setSaving(false);
     }
@@ -170,33 +170,33 @@ export default function TrainingScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
-          Mi entrenamiento
+          {t('training.title')}
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-        <SectionTitle>Objetivo</SectionTitle>
+        <SectionTitle>{t('training.goal')}</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {GOALS.map((g) => (
             <Chip key={g.type} selected={goalType === g.type} label={`${g.icon} ${t(g.titleKey)}`} onPress={() => setGoalType(g.type)} />
           ))}
         </View>
 
-        <SectionTitle>Nivel</SectionTitle>
+        <SectionTitle>{t('training.level')}</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {FITNESS_LEVELS.map((l) => (
             <Chip key={l.value} selected={level === l.value} label={t(l.labelKey)} onPress={() => setLevel(l.value)} />
           ))}
         </View>
 
-        <SectionTitle>Modo</SectionTitle>
+        <SectionTitle>{t('training.mode')}</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {MODES.map((m) => (
             <Chip key={m.value} selected={mode === m.value} label={`${m.icon} ${t(m.labelKey)}`} onPress={() => setMode(m.value)} />
           ))}
         </View>
 
-        <SectionTitle>Disciplina principal</SectionTitle>
+        <SectionTitle>{t('training.primaryModality')}</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {MODALITIES.map((m) => (
             <Chip
@@ -211,7 +211,7 @@ export default function TrainingScreen() {
           ))}
         </View>
 
-        <SectionTitle>Disciplinas secundarias (hasta 2)</SectionTitle>
+        <SectionTitle>{t('training.secondaryModalities')}</SectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {MODALITIES.filter((m) => m.id !== modality).map((m) => (
             <Chip key={m.id} selected={secondary.includes(m.id)} label={`${m.icon} ${t(m.labelKey)}`} onPress={() => toggleSecondary(m.id)} />
@@ -220,26 +220,26 @@ export default function TrainingScreen() {
 
         {needsSport ? (
           <View className="mt-4">
-            <Text className="mb-2" style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>¿Qué deporte?</Text>
-            <Input placeholder="Fútbol, básquet, tenis..." value={sportType} onChangeText={setSportType} />
+            <Text className="mb-2" style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>{t('training.whatSport')}</Text>
+            <Input placeholder={t('training.sportPlaceholder')} value={sportType} onChangeText={setSportType} />
           </View>
         ) : null}
 
-        <SectionTitle>Datos básicos</SectionTitle>
+        <SectionTitle>{t('training.basicData')}</SectionTitle>
         <View className="gap-3">
-          <Input label="Altura (cm)" placeholder="170" value={heightCm} onChangeText={setHeightCm} keyboardType="numeric" />
-          <Input label="Edad" placeholder="28" value={age} onChangeText={setAge} keyboardType="numeric" />
+          <Input label={t('training.heightLabel')} placeholder={t('training.heightPlaceholder')} value={heightCm} onChangeText={setHeightCm} keyboardType="numeric" />
+          <Input label={t('training.ageLabel')} placeholder={t('training.agePlaceholder')} value={age} onChangeText={setAge} keyboardType="numeric" />
           <View className="flex-row flex-wrap gap-2">
             {GENDERS.map((g) => (
-              <Chip key={g.value} selected={gender === g.value} label={g.label} onPress={() => setGender(g.value)} />
+              <Chip key={g.value} selected={gender === g.value} label={t(g.labelKey)} onPress={() => setGender(g.value)} />
             ))}
           </View>
         </View>
 
         <View className="mt-8 gap-2">
-          <Button label="Guardar cambios" loading={saving} disabled={!valid} onPress={handleSave} />
+          <Button label={t('training.save')} loading={saving} disabled={!valid} onPress={handleSave} />
           <Text className="text-center" style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
-            Los cambios aplican a tu próximo plan generado.
+            {t('training.saveHint')}
           </Text>
         </View>
       </ScrollView>
