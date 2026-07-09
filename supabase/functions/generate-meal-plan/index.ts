@@ -20,6 +20,7 @@ function buildMealPlanPrompt(userData: {
   allergies: string;
   diet_type: string;
   food_availability: string;
+  language: 'es' | 'en';
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -52,6 +53,10 @@ ${userData.activity_level ? `- Nivel de actividad: ${userData.activity_level}` :
 
 IMPORTANTE: Los planes no sustituyen la valoración de un nutriólogo. No promuevas restricciones extremas ni conductas que pongan en riesgo la salud.
 
+${userData.language === 'en'
+  ? 'LANGUAGE: Write ALL content values (title, description, day_name, meal_type, name, ingredients) in ENGLISH. day_name must be the English weekday name (Monday...Sunday). Keep every JSON key exactly as specified.'
+  : 'IDIOMA: Escribe TODOS los valores de contenido en español. day_name en español (Lunes...Domingo). Mantén las claves JSON exactamente como se especifican.'}
+
 FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
 {
   "title": "Nombre del plan (ej: Plan Nutrición Hipertrofia — 2800 kcal)",
@@ -83,7 +88,11 @@ FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
   ]
 }
 
-Genera exactamente 7 días distintos con variedad. Cada día debe tener exactamente 5 comidas: Desayuno, Media mañana, Almuerzo, Merienda y Cena. Las calorías de las comidas deben sumar aproximadamente el total diario. Respeta las alergias e intolerancias indicadas.`;
+Genera exactamente 7 días distintos con variedad. Cada día debe tener exactamente 5 comidas: ${
+    userData.language === 'en'
+      ? 'Breakfast, Mid-morning snack, Lunch, Afternoon snack, Dinner'
+      : 'Desayuno, Media mañana, Almuerzo, Merienda y Cena'
+  }. Las calorías de las comidas deben sumar aproximadamente el total diario. Respeta las alergias e intolerancias indicadas.`;
 }
 
 Deno.serve(async (req) => {
@@ -175,13 +184,16 @@ Deno.serve(async (req) => {
     const diet_type = VALID_DIETS.includes(String(rawDiet).toLowerCase()) ? String(rawDiet).toLowerCase() : 'omnívoro';
     const food_availability = VALID_AVAILABILITY.includes(String(rawAvailability).toLowerCase()) ? String(rawAvailability).toLowerCase() : 'media';
 
-    const [goalResult, bodyResult] = await Promise.all([
+    const [goalResult, bodyResult, profileResult] = await Promise.all([
       supabase.from('goals').select('type, fitness_level')
         .eq('user_id', user.id).eq('is_active', true)
         .order('created_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('body_data').select('weight_kg, height_cm, age, gender, activity_level')
         .eq('user_id', user.id).order('recorded_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
     ]);
+
+    const language: 'es' | 'en' = profileResult.data?.language === 'en' ? 'en' : 'es';
 
     if (!goalResult.data) {
       return new Response(
@@ -215,6 +227,7 @@ Deno.serve(async (req) => {
       allergies,
       diet_type,
       food_availability,
+      language,
     });
 
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {

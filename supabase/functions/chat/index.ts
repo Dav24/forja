@@ -109,12 +109,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verificar suscripción, límite diario y goal activo del usuario
-    const [subResult, countResult, goalResult, planResult] = await Promise.all([
+    // Verificar suscripción, límite diario, goal activo y language del usuario
+    const [subResult, countResult, goalResult, planResult, profileResult] = await Promise.all([
       supabase.from('subscriptions').select('status, plan').eq('user_id', user.id).maybeSingle(),
       supabase.rpc('get_daily_message_count', { p_user_id: user.id }),
       supabase.from('goals').select('type, fitness_level, modality, secondary_modalities, sport_type').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
       supabase.from('workout_plans').select('title, schedule').eq('user_id', user.id).eq('is_active', true).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
     ]);
 
     const isPremium = subResult.data?.status === 'active' && subResult.data?.plan !== 'free';
@@ -178,6 +179,17 @@ ${modalityLine}
 
 ${planBlock}`;
 
+    // Idioma del usuario (profiles.language). NULL ⇒ sin línea extra: el SYSTEM_PROMPT
+    // (compartido y cacheado) ya indica responder en el idioma que use el usuario.
+    const rawLang = profileResult.data?.language;
+    const languageLine =
+      rawLang === 'en'
+        ? 'IMPORTANT: Reply ALWAYS in English, regardless of the language the user writes in. Keep your blacksmith-mentor voice.'
+        : rawLang === 'es'
+          ? 'IMPORTANTE: Responde SIEMPRE en español mexicano, sin importar el idioma en que escriba el usuario.'
+          : '';
+    const finalUserContext = languageLine ? `${userContextBlock}\n\n${languageLine}` : userContextBlock;
+
     // Construir historial (últimos 10 mensajes para contexto)
     const messages = [
       ...history.slice(-10).map((m: { role: string; content: string }) => ({
@@ -208,7 +220,7 @@ ${planBlock}`;
           },
           {
             type: 'text',
-            text: userContextBlock,
+            text: finalUserContext,
             cache_control: { type: 'ephemeral' },
           },
         ],

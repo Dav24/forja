@@ -35,6 +35,7 @@ function buildPlanPrompt(userData: {
   injuries: string;
   modality: string | null;
   secondary_modalities: string[];
+  language: 'es' | 'en';
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -70,6 +71,10 @@ ${userData.age ? `- Edad: ${userData.age} años` : ''}
 ${userData.gender ? `- Género: ${userData.gender}` : ''}
 ${userData.activity_level ? `- Nivel de actividad diaria: ${userData.activity_level}` : ''}
 ${userData.injuries ? `- Lesiones o limitaciones: ${userData.injuries}` : ''}
+
+${userData.language === 'en'
+  ? 'LANGUAGE: Write ALL content values (title, description, focus, day_name, technique_notes, weekly_schedule_summary, progression_notes, exercise names) in ENGLISH. day_name must be the English weekday name (Monday...Sunday). Keep every JSON key exactly as specified.'
+  : 'IDIOMA: Escribe TODOS los valores de contenido en español. day_name en español (Lunes...Domingo). Mantén las claves JSON exactamente como se especifican.'}
 
 FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
 {
@@ -205,7 +210,7 @@ Deno.serve(async (req) => {
       ? secondary_modalities.filter((s: unknown): s is string => typeof s === 'string' && VALID_MODALITIES.has(s)).slice(0, 2)
       : [];
 
-    const [goalResult, bodyResult] = await Promise.all([
+    const [goalResult, bodyResult, profileResult] = await Promise.all([
       supabase
         .from('goals')
         .select('type, fitness_level, mode, sport_type')
@@ -221,10 +226,12 @@ Deno.serve(async (req) => {
         .order('recorded_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
+      supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
     ]);
 
     const goal = goalResult.data;
     const body_data = bodyResult.data;
+    const language: 'es' | 'en' = profileResult.data?.language === 'en' ? 'en' : 'es';
 
     if (!goal) {
       return new Response(
@@ -268,6 +275,7 @@ Deno.serve(async (req) => {
       injuries,
       modality: safeModality,
       secondary_modalities: safeSecondary,
+      language,
     });
 
     // Llamar a Sonnet para generar el plan
