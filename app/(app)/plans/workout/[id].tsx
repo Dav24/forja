@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { colors } from '@/constants/colors';
 import { StatCard } from '@/components/ui/StatCard';
+import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 
 type Exercise = {
   order: number;
@@ -40,6 +41,12 @@ type WorkoutPlan = {
   created_at: string;
 };
 
+type LocalizedWorkoutContent = {
+  title: string;
+  description: string;
+  schedule: WorkoutDay[];
+};
+
 function getTodayDayIndex() {
   return new Date().getDay();
 }
@@ -66,13 +73,18 @@ export default function WorkoutPlanDetailScreen() {
     },
   });
 
-  if (isLoading) {
+  const { content, isTranslating, error: translateError } = useLocalizedPlan<LocalizedWorkoutContent>(
+    plan ?? null,
+    'workout',
+  );
+
+  if (isLoading || (plan && isTranslating)) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator color={colors.primary} />
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 12 }}>
-            {t('workout.loading')}
+            {isLoading ? t('workout.loading') : t('translating')}
           </Text>
         </View>
       </SafeAreaView>
@@ -94,7 +106,8 @@ export default function WorkoutPlanDetailScreen() {
     );
   }
 
-  const schedule: WorkoutDay[] = Array.isArray(plan.schedule) ? plan.schedule : [];
+  const view = content ?? { title: plan.title, description: plan.description, schedule: plan.schedule };
+  const schedule: WorkoutDay[] = Array.isArray(view.schedule) ? view.schedule : [];
   const trainDays = schedule.filter((d) => !d.is_rest);
   const restDays = schedule.filter((d) => d.is_rest);
 
@@ -118,14 +131,29 @@ export default function WorkoutPlanDetailScreen() {
 
         {/* Step 1: Plan title — Bebas 30px */}
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 0.5 }}>
-          {plan.title}
+          {view.title}
         </Text>
 
         {/* weekly_schedule_summary (fallback to description) */}
-        {(plan.weekly_schedule_summary ?? plan.description) ? (
+        {(plan.weekly_schedule_summary ?? view.description) ? (
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, lineHeight: 20, marginTop: 4 }}>
-            {plan.weekly_schedule_summary ?? plan.description}
+            {plan.weekly_schedule_summary ?? view.description}
           </Text>
+        ) : null}
+
+        {translateError ? (
+          <View style={{
+            backgroundColor: colors.surface,
+            borderRadius: 10,
+            padding: 10,
+            marginTop: 12,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}>
+            <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12 }}>
+              {t('translateError')}
+            </Text>
+          </View>
         ) : null}
 
         {/* StatCards row */}
