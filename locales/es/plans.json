@@ -107,6 +107,8 @@
     "title": "Vulcano está forjando tu plan…",
     "subtitle": "El buen metal toma su tiempo. ~30 segundos."
   },
+  "translating": "Traduciendo tu plan…",
+  "translateError": "No se pudo traducir, mostrando el original",
   "upgrade": {
     "navTitle": "Planes",
     "heroTitle": "MAESTRO FORJADOR",

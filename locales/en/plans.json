@@ -107,6 +107,8 @@
     "title": "Vulcano is forging your plan…",
     "subtitle": "Good metal takes its time. ~30 seconds."
   },
+  "translating": "Translating your plan…",
+  "translateError": "Couldn't translate, showing the original",
   "upgrade": {
     "navTitle": "Plans",
     "heroTitle": "MASTER FORGER",
