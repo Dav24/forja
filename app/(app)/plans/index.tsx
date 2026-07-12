@@ -7,10 +7,20 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
+import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { colors } from '@/constants/colors';
 import { Badge } from '@/components/ui/Badge';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
+
+type WorkoutDay = {
+  day_number: number;
+  day_name: string;
+  is_rest: boolean;
+  focus: string;
+  estimated_duration_minutes: number;
+  exercises: { name: string; sets: number; reps: string }[];
+};
 
 function getTodayDayIndex() {
   return new Date().getDay(); // 0=Dom, 1=Lun...
@@ -20,21 +30,22 @@ export default function PlansScreen() {
   const { t } = useTranslation('plans');
   const { data: activePlan, isLoading, refetch } = useActiveWorkoutPlan();
   const { generating, generate } = useGeneratePlan(refetch);
+  // Pasivo: muestra la traducción SI ya está cacheada; nunca dispara la EF
+  // (listar planes no debe costar llamadas de IA). La traducción se dispara
+  // solo al abrir el detalle.
+  const { content: localized } = useLocalizedPlan<{
+    title: string;
+    description: string;
+    schedule: WorkoutDay[];
+  }>(activePlan ?? null, 'workout', { trigger: false });
   const isPremium = useIsPremium();
   const sheetRef = useRef<BottomSheet>(null);
 
   const todayIndex = getTodayDayIndex();
 
-  type WorkoutDay = {
-    day_number: number;
-    day_name: string;
-    is_rest: boolean;
-    focus: string;
-    estimated_duration_minutes: number;
-    exercises: { name: string; sets: number; reps: string }[];
-  };
-
-  const schedule: WorkoutDay[] = Array.isArray(activePlan?.schedule)
+  const schedule: WorkoutDay[] = Array.isArray(localized?.schedule)
+    ? localized.schedule
+    : Array.isArray(activePlan?.schedule)
     ? (activePlan.schedule as unknown as WorkoutDay[])
     : [];
 
@@ -92,11 +103,11 @@ export default function PlansScreen() {
                 <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
               <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, marginBottom: 4 }}>
-                {(activePlan as { title: string }).title}
+                {localized?.title ?? (activePlan as { title: string }).title}
               </Text>
-              {(activePlan as { description?: string }).description ? (
+              {(localized?.description ?? (activePlan as { description?: string }).description) ? (
                 <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 13, lineHeight: 18 }} numberOfLines={2}>
-                  {(activePlan as { description: string }).description}
+                  {localized?.description ?? (activePlan as { description: string }).description}
                 </Text>
               ) : null}
 

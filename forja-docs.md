@@ -1352,3 +1352,16 @@ Cada vez que se complete un paso o se agregue una feature al proyecto, actualiza
 ---
 
 *Documento vivo — se actualiza con cada iteración del proyecto.*
+
+## Traducción de planes (caché por idioma)
+
+Los planes IA guardan `source_language` ('es'|'en') y un caché `translations JSONB`
+(`{ "<lang>": contenido }`) en `workout_plans`/`meal_plans` (migración 0010). La EF
+`translate-plan` (Haiku `claude-haiku-4-5-20251001`, lógica pura TDD en `logic.ts`)
+traduce UNA vez por idioma: idioma original o cacheado → respuesta instantánea sin IA.
+La validación de forma reconstruye el JSON caminando el original (números intactos por
+construcción; rechaza si cambia el nº de días/ejercicios/comidas — no se cachea basura).
+En el cliente, `hooks/useLocalizedPlan.ts` resuelve el contenido a renderizar; las
+pantallas de detalle disparan la traducción al abrir (spinner `plans:translating`,
+error → original + banner `plans:translateError`); el hub usa `{ trigger: false }` y
+nunca llama a la EF. Spec: `docs/superpowers/specs/2026-07-09-plan-translation-design.md`.
