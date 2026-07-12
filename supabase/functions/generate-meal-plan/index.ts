@@ -294,6 +294,7 @@ Deno.serve(async (req) => {
         meals: planData,
         generated_by: 'claude-sonnet-4-6',
         is_active: true,
+        source_language: language,
       })
       .select('id').single();
 

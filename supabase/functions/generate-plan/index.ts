@@ -364,6 +364,7 @@ Deno.serve(async (req) => {
         schedule: planData.schedule ?? [],
         generated_by: 'claude-sonnet-4-6',
         is_active: true,
+        source_language: language,
       })
       .select('id')
       .single();
