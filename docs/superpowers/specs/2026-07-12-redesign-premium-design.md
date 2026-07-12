@@ -8,8 +8,8 @@
 
 Definir y validar la dirección visual/UX premium de Forja mediante **un prototipo HTML navegable** (Artifact privado, marco de iPhone, transiciones reales) que el usuario itera desde su teléfono. **Esta spec cubre la fase de prototipo.** La implementación en React Native será un mini-paso posterior con su propia spec/plan cuando la dirección quede congelada.
 
-- **Dentro:** 7 pantallas navegables (Home, Coach, Planes hub, Detalle workout, Progreso, Perfil, Upgrade), navbar nuevo, sistema de transiciones, momentos de celebración clave.
-- **Fuera:** onboarding y pantallas de auth (fase 2 del prototipo), light mode (dark-only V1 — decisión razonada: marca carbón/brasa y referencias dark-first), implementación RN, ilustraciones finales de Vulcano (placeholder actual).
+- **Dentro:** 7 pantallas navegables (Home, Coach, Planes hub, Detalle workout, Progreso, Perfil, Upgrade), navbar nuevo, sistema de transiciones, momentos de celebración clave, **sistema de temas (claro / oscuro / según sistema)** y **avatar-personaje de Vulcano** (dirección de diseño, no ilustración final).
+- **Fuera:** onboarding y pantallas de auth (fase 2 del prototipo), implementación RN, ilustraciones IA finales de Vulcano (el avatar del prototipo define la dirección; las 4 ilustraciones siguen en pendientes del proyecto).
 
 ## 2. Calibración (respuestas del usuario)
 
@@ -23,6 +23,8 @@ Definir y validar la dirección visual/UX premium de Forja mediante **un prototi
 Hereda del canvas del usuario: coach SIN etiquetas "IA", íconos SVG duotono (fuera emojis), profundidad con capas/gradientes, paleta brasa refinada (naranja más saturado + ámbar).
 
 - **Identidad:** paleta brasa se mantiene (carbón #0C0A09 base, naranja #F97316, ámbar #FBBF24; verde solo success). Bebas Neue display.
+- **Sistema de temas (decisión del usuario):** tres modos — claro, oscuro y "según el sistema" (predeterminado). Selector en Perfil. Tokens de color por tema, nunca hardcodes por componente. **Oscuro** = la fragua actual (carbón + brasa). **Claro** = "la fragua de día": base cálida clara tipo ceniza (no blanco puro ni crema genérica), texto en carbón, naranja brasa ajustado a versión más profunda para contraste accesible sobre claro; el ámbar pasa a acento secundario medido. Ambos temas con el mismo cuidado — nada de inversión ingenua. El prototipo incluye el toggle funcionando para evaluar los dos.
+- **Vulcano avatar-personaje (decisión del usuario: personaje, NO logo):** el principio del canvas es "coach como entrenador real" — el logo de Forja en el chat haría sentir que habla la marca, no un entrenador. El prototipo define un avatar duotono de personaje (busto de herrero estilizado en SVG, acentos de brasa) con 2-3 estados: neutral, "en la fragua" (pensando/escribiendo) y celebrando. Es dirección de estilo: las 4 ilustraciones IA finales lo sustituirán 1:1 (mismos usos y tamaños).
 - **Tipografía protagonista** (Nike/Adidas): display más grande y con más aire; jerarquía agresiva; datos en JetBrains Mono grandes (Strava).
 - **Profundidad:** cards con borde sutil + gradiente de superficie (no flat). **Glassmorphism SOLO en overlays** (navbar, sheets) — nunca en cards de contenido, para no pelear con legibilidad de datos.
 - **Momentos Bold:** hero radial del Home, bento grid en Upgrade, celebraciones a pantalla. El resto, estructura Refined.
@@ -45,7 +47,7 @@ Pill flotante con glassmorphism sobre el contenido: 5 íconos duotono, activo co
 3. **Planes (hub)** — estilo Runna: plan activo como card héroe con mini-calendario gráfico (barras de intensidad), "hoy" resaltado con ember. Meal plan como segunda card con macros en barra. Generar nuevo = acción secundaria discreta.
 4. **Detalle workout** — la transición estrella (Home → aquí): número del día gigante en Bebas, focus como statement, ejercicios en filas limpias con sets×reps en Mono, técnica plegable, progresión como banda destacada.
 5. **Progreso** — Strava-style: gráfica de peso héroe full-bleed (sin caja), rangos en pills, stats del período en fila Mono, registro de medidas como sheet.
-6. **Perfil** — avatar + racha + "título de forjador" por nivel, objetivo activo como card con progreso, ajustes como lista limpia con chevrons duotono.
+6. **Perfil** — avatar + racha + "título de forjador" por nivel, objetivo activo como card con progreso, ajustes como lista limpia con chevrons duotono. **Incluye el selector de tema (claro / oscuro / sistema).**
 7. **Upgrade** — bento grid Bold completo (pantalla de conversión): beneficios en celdas mixtas, anual destacado con ahorro, momento aspiracional, CTA con gradiente flame.
 
 ## 7. Mecánica de iteración
@@ -64,3 +66,4 @@ El usuario navega el prototipo en su teléfono y aprueba: (a) el navbar, (b) al 
 - **HTML ≠ RN:** el prototipo puede enseñar cosas caras de implementar (blur en Android, shared elements en Expo Go). Mitigación: cada patrón del prototipo se anota con su equivalente RN y costo en la spec de implementación.
 - **Alcance "todas las pantallas":** iterar 7 pantallas a la vez puede dispersar el feedback. Mitigación: el link es uno solo, pero el feedback se procesa por pantalla, empezando por Home/navbar/transición.
 - **Artifacts y motion:** los Artifacts corren con CSP estricta (todo inline) — las animaciones son CSS/JS puro, sin librerías externas.
+- **Dos temas duplican el trabajo visual del prototipo.** Mitigación: paleta como custom properties por tema (token-level); los componentes solo consumen tokens, así el segundo tema es redefinir ~15 variables, no rediseñar pantallas. En RN ya existe el mismo patrón (tokens en `constants/colors.ts` / `global.css`), aunque la app actual es dark-only — la implementación RN del tema claro se dimensionará en la spec de implementación.
