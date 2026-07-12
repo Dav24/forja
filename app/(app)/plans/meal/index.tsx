@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { colors } from '@/constants/colors';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
 import { useIsPremium } from '@/hooks/useSubscription';
+import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { FREE_LIMITS } from '@/lib/limits';
 import { MacroBar } from '@/components/plans/MacroBar';
 import { MealPlanCard, type Meal } from '@/components/plans/MealPlanCard';
@@ -29,6 +30,7 @@ type MealPlanData = {
   macros: { protein_g: number; carbs_g: number; fat_g: number };
   days: MealDay[];
 };
+type LocalizedMealContent = { title: string; meals: MealPlanData };
 
 function ChipGroup({
   options, selected, onSelect, multi = false,
@@ -67,6 +69,10 @@ export default function MealPlansScreen() {
   const { data: activePlan, isLoading } = useActiveMealPlan();
   const { mutateAsync: generatePlan, isPending: generating } = useGenerateMealPlan();
   const isPremium = useIsPremium();
+  const { content: localized, isTranslating, error: translateError } = useLocalizedPlan<LocalizedMealContent>(
+    activePlan ?? null,
+    'meal',
+  );
 
   const [selectedAllergies, setSelectedAllergies] = useState<string[]>([ALLERGY_NONE]);
   const [selectedDiet, setSelectedDiet] = useState<string[]>([DIET_OPTIONS[0].value]);
@@ -107,15 +113,22 @@ export default function MealPlansScreen() {
     }
   }
 
-  const planData = activePlan?.meals as MealPlanData | null;
+  // El contenido localizado envuelve el JSON completo del plan (meals);
+  // mientras isTranslating, planData es null y se muestra el spinner.
+  const planData = (localized?.meals ?? null) as MealPlanData | null;
   const days = planData?.days ?? [];
   const currentDay = days[selectedDay];
 
-  if (isLoading) {
+  if (isLoading || (activePlan && isTranslating)) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator color={colors.primary} />
+          {isTranslating && (
+            <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 12 }}>
+              {t('translating')}
+            </Text>
+          )}
         </View>
       </SafeAreaView>
     );
@@ -149,6 +162,20 @@ export default function MealPlansScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         {activePlan && planData ? (
           <>
+            {translateError ? (
+              <View style={{
+                backgroundColor: colors.surface,
+                borderRadius: 10,
+                padding: 10,
+                marginBottom: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}>
+                <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12 }}>
+                  {t('translateError')}
+                </Text>
+              </View>
+            ) : null}
             {/* Macros diarios */}
             <View style={{
               backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16,
