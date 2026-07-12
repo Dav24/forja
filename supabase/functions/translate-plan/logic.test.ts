@@ -189,6 +189,28 @@ Deno.test('si la IA devuelve forma inválida, translatePlan rechaza y NO guarda'
   assertEquals(calls.includes('save'), false);
 });
 
+Deno.test('applyTranslation rechaza un elemento null dentro de schedule', () => {
+  assertThrows(
+    () => applyTranslation(
+      { title: 't', description: 'd', schedule: (workoutRow.schedule as Json[]) },
+      { title: 't2', description: 'd2', schedule: [null] },
+      'workout',
+    ),
+    ShapeMismatchError,
+  );
+});
+
+Deno.test('applyTranslation rechaza un elemento null dentro de days (meal)', () => {
+  assertThrows(
+    () => applyTranslation(
+      { title: 't', meals: (mealRow.meals as Json) },
+      { title: 't2', meals: { title: 't2', description: 'd', days: [null] } },
+      'meal',
+    ),
+    ShapeMismatchError,
+  );
+});
+
 // ---------- (e) los numéricos del original se preservan ----------
 
 Deno.test('los campos numéricos del original se preservan aunque la IA los altere', () => {

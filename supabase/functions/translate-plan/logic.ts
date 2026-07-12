@@ -60,6 +60,11 @@ function requireSameLengthArray(value: unknown, expected: number, label: string)
   if (!Array.isArray(value) || value.length !== expected) {
     throw new ShapeMismatchError(`shape mismatch en ${label}`);
   }
+  for (const el of value) {
+    if (typeof el !== 'object' || el === null || Array.isArray(el)) {
+      throw new ShapeMismatchError(`shape mismatch en ${label}: elemento no-objeto`);
+    }
+  }
   return value as Json[];
 }
 
