@@ -198,8 +198,8 @@ export type Database = {
           fitness_level: string
           id: string
           is_active: boolean
-          mode: string
           modality: string | null
+          mode: string
           secondary_modalities: string[]
           sport_type: string | null
           target_date: string | null
@@ -212,8 +212,8 @@ export type Database = {
           fitness_level: string
           id?: string
           is_active?: boolean
-          mode?: string
           modality?: string | null
+          mode?: string
           secondary_modalities?: string[]
           sport_type?: string | null
           target_date?: string | null
@@ -226,8 +226,8 @@ export type Database = {
           fitness_level?: string
           id?: string
           is_active?: boolean
-          mode?: string
           modality?: string | null
+          mode?: string
           secondary_modalities?: string[]
           sport_type?: string | null
           target_date?: string | null
@@ -254,7 +254,9 @@ export type Database = {
           is_active: boolean
           macros: Json
           meals: Json
+          source_language: string
           title: string
+          translations: Json
           user_id: string
         }
         Insert: {
@@ -265,7 +267,9 @@ export type Database = {
           is_active?: boolean
           macros?: Json
           meals?: Json
+          source_language?: string
           title: string
+          translations?: Json
           user_id: string
         }
         Update: {
@@ -276,7 +280,9 @@ export type Database = {
           is_active?: boolean
           macros?: Json
           meals?: Json
+          source_language?: string
           title?: string
+          translations?: Json
           user_id?: string
         }
         Relationships: [
@@ -420,7 +426,9 @@ export type Database = {
           modifications_count: number
           plan_month: string
           schedule: Json
+          source_language: string
           title: string
+          translations: Json
           user_id: string
         }
         Insert: {
@@ -432,7 +440,9 @@ export type Database = {
           modifications_count?: number
           plan_month?: string
           schedule?: Json
+          source_language?: string
           title: string
+          translations?: Json
           user_id: string
         }
         Update: {
@@ -444,7 +454,9 @@ export type Database = {
           modifications_count?: number
           plan_month?: string
           schedule?: Json
+          source_language?: string
           title?: string
+          translations?: Json
           user_id?: string
         }
         Relationships: [
@@ -462,7 +474,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_daily_message_count: { Args: { p_user_id: string }; Returns: number }
+      get_notification_targets: {
+        Args: never
+        Returns: {
+          current_period_end: string
+          current_weight: number
+          expo_push_token: string
+          first_weight: number
+          goal_type: string
+          last_activity: string
+          notif_reminders: boolean
+          notif_updates: boolean
+          plan: string
+          sub_status: string
+          target_date: string
+          target_weight_kg: number
+          user_id: string
+        }[]
+      }
+      increment_daily_message_count: {
+        Args: { p_date: string; p_user_id: string }
+        Returns: undefined
+      }
+      ts_to_utc_date: { Args: { ts: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

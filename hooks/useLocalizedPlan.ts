@@ -15,7 +15,9 @@ export interface LocalizablePlan {
   schedule?: unknown;
   meals?: unknown;
   source_language?: string;
-  translations?: Record<string, unknown> | null;
+  // `unknown` para aceptar el Json de los tipos generados de Supabase;
+  // en runtime siempre es el objeto { "<lang>": contenido } de la migración 0010.
+  translations?: unknown;
 }
 
 function extractOriginal(plan: LocalizablePlan, planType: LocalizedPlanType): Record<string, unknown> {
@@ -43,7 +45,7 @@ export function useLocalizedPlan<T = Record<string, unknown>>(
 
   const lang: AppLanguage = i18n.language === 'en' ? 'en' : 'es';
   const source: AppLanguage = plan?.source_language === 'en' ? 'en' : 'es';
-  const cached = plan?.translations?.[lang];
+  const cached = (plan?.translations as Record<string, unknown> | null | undefined)?.[lang];
   const needsTranslation = !!plan && lang !== source && !cached;
 
   const mutation = useMutation({
