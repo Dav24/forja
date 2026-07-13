@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useTheme } from '@/lib/theme';
+import { useHideNavOnScroll } from '@/lib/scrollNav';
 
 const DAY_NAMES_ES = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
 const DAY_NAMES_EN = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -54,6 +55,7 @@ export default function HomeScreen() {
   const { data: bodyData } = useLatestBodyData();
   const { data: firstBody } = useFirstBodyData();
   const { data: streak = 0 } = useStreak();
+  const navScroll = useHideNavOnScroll();
 
   const todayNames = getTodayDayNames();
   const schedule: ScheduleDay[] = Array.isArray(plan?.schedule) ? (plan.schedule as unknown as ScheduleDay[]) : [];
@@ -84,8 +86,9 @@ export default function HomeScreen() {
   return (
     <ScrollView
       className="flex-1 bg-background"
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 80 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 120 }}
       showsVerticalScrollIndicator={false}
+      {...navScroll}
     >
       {/* Section 0 — Brand header */}
       <Animated.View entering={FadeInUp.duration(250).delay(0)}>

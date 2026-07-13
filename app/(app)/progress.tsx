@@ -11,6 +11,7 @@ import { Sheet } from '@/components/ui/Sheet';
 import { StatCard } from '@/components/ui/StatCard';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
 import { useTheme } from '@/lib/theme';
+import { useHideNavOnScroll } from '@/lib/scrollNav';
 import { formatDate } from '@/lib/formatDate';
 
 export default function ProgressScreen() {
@@ -19,6 +20,7 @@ export default function ProgressScreen() {
   const sheetRef = useRef<any>(null);
   const { data: history } = useBodyHistory();
   const { data: latestBodyData } = useLatestBodyData();
+  const navScroll = useHideNavOnScroll();
 
   const isToday = !!latestBodyData?.recorded_at &&
     new Date(latestBodyData.recorded_at).toDateString() === new Date().toDateString();
@@ -44,8 +46,9 @@ export default function ProgressScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1 }}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
+        {...navScroll}
       >
         {/* Header */}
         <View className="mb-5">

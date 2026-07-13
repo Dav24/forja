@@ -18,6 +18,7 @@ import { StreakFlame } from '@/components/home/StreakFlame';
 import { MODALITIES } from '@/constants/modalities';
 import { GOALS, FITNESS_LEVELS } from '@/constants/goals';
 import { useTheme } from '@/lib/theme';
+import { useHideNavOnScroll } from '@/lib/scrollNav';
 import { formatDate } from '@/lib/formatDate';
 
 function daysInForja(createdAt: string | undefined): number {
@@ -36,6 +37,7 @@ export default function ProfileScreen() {
   const { pickAndUpload, uploading, error: avatarError, permissionDenied } = useAvatarUpload();
   const isPremium = useIsPremium();
   const { data: subscription } = useSubscription();
+  const navScroll = useHideNavOnScroll();
 
   const displayName = profile?.display_name ?? user?.email?.split('@')[0] ?? t('fallbackName');
   const initial = displayName.charAt(0).toUpperCase();
@@ -63,7 +65,7 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 20, paddingBottom: 40 }}>
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 20, paddingBottom: 120 }} {...navScroll}>
         <Animated.View entering={FadeInUp.duration(250)} style={{ gap: 20 }}>
           {/* Identidad */}
           <View className="items-center gap-3">

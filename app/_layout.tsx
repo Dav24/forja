@@ -24,6 +24,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
 import { ThemeProvider } from '@/lib/theme';
+import { NavVisibilityProvider } from '@/lib/scrollNav';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfileStore } from '@/store/profile.store';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -163,8 +164,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <AuthGuard />
-          <Stack screenOptions={{ headerShown: false }} />
+          <NavVisibilityProvider>
+            <AuthGuard />
+            <Stack screenOptions={{ headerShown: false }} />
+          </NavVisibilityProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

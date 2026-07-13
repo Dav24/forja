@@ -9,6 +9,7 @@ import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { useTheme } from '@/lib/theme';
+import { useHideNavOnScroll } from '@/lib/scrollNav';
 import { Badge } from '@/components/ui/Badge';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
@@ -41,6 +42,7 @@ export default function PlansScreen() {
   }>(activePlan ?? null, 'workout', { trigger: false });
   const isPremium = useIsPremium();
   const sheetRef = useRef<BottomSheet>(null);
+  const navScroll = useHideNavOnScroll();
 
   const todayIndex = getTodayDayIndex();
 
@@ -69,7 +71,7 @@ export default function PlansScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} showsVerticalScrollIndicator={false} {...navScroll}>
         {/* Header */}
         <View style={{ marginBottom: 24 }}>
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
