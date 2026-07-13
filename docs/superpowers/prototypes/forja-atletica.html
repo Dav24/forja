@@ -204,6 +204,19 @@ h1,h2,h3,p{margin:0}
 .up-price{font-size:44px;line-height:1}
 .save-badge{display:inline-block;background:rgba(34,197,94,.15);color:var(--ok);border:1px solid rgba(34,197,94,.3);font-size:10.5px;font-weight:500;border-radius:99px;padding:3px 9px;margin-left:8px;vertical-align:middle;font-family:'Inter'}
 
+/* ============ PLAN ALIMENTICIO ============ */
+.daychips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -20px 0;padding:0 20px 2px}
+.daychips::-webkit-scrollbar{display:none}
+.daychips button{flex:none;background:var(--chip);border:1px solid var(--line);color:var(--tx2);border-radius:999px;padding:7px 15px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter'}
+.daychips button.on{background:var(--amber);border-color:var(--amber);color:var(--on-ember);font-weight:500}
+.mealcard{background:var(--sf);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-top:10px;cursor:pointer}
+.mealcard .mrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mealcard .ing{display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
+.mealcard.exp .ing{display:block}
+.ingrow{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:12.5px;color:var(--tx2)}
+.ingrow i{width:5px;height:5px;border-radius:99px;background:var(--amber);flex:none}
+.next-chip{font-size:9.5px;font-family:'Space Grotesk';font-weight:700;letter-spacing:1px;color:var(--on-ember);background:var(--ember);border-radius:99px;padding:3px 8px}
+
 /* ============ NAVBAR PILL ============ */
 .nav{position:absolute;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;display:flex;align-items:center;gap:2px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);border-radius:999px;padding:7px;box-shadow:0 12px 40px rgba(0,0,0,.35);transition:transform .4s cubic-bezier(.32,.72,0,1),opacity .3s}
 .nav.hide{transform:translateX(-50%) translateY(86px)}
@@ -399,7 +412,7 @@ h1,h2,h3,p{margin:0}
           </div>
         </div>
 
-        <div class="card st" style="margin-top:12px;padding:17px">
+        <div class="card st" style="margin-top:12px;padding:17px" data-push="meal" role="button">
           <div class="plan-row">
             <p class="eyebrow">Plan alimenticio</p>
             <span class="mono" style="font-size:12px;color:var(--amber-tx)">2,800 kcal</span>
@@ -542,6 +555,44 @@ h1,h2,h3,p{margin:0}
       </div>
 
       <button class="btn-ember" style="margin-top:16px" id="finishBtn">MARCAR SESIÓN FORJADA</button>
+    </div>
+  </div>
+
+  <!-- ══════════ PUSH: PLAN ALIMENTICIO ══════════ -->
+  <div class="pushpane" data-p="meal">
+    <div class="hdr">
+      <button class="backbtn" data-back aria-label="Volver">
+        <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M7 1L2 6.5 7 12" stroke="var(--tx)" stroke-width="1.9" stroke-linecap="round"/></svg>
+      </button>
+      <span class="eyebrow">Nutrición · 2,800 kcal/día</span>
+      <span style="width:38px"></span>
+    </div>
+    <div class="scroll" style="padding-top:4px">
+      <h1 class="bebas" style="font-size:30px;line-height:1.05">NUTRICIÓN HIPERTROFIA<br><span style="color:var(--amber-tx)">VOLUMEN LIMPIO</span></h1>
+
+      <div class="card" style="margin-top:14px;padding:15px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <p class="eyebrow" style="font-size:10px">Objetivo diario</p>
+          <span class="mono" style="font-size:15px;color:var(--amber-tx)">2,800 <small style="font-size:10px;color:var(--tx3)">kcal</small></span>
+        </div>
+        <div class="macro" style="height:8px"><i class="p" style="flex:210"></i><i class="c" style="flex:280"></i><i class="g" style="flex:80"></i></div>
+        <div style="display:flex;justify-content:space-between;margin-top:9px">
+          <span class="mono" style="font-size:10.5px;color:var(--tx2)">Proteína <b style="color:var(--tx)">210g</b></span>
+          <span class="mono" style="font-size:10.5px;color:var(--tx2)">Carbs <b style="color:var(--tx)">280g</b></span>
+          <span class="mono" style="font-size:10.5px;color:var(--tx2)">Grasa <b style="color:var(--tx)">80g</b></span>
+        </div>
+      </div>
+
+      <div class="daychips" id="dayChips">
+        <button>Lun</button><button class="on">Mar</button><button>Mié</button><button>Jue</button><button>Vie</button><button>Sáb</button><button>Dom</button>
+      </div>
+
+      <div id="mealList"></div>
+
+      <button class="btn-ghost" style="margin-top:16px">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.5 7A4.5 4.5 0 1 1 7 2.5c1.8 0 3.3 1 4.1 2.4M11.5 2v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Regenerar plan — Maestro Forjador
+      </button>
     </div>
   </div>
 
@@ -963,6 +1014,43 @@ h1,h2,h3,p{margin:0}
   function closeEx(){ exSheet.classList.remove('open'); }
   $('#exSave').addEventListener('click', () => { closeEx(); veil.classList.remove('open'); });
 
+  /* ---------- Plan alimenticio: comidas del día ---------- */
+  const MEALS = [
+    { type:'Desayuno', time:'7:00–8:00', name:'Avena proteica con plátano', kcal:520, p:35, c:65, g:10,
+      ing:['80g avena','1 scoop proteína','1 plátano','200ml leche descremada','Canela al gusto'] },
+    { type:'Media mañana', time:'10:00–10:30', name:'Yogur griego con nueces', kcal:280, p:22, c:18, g:12,
+      ing:['200g yogur griego natural','20g nueces','1 cdta miel'] },
+    { type:'Almuerzo', time:'13:00–14:00', name:'Pollo a la plancha con arroz', kcal:700, p:55, c:80, g:15, next:true,
+      ing:['200g pechuga de pollo','120g arroz (en seco)','Ensalada verde con limón','1 cda aceite de oliva'] },
+    { type:'Merienda', time:'17:00–17:30', name:'Batido post-entreno', kcal:400, p:40, c:45, g:6,
+      ing:['1.5 scoop proteína','1 plátano','300ml agua','30g avena'] },
+    { type:'Cena', time:'20:00–21:00', name:'Salmón con papa y espárragos', kcal:620, p:45, c:50, g:22,
+      ing:['180g salmón','200g papa cocida','150g espárragos','Limón y eneldo'] },
+  ];
+  const mealList = $('#mealList');
+  MEALS.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'mealcard' + (m.next ? ' exp' : '');
+    if (m.next) card.style.borderColor = 'rgba(249,115,22,.4)';
+    card.innerHTML =
+      '<div class="mrow"><div style="display:flex;align-items:center;gap:8px">' +
+        '<p class="eyebrow" style="font-size:9.5px">' + m.type + ' · ' + m.time + '</p>' +
+        (m.next ? '<span class="next-chip">SIGUIENTE</span>' : '') +
+      '</div><span class="mono" style="font-size:12px;color:var(--amber-tx)">' + m.kcal + ' kcal</span></div>' +
+      '<p style="font-weight:500;font-size:14.5px;margin-top:6px">' + m.name + '</p>' +
+      '<div class="macro" style="margin-top:9px"><i class="p" style="flex:' + m.p + '"></i><i class="c" style="flex:' + m.c + '"></i><i class="g" style="flex:' + m.g + '"></i></div>' +
+      '<div style="display:flex;gap:12px;margin-top:7px">' +
+        '<span class="mono" style="font-size:10px;color:var(--tx3)">' + m.p + 'p</span>' +
+        '<span class="mono" style="font-size:10px;color:var(--tx3)">' + m.c + 'c</span>' +
+        '<span class="mono" style="font-size:10px;color:var(--tx3)">' + m.g + 'g</span></div>' +
+      '<div class="ing">' + m.ing.map(x => '<div class="ingrow"><i></i>' + x + '</div>').join('') + '</div>';
+    card.addEventListener('click', () => card.classList.toggle('exp'));
+    mealList.appendChild(card);
+  });
+  $$('#dayChips button').forEach(b => b.addEventListener('click', () => {
+    $$('#dayChips button').forEach(x => x.classList.toggle('on', x === b));
+  }));
+
   /* ---------- Celebración ---------- */
   const cele = $('#celebrate');
   $('#finishBtn').addEventListener('click', () => {
@@ -995,6 +1083,15 @@ h1,h2,h3,p{margin:0}
     $('#priceUnit').textContent = yearly ? '/año MXN' : '/mes MXN';
     $('#saveBadge').style.display = yearly ? '' : 'none';
   }));
+
+  /* ---------- guard: nada puede scrollear el contenedor raíz ----------
+     overflow:hidden NO bloquea scrollTop programático (scroll-into-view del
+     navegador al enfocar inputs, p. ej. con teclado en móvil) — y un scroll
+     fantasma del contenedor descoloca pantallas y sheets. Se revierte al vuelo. */
+  app.addEventListener('scroll', () => {
+    if (app.scrollTop !== 0) app.scrollTop = 0;
+    if (app.scrollLeft !== 0) app.scrollLeft = 0;
+  });
 
   /* ---------- init ---------- */
   showTab('home');
