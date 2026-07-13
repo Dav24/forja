@@ -3,7 +3,6 @@ import '../global.css';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 import { Stack, usePathname, useRouter, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
@@ -22,20 +21,14 @@ import {
 } from '@expo-google-fonts/jetbrains-mono';
 import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import * as SplashScreen from 'expo-splash-screen';
-import * as SystemUI from 'expo-system-ui';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
-import { colors } from '@/constants/colors';
+import { ThemeProvider } from '@/lib/theme';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfileStore } from '@/store/profile.store';
 import { useNotifications } from '@/hooks/useNotifications';
 
 SplashScreen.preventAutoHideAsync();
-
-// Fondo de la VENTANA nativa (debajo de todo React). Sin esto es blanca y asoma
-// como flash al redimensionar con el teclado y en el cold-load. app.json no
-// aplica en Expo Go, por eso se fija también en runtime.
-SystemUI.setBackgroundColorAsync(colors.background);
 
 const isExpoGo = Constants.appOwnership === 'expo';
 
@@ -169,9 +162,10 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" />
-        <AuthGuard />
-        <Stack screenOptions={{ headerShown: false }} />
+        <ThemeProvider>
+          <AuthGuard />
+          <Stack screenOptions={{ headerShown: false }} />
+        </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
