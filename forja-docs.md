@@ -1351,6 +1351,12 @@ Cada vez que se complete un paso o se agregue una feature al proyecto, actualiza
 
 ---
 
+## 22. Sistema de temas y fundamentos visuales (Rediseño Fase A)
+
+Temas claro/oscuro/sistema: tokens en `constants/themes.ts` (valores congelados del prototipo `docs/superpowers/prototypes/forja-atletica.html`), `ThemeProvider` en `lib/theme.tsx` (AsyncStorage `forja.theme`, default system, local al dispositivo, pinta SystemUI/StatusBar y aplica `vars()` de NativeWind — las clases tailwind de color son temáticas). En componentes: `const { colors } = useTheme()`; NUNCA importar `@/constants/colors` (deprecado) ni llamar useTheme dentro de un worklet (capturar el color en una const fuera). Navbar: `components/nav/PillTabBar.tsx` (blur iOS, tintado Android) + `lib/scrollNav.tsx` (hide-on-scroll; las pantallas conectan `useHideNavOnScroll()` a su scroll). Transiciones: stacks con slide_from_right+gesto, tabs con `StaggerIn`. Celebraciones: `useCelebration().celebrate({...})` (`lib/celebration.tsx`); trigger de prueba en Ajustes solo `__DEV__`. Selector de tema en Ajustes. Spec: `docs/superpowers/specs/2026-07-13-redesign-fase-a-fundamentos-design.md`.
+
+---
+
 *Documento vivo — se actualiza con cada iteración del proyecto.*
 
 ## Traducción de planes (caché por idioma)
