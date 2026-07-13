@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { gradients } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
+import { gradientsByTheme } from '@/constants/themes';
 
 type BadgeVariant = 'primary' | 'accent' | 'warning' | 'destructive' | 'muted' | 'premium';
 
@@ -19,6 +20,8 @@ const variantStyles: Record<Exclude<BadgeVariant, 'premium'>, { container: strin
 };
 
 export function Badge({ label, variant = 'muted', className = '' }: BadgeProps) {
+  const { resolved } = useTheme();
+  const gradients = gradientsByTheme[resolved];
   if (variant === 'premium') {
     return (
       <LinearGradient

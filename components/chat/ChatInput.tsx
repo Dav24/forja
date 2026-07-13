@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -10,6 +10,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('chat');
   const [text, setText] = useState('');
 

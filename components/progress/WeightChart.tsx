@@ -4,7 +4,7 @@ import Svg, { Path, Defs, LinearGradient, Stop, Circle } from 'react-native-svg'
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useIsPremium } from '@/hooks/useSubscription';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { formatDate } from '@/lib/formatDate';
 import { UpgradeSheet } from '@/components/premium/UpgradeSheet';
 
@@ -79,6 +79,7 @@ interface WeightChartProps {
 }
 
 export function WeightChart({ data }: WeightChartProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('progress');
   const isPremium = useIsPremium();
   const { width: screenW } = useWindowDimensions();
@@ -201,7 +202,7 @@ export function WeightChart({ data }: WeightChartProps) {
               />
             ) : null}
             {points.map((p, i) => (
-              <Circle key={i} cx={p.x} cy={p.y} r={3} fill={colors.primaryBright} />
+              <Circle key={i} cx={p.x} cy={p.y} r={3} fill={colors.accent} />
             ))}
           </Svg>
 

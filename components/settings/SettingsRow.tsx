@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -15,6 +15,7 @@ interface SettingsRowProps {
 }
 
 export function SettingsRow({ icon, label, value, onPress, danger, rightElement }: SettingsRowProps) {
+  const { colors } = useTheme();
   const tint = danger ? colors.destructive : colors.textMuted;
   return (
     <TouchableOpacity
@@ -39,6 +40,7 @@ export function SettingsRow({ icon, label, value, onPress, danger, rightElement 
 }
 
 export function SettingsGroup({ title, children }: { title?: string; children: ReactNode }) {
+  const { colors } = useTheme();
   return (
     <View className="mb-6">
       {title ? (

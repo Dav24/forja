@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { useLogBodyData, useUpdateBodyData } from '@/hooks/useBodyTracking';
 import { useIsPremium } from '@/hooks/useSubscription';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
 import { UpgradeSheet } from '@/components/premium/UpgradeSheet';
 
@@ -22,6 +22,7 @@ interface MeasurementFormProps {
 }
 
 export function MeasurementForm({ initialValues, isUpdate = false, existingId, onSuccess }: MeasurementFormProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('progress');
   const isPremium = useIsPremium();
   const { mutate, isPending: insertPending, error: insertError } = useLogBodyData();

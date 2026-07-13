@@ -1,5 +1,5 @@
 import { Text, TextProps } from 'react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 interface StreamingTextProps extends TextProps {
   text: string;
@@ -7,6 +7,7 @@ interface StreamingTextProps extends TextProps {
 }
 
 export function StreamingText({ text, isStreaming, ...props }: StreamingTextProps) {
+  const { colors } = useTheme();
   return (
     <Text {...props}>
       {text}

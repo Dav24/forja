@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { gradients } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
+import { gradientsByTheme } from '@/constants/themes';
 
 interface ProgressBarProps {
   value: number; // 0–100
@@ -10,6 +11,8 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ value, className = '' }: ProgressBarProps) {
+  const { resolved } = useTheme();
+  const gradients = gradientsByTheme[resolved];
   const width = useSharedValue(0);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 interface PaywallBannerProps {
   message: string;
@@ -10,6 +10,7 @@ interface PaywallBannerProps {
 }
 
 export function PaywallBanner({ message, ctaLabel, onPress }: PaywallBannerProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('plans');
   const resolvedCta = ctaLabel ?? t('paywall.defaultCta');
   return (

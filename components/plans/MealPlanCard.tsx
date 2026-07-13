@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { MacroBar } from './MacroBar';
 
 export interface Meal {
@@ -17,6 +17,7 @@ export interface Meal {
 }
 
 export function MealPlanCard({ meal }: { meal: Meal }) {
+  const { colors } = useTheme();
   const { t } = useTranslation('plans');
   const [expanded, setExpanded] = useState(false);
 
@@ -48,7 +49,7 @@ export function MealPlanCard({ meal }: { meal: Meal }) {
             {meal.name}
           </Text>
           <View className="bg-surface-elevated rounded px-1.5 py-0.5 self-start" style={{ marginTop: 4 }}>
-            <Text style={{ color: colors.primaryBright, fontFamily: 'JetBrainsMono-Medium', fontSize: 11 }}>
+            <Text style={{ color: colors.accent, fontFamily: 'JetBrainsMono-Medium', fontSize: 11 }}>
               {meal.calories} kcal
             </Text>
           </View>

@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 // Simula progreso indeterminado en ~30 s para reflejar el tiempo real de generación
 function useSimulatedProgress() {
@@ -35,6 +35,7 @@ function useSimulatedProgress() {
 }
 
 export function PlanGenerating() {
+  const { colors } = useTheme();
   const { t } = useTranslation('plans');
   const progress = useSimulatedProgress();
 

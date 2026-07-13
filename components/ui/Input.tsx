@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -9,6 +9,7 @@ interface InputProps extends TextInputProps {
 }
 
 export function Input({ label, error, secureTextEntry, className = '', ...props }: InputProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('common');
   const [visible, setVisible] = useState(false);
 

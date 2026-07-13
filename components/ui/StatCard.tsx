@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { CountUpText } from './CountUpText';
 
 interface StatCardProps {
@@ -10,7 +10,8 @@ interface StatCardProps {
 }
 
 export function StatCard({ value, label, suffix, decimals = 0 }: StatCardProps) {
-  const numberStyle = { fontFamily: 'JetBrainsMono-Medium', fontSize: 22, color: colors.primaryBright } as const;
+  const { colors } = useTheme();
+  const numberStyle = { fontFamily: 'JetBrainsMono-Medium', fontSize: 22, color: colors.accent } as const;
   return (
     <View className="flex-1 bg-surface border border-border rounded-2xl px-3 py-3 items-center">
       <View className="flex-row items-baseline">

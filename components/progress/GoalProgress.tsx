@@ -5,10 +5,11 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Badge } from '@/components/ui/Badge';
 import { useActiveGoal } from '@/hooks/useProfile';
 import { useLatestBodyData, useFirstBodyData } from '@/hooks/useBodyTracking';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
 
 export function GoalProgress() {
+  const { colors } = useTheme();
   const { t } = useTranslation('progress');
   const { data: goal } = useActiveGoal();
   const { data: latest } = useLatestBodyData();

@@ -1,7 +1,9 @@
 import { ActivityIndicator, Pressable, PressableProps, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { colors, fireShadow, gradients } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
+import { gradientsByTheme, fireShadowByTheme } from '@/constants/themes';
+import type { Theme } from '@/constants/themes';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 type Size = 'sm' | 'md' | 'lg';
@@ -22,11 +24,13 @@ const sizeStyles: Record<Size, { container: string; text: string; radius: number
   lg: { container: 'h-16 px-6 rounded-2xl', text: 'text-lg', radius: 16 },
 };
 
-const flatVariants: Record<Exclude<Variant, 'primary'>, { container: string; text: string; indicator: string }> = {
-  secondary: { container: 'bg-surface border border-primary', text: 'text-primary', indicator: colors.primary },
-  ghost: { container: 'bg-transparent', text: 'text-text-muted', indicator: colors.text },
-  destructive: { container: 'bg-destructive', text: 'text-white', indicator: '#ffffff' },
-};
+function getFlatVariants(colors: Theme): Record<Exclude<Variant, 'primary'>, { container: string; text: string; indicator: string }> {
+  return {
+    secondary: { container: 'bg-surface border border-primary', text: 'text-primary', indicator: colors.primary },
+    ghost: { container: 'bg-transparent', text: 'text-text-muted', indicator: colors.text },
+    destructive: { container: 'bg-destructive', text: 'text-white', indicator: '#ffffff' },
+  };
+}
 
 export function Button({
   variant = 'primary',
@@ -39,6 +43,10 @@ export function Button({
   onPressOut,
   ...props
 }: ButtonProps) {
+  const { colors, resolved } = useTheme();
+  const gradients = gradientsByTheme[resolved];
+  const fireShadow = fireShadowByTheme[resolved];
+  const flatVariants = getFlatVariants(colors);
   const s = sizeStyles[size];
   const isDisabled = disabled || loading;
   const scale = useSharedValue(1);

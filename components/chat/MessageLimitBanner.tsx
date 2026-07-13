@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { FREE_LIMITS } from '@/lib/limits';
 
 interface MessageLimitBannerProps {
@@ -11,6 +11,7 @@ interface MessageLimitBannerProps {
 }
 
 export function MessageLimitBanner({ count, limitReached }: MessageLimitBannerProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('chat');
   const remaining = FREE_LIMITS.MESSAGES_PER_DAY - count;
   const isLow = remaining <= 5 && remaining > 0;

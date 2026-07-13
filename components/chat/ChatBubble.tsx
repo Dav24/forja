@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { StreamingText } from './StreamingText';
 import { VulcanoAvatar } from './VulcanoAvatar';
 
@@ -10,6 +10,7 @@ interface ChatBubbleProps {
 }
 
 export function ChatBubble({ role, content, isStreaming = false }: ChatBubbleProps) {
+  const { colors } = useTheme();
   const isUser = role === 'user';
 
   return (

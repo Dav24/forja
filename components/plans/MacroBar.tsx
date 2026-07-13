@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 interface MacroBarProps {
   protein_g: number;
@@ -10,6 +10,7 @@ interface MacroBarProps {
 }
 
 function MacroLabel({ color, label, grams, pct }: { color: string; label: string; grams: number; pct: number }) {
+  const { colors } = useTheme();
   return (
     <View className="items-center gap-0.5">
       <View className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
@@ -21,6 +22,7 @@ function MacroLabel({ color, label, grams, pct }: { color: string; label: string
 }
 
 export function MacroBar({ protein_g, carbs_g, fat_g, compact = false }: MacroBarProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('plans');
   const total = protein_g + carbs_g + fat_g;
   if (total === 0) return null;
@@ -33,13 +35,13 @@ export function MacroBar({ protein_g, carbs_g, fat_g, compact = false }: MacroBa
     <View>
       <View className="flex-row rounded overflow-hidden" style={{ height: compact ? 6 : 10 }}>
         <View style={{ flex: proteinPct, backgroundColor: colors.primary }} />
-        <View style={{ flex: carbsPct, backgroundColor: colors.primaryBright }} />
+        <View style={{ flex: carbsPct, backgroundColor: colors.accent }} />
         <View style={{ flex: fatPct, backgroundColor: colors.textMuted }} />
       </View>
       {!compact && (
         <View className="flex-row justify-between mt-2">
           <MacroLabel color={colors.primary} label={t('meal.macros.protein')} grams={protein_g} pct={proteinPct} />
-          <MacroLabel color={colors.primaryBright} label={t('meal.macros.carbs')} grams={carbs_g} pct={carbsPct} />
+          <MacroLabel color={colors.accent} label={t('meal.macros.carbs')} grams={carbs_g} pct={carbsPct} />
           <MacroLabel color={colors.textMuted} label={t('meal.macros.fat')} grams={fat_g} pct={fatPct} />
         </View>
       )}

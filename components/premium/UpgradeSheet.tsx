@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { useAuthStore } from '@/store/auth.store';
 import { buildPaymentURL } from '@/lib/payments';
 import { PRICE_YEARLY } from '@/constants/pricing';
@@ -54,6 +54,7 @@ const COPY: Record<UpgradeContext, { titleKey: string; bulletKeys: string[] }> =
 
 export const UpgradeSheet = forwardRef<BottomSheet, UpgradeSheetProps>(
   function UpgradeSheet({ context = 'generic' }, ref) {
+    const { colors } = useTheme();
     const { t } = useTranslation('plans');
     const { titleKey, bulletKeys } = COPY[context];
     const userId = useAuthStore((s) => s.user?.id);

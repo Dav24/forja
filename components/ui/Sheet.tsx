@@ -1,6 +1,6 @@
 import { forwardRef, useCallback } from 'react';
 import { View } from 'react-native';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import BottomSheet, {
   BottomSheetView,
   BottomSheetScrollView,
@@ -18,6 +18,7 @@ export const Sheet = forwardRef<BottomSheet, SheetProps>(function Sheet(
   { children, snapPoints, scrollable, ...props },
   ref,
 ) {
+  const { colors } = useTheme();
   const renderBackdrop = useCallback(
     (backdropProps: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop

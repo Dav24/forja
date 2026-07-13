@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 interface StreakFlameProps {
   streak: number;
@@ -46,6 +46,7 @@ function Flame({ size, dead }: { size: number; dead: boolean }) {
 }
 
 export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
+  const { colors } = useTheme();
   const { t } = useTranslation('home');
   const dead = streak === 0;
   const flicker = useSharedValue(1);
@@ -79,7 +80,7 @@ export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
         <Animated.View style={flickerStyle}>
           <Flame size={14} dead={dead} />
         </Animated.View>
-        <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 14, color: dead ? colors.textMuted : colors.primaryBright }}>
+        <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 14, color: dead ? colors.textMuted : colors.accent }}>
           {streak}
         </Text>
       </View>
@@ -91,7 +92,7 @@ export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
       <Animated.View style={flickerStyle}>
         <Flame size={28} dead={dead} />
       </Animated.View>
-      <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 20, color: dead ? colors.textMuted : colors.primaryBright }}>
+      <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 20, color: dead ? colors.textMuted : colors.accent }}>
         {streak}
       </Text>
       <Text className="text-text-muted text-xs">{dead ? t('streak.revive') : t('streak.days')}</Text>
