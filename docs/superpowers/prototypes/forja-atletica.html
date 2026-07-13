@@ -154,8 +154,11 @@ h1,h2,h3,p{margin:0}
 /* ============ DETALLE WORKOUT ============ */
 .wk-day{font-size:88px;line-height:.9;color:var(--ember-tx)}
 .wk-focus{font-size:34px;line-height:1;margin-top:2px}
-.exrow{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.exrow{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
+.exrow:active{background:var(--chip)}
 .exrow:last-child{border-bottom:none}
+.ex-play{width:26px;height:26px;flex:none;border-radius:99px;background:var(--chip);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.ex-play svg{margin-left:1px}
 .ex-n{font-size:15px;color:var(--tx3);width:24px;flex:none}
 .ex-body{flex:1;min-width:0}
 .ex-body p:first-child{font-weight:500;font-size:14.5px}
@@ -223,6 +226,34 @@ h1,h2,h3,p{margin:0}
 .field{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin-bottom:10px}
 .field label{font-size:13px;color:var(--tx2);font-weight:500}
 .field .mono{font-size:16px}
+
+/* ============ FICHA DE EJERCICIO ============ */
+.exsheet{max-height:88%;overflow-y:auto;scrollbar-width:none;padding-bottom:28px}
+.exsheet::-webkit-scrollbar{display:none}
+.anim-stage{border-radius:18px;background:radial-gradient(120% 100% at 50% 100%,rgba(249,115,22,.14),transparent 60%),var(--bg2);border:1px solid var(--line);height:210px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-top:14px}
+.anim-tag{position:absolute;top:10px;left:12px;font-size:9.5px;letter-spacing:1.4px;color:var(--tx3);font-family:'Space Grotesk';font-weight:700;text-transform:uppercase}
+.cue{display:flex;gap:9px;font-size:12.5px;line-height:1.5;color:var(--tx2);align-items:flex-start;margin-top:8px}
+.cue svg{flex:none;margin-top:3px}
+.setlog{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.setlog:last-of-type{border-bottom:none}
+.setlog .sn{font-size:11px;color:var(--tx3);width:44px;flex:none}
+.step{display:flex;align-items:center;gap:2px;background:var(--chip);border:1px solid var(--line);border-radius:11px;padding:3px}
+.step button{width:30px;height:30px;border:none;background:none;color:var(--ember-tx);font-size:17px;font-weight:500;cursor:pointer;border-radius:8px;line-height:1;font-family:'Inter'}
+.step button:active{background:var(--sf2)}
+.step .val{min-width:56px;text-align:center;font-size:13.5px}
+.step .val small{font-size:9.5px;color:var(--tx3)}
+.ghost-last{font-size:10.5px;color:var(--tx3);font-family:'JetBrains Mono';margin-left:auto;text-align:right;line-height:1.4}
+.exspark{margin-top:6px}
+
+/* figura de ejercicio animada — crossfade de 2 poses (placeholder de la animación real) */
+.fig{stroke:var(--tx2);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.fig .head{fill:var(--tx2);stroke:none}
+.fig .bar{stroke:var(--ember);stroke-width:6}
+.fig .plate{fill:var(--ember);stroke:none}
+@keyframes poseA{0%,40%{opacity:1}52%,90%{opacity:0}100%{opacity:1}}
+@keyframes poseB{0%,40%{opacity:0}52%,90%{opacity:1}100%{opacity:0}}
+.fig .pa{animation:poseA 2.3s ease-in-out infinite}
+.fig .pb{animation:poseB 2.3s ease-in-out infinite}
 
 /* ============ CELEBRACIÓN ============ */
 .celebrate{position:absolute;inset:0;z-index:50;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:radial-gradient(90% 70% at 50% 45%,rgba(249,115,22,.32),rgba(12,10,9,.96) 70%)}
@@ -497,16 +528,8 @@ h1,h2,h3,p{margin:0}
         <span class="chip mono" style="font-size:11px">descansos 60–120s</span>
       </div>
 
-      <div class="card" style="margin-top:16px;padding:6px 16px">
-        <div class="exrow"><span class="mono ex-n">01</span><div class="ex-body"><p>Movilidad de hombros con banda</p><p>Calentamiento</p></div><span class="mono ex-set">2×10 · 30s</span></div>
-        <div class="exrow"><span class="mono ex-n">02</span><div class="ex-body"><p>Dominadas</p><p>Espalda · agarre prono</p></div><span class="mono ex-set">4×6-8 · 120s</span></div>
-        <div class="exrow"><span class="mono ex-n">03</span><div class="ex-body"><p>Remo con barra</p><p>Espalda · torso 45°</p></div><span class="mono ex-set">4×8-10 · 90s</span></div>
-        <div class="exrow"><span class="mono ex-n">04</span><div class="ex-body"><p>Jalón al pecho</p><p>Dorsal ancho</p></div><span class="mono ex-set">3×10-12 · 75s</span></div>
-        <div class="exrow"><span class="mono ex-n">05</span><div class="ex-body"><p>Remo en polea baja</p><p>Espalda media</p></div><span class="mono ex-set">3×10-12 · 75s</span></div>
-        <div class="exrow"><span class="mono ex-n">06</span><div class="ex-body"><p>Curl con barra</p><p>Bíceps · sin balanceo</p></div><span class="mono ex-set">3×8-10 · 90s</span></div>
-        <div class="exrow"><span class="mono ex-n">07</span><div class="ex-body"><p>Curl martillo</p><p>Braquial y antebrazo</p></div><span class="mono ex-set">3×10-12 · 60s</span></div>
-        <div class="exrow"><span class="mono ex-n">08</span><div class="ex-body"><p>Estiramientos de espalda</p><p>Vuelta a la calma</p></div><span class="mono ex-set">1×5 min</span></div>
-      </div>
+      <p class="eyebrow" style="font-size:9.5px;margin-top:16px;color:var(--tx3)">Toca un ejercicio para ver la técnica y registrar tu carga</p>
+      <div class="card" id="exList" style="margin-top:8px;padding:6px 16px"></div>
 
       <div class="prog-band" style="margin-top:14px">
         <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="flex:none;margin-top:1px"><path d="M2 12l4-4 3 3 6-6" stroke="var(--ember)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5h4v4" stroke="var(--ember)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -565,6 +588,26 @@ h1,h2,h3,p{margin:0}
     <div class="field" style="opacity:.45"><label>% grasa corporal</label><span style="font-size:11px;color:var(--amber-tx);font-weight:500">Maestro</span></div>
     <div class="field" style="opacity:.45"><label>Masa muscular</label><span style="font-size:11px;color:var(--amber-tx);font-weight:500">Maestro</span></div>
     <button class="btn-ember" id="saveMeasure" style="margin-top:6px">GUARDAR</button>
+  </div>
+
+  <!-- ══════════ FICHA DE EJERCICIO ══════════ -->
+  <div class="sheet exsheet" id="exSheet">
+    <div class="grab"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+      <div>
+        <h2 class="bebas" style="font-size:25px;line-height:1" id="exName">Ejercicio</h2>
+        <div style="display:flex;gap:6px;margin-top:8px" id="exChips"></div>
+      </div>
+      <span class="mono" style="font-size:11px;color:var(--tx3);flex:none;padding-top:4px" id="exScheme"></span>
+    </div>
+    <div class="anim-stage" id="exStage">
+      <span class="anim-tag">Demo · animación real en la app</span>
+    </div>
+    <div id="exCues" style="margin-top:10px"></div>
+    <p class="eyebrow" style="font-size:10px;margin-top:16px" id="exLogTitle">Registra tu carga de hoy</p>
+    <div id="exLog" style="margin-top:2px"></div>
+    <div class="exspark" id="exSpark"></div>
+    <button class="btn-ember" id="exSave" style="margin-top:12px">GUARDAR SERIES</button>
   </div>
 
   <!-- ══════════ CELEBRACIÓN ══════════ -->
@@ -766,10 +809,145 @@ h1,h2,h3,p{margin:0}
   /* ---------- Sheet registrar medida ---------- */
   const sheet = $('#sheet'), veil = $('#sheetVeil');
   function openSheet(){ sheet.classList.add('open'); veil.classList.add('open'); }
-  function closeSheet(){ sheet.classList.remove('open'); veil.classList.remove('open'); }
+  function closeSheet(){
+    sheet.classList.remove('open');
+    document.getElementById('exSheet').classList.remove('open');
+    veil.classList.remove('open');
+  }
   $('#openSheet').addEventListener('click', openSheet);
   veil.addEventListener('click', closeSheet);
   $('#saveMeasure').addEventListener('click', closeSheet);
+
+  /* ---------- Ejercicios: datos, lista, ficha con registro de carga ---------- */
+  // type: 'kg' = barra/mancuerna (registra kg) · 'body' = peso corporal (reps + lastre) · 'time' = duración
+  const EXDATA = [
+    { name:'Movilidad de hombros con banda', sub:'Calentamiento', scheme:'2×10 · 30s', type:'time', anim:'row', sets:2,
+      cues:['Círculos amplios y controlados, sin dolor.','La banda mantiene tensión ligera constante.','Respira profundo: preparas hombros y escápulas.'], hist:null },
+    { name:'Dominadas', sub:'Espalda · agarre prono', scheme:'4×6-8 · 120s', type:'body', anim:'pull', sets:4, lastKg:2.5, lastReps:7,
+      cues:['Inicia el jalón hundiendo los hombros, no doblando el codo.','Pecho hacia la barra, no la barbilla.','Baja controlado hasta extender por completo.'],
+      hist:[4,5,5,6,7,7], histLabel:'+3 reps en 6 semanas', histUnit:'reps' },
+    { name:'Remo con barra', sub:'Espalda · torso 45°', scheme:'4×8-10 · 90s', type:'kg', anim:'row', sets:4, lastKg:57.5, lastReps:10,
+      cues:['Bisagra de cadera: torso firme a 45°, espalda neutra.','Jala la barra hacia el ombligo, codos pegados.','Control excéntrico de 2-3 segundos al bajar.'],
+      hist:[45,47.5,50,52.5,55,57.5], histLabel:'+12.5 kg en 6 semanas', histUnit:'kg' },
+    { name:'Jalón al pecho', sub:'Dorsal ancho', scheme:'3×10-12 · 75s', type:'kg', anim:'pull', sets:3, lastKg:50, lastReps:12,
+      cues:['Agarre un poco más ancho que los hombros.','Lleva la barra a la clavícula inclinando apenas el torso.','No uses impulso: el dorsal hace el trabajo.'],
+      hist:[40,42.5,45,45,47.5,50], histLabel:'+10 kg en 6 semanas', histUnit:'kg' },
+    { name:'Remo en polea baja', sub:'Espalda media', scheme:'3×10-12 · 75s', type:'kg', anim:'row', sets:3, lastKg:45, lastReps:11,
+      cues:['Pecho alto, hombros lejos de las orejas.','Aprieta las escápulas al final del recorrido.','No balancees el torso entre reps.'],
+      hist:[35,37.5,40,40,42.5,45], histLabel:'+10 kg en 6 semanas', histUnit:'kg' },
+    { name:'Curl con barra', sub:'Bíceps · sin balanceo', scheme:'3×8-10 · 90s', type:'kg', anim:'row', sets:3, lastKg:25, lastReps:9,
+      cues:['Codos fijos a los costados todo el tiempo.','Sube en 1 segundo, baja en 3.','Muñecas neutras, sin quebrar hacia atrás.'],
+      hist:[17.5,20,20,22.5,22.5,25], histLabel:'+7.5 kg en 6 semanas', histUnit:'kg' },
+    { name:'Curl martillo', sub:'Braquial y antebrazo', scheme:'3×10-12 · 60s', type:'kg', anim:'row', sets:3, lastKg:14, lastReps:12,
+      cues:['Agarre neutro, palmas enfrentadas.','Sin balanceo: si te meces, baja el peso.','Aprieta 1 segundo arriba en cada rep.'],
+      hist:[10,10,12,12,14,14], histLabel:'+4 kg en 6 semanas', histUnit:'kg' },
+    { name:'Estiramientos de espalda', sub:'Vuelta a la calma', scheme:'1×5 min', type:'time', anim:'pull', sets:1,
+      cues:['Postura del niño: 60 segundos respirando hondo.','Cuelga de la barra 2×20s si tienes agarre.','Sin rebotes: estira hasta tensión, no dolor.'], hist:null },
+  ];
+
+  /* figura placeholder: crossfade de 2 poses estilizadas */
+  function figSVG(anim){
+    if (anim === 'pull'){
+      return '<svg class="fig" width="230" height="185" viewBox="0 0 230 185">' +
+        '<line class="bar" x1="55" y1="28" x2="175" y2="28"/>' +
+        '<line x1="55" y1="18" x2="55" y2="38" stroke="var(--tx3)"/><line x1="175" y1="18" x2="175" y2="38" stroke="var(--tx3)"/>' +
+        '<g class="pa"><circle class="head" cx="115" cy="72" r="10"/><path d="M95 30 L100 62 L115 84 L130 62 L135 30"/><path d="M115 84 L115 128"/><path d="M115 128 L102 165 M115 128 L128 165"/></g>' +
+        '<g class="pb"><circle class="head" cx="115" cy="40" r="10"/><path d="M95 30 L98 44 L115 52 L132 44 L135 30"/><path d="M115 52 L115 98"/><path d="M115 98 L104 132 L108 164 M115 98 L126 132 L122 164"/></g>' +
+        '</svg>';
+    }
+    // remo / patrón de bisagra
+    return '<svg class="fig" width="230" height="185" viewBox="0 0 230 185">' +
+      '<line x1="20" y1="168" x2="210" y2="168" stroke="var(--line2)" stroke-width="2"/>' +
+      '<g class="pa"><circle class="head" cx="78" cy="74" r="10"/><path d="M155 166 L152 118 L92 84"/><path d="M92 84 L96 130"/><line class="bar" x1="58" y1="134" x2="134" y2="134"/><circle class="plate" cx="58" cy="134" r="11"/><circle class="plate" cx="134" cy="134" r="11"/></g>' +
+      '<g class="pb"><circle class="head" cx="78" cy="70" r="10"/><path d="M155 166 L152 116 L92 80"/><path d="M92 80 L98 100"/><line class="bar" x1="60" y1="104" x2="136" y2="104"/><circle class="plate" cx="60" cy="104" r="11"/><circle class="plate" cx="136" cy="104" r="11"/></g>' +
+      '</svg>';
+  }
+
+  /* lista de ejercicios */
+  const exList = $('#exList');
+  EXDATA.forEach((ex, i) => {
+    const row = document.createElement('div');
+    row.className = 'exrow';
+    row.innerHTML = '<span class="mono ex-n">' + String(i+1).padStart(2,'0') + '</span>' +
+      '<div class="ex-body"><p>' + ex.name + '</p><p>' + ex.sub + '</p></div>' +
+      '<span class="mono ex-set">' + ex.scheme + '</span>' +
+      '<span class="ex-play"><svg width="9" height="10" viewBox="0 0 9 10" fill="none"><path d="M1 1.2v7.6c0 .5.5.8 1 .5l6-3.8c.4-.3.4-.9 0-1.2L2 .7c-.5-.3-1 0-1 .5Z" fill="var(--ember)"/></svg></span>';
+    row.addEventListener('click', () => openEx(i));
+    exList.appendChild(row);
+  });
+
+  /* ficha */
+  const exSheet = $('#exSheet');
+  function stepper(unit, val, decimals, step, min){
+    const wrap = document.createElement('div');
+    wrap.className = 'step';
+    wrap.innerHTML = '<button type="button" aria-label="menos">−</button>' +
+      '<span class="val mono">' + val.toFixed(decimals) + '<small> ' + unit + '</small></span>' +
+      '<button type="button" aria-label="más">+</button>';
+    let v = val;
+    const span = wrap.querySelector('.val');
+    const btns = wrap.querySelectorAll('button');
+    btns[0].addEventListener('click', () => { v = Math.max(min, v - step); span.innerHTML = v.toFixed(decimals) + '<small> ' + unit + '</small>'; });
+    btns[1].addEventListener('click', () => { v = v + step; span.innerHTML = v.toFixed(decimals) + '<small> ' + unit + '</small>'; });
+    return wrap;
+  }
+  function sparkline(hist, label){
+    if (!hist) return '';
+    const w = 340, h = 46, min = Math.min.apply(null, hist), max = Math.max.apply(null, hist);
+    const pts = hist.map((v, i) => {
+      const x = 8 + i * ((w - 16) / (hist.length - 1));
+      const y = max === min ? h/2 : (h - 9) - ((v - min) / (max - min)) * (h - 18);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    const last = pts[pts.length - 1].split(',');
+    return '<div style="display:flex;align-items:center;gap:10px;margin-top:14px;border-top:1px solid var(--line);padding-top:12px">' +
+      '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="flex:1;min-width:0">' +
+      '<polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--ember)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="'+last[0]+'" cy="'+last[1]+'" r="3.5" fill="var(--ember)"/></svg>' +
+      '<span class="mono" style="font-size:10px;color:var(--ok);flex:none">' + label + '</span></div>';
+  }
+  function openEx(i){
+    const ex = EXDATA[i];
+    $('#exName').textContent = ex.name;
+    $('#exScheme').textContent = ex.scheme;
+    $('#exChips').innerHTML = '<span class="chip" style="font-size:10.5px">' + ex.sub + '</span>' +
+      (ex.type === 'body' ? '<span class="chip" style="font-size:10.5px;color:var(--amber-tx)">Peso corporal</span>' : '');
+    const stage = $('#exStage');
+    stage.querySelectorAll('svg').forEach(n => n.remove());
+    stage.insertAdjacentHTML('beforeend', figSVG(ex.anim));
+    $('#exCues').innerHTML = ex.cues.map(c =>
+      '<div class="cue"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 6.5 4.5 9.5 10.5 2.5" stroke="var(--ember)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>' + c + '</span></div>'
+    ).join('');
+    const log = $('#exLog');
+    log.innerHTML = '';
+    const title = $('#exLogTitle');
+    if (ex.type === 'time'){
+      title.textContent = 'Sin registro de carga — ejercicio de preparación';
+      $('#exSave').style.display = 'none';
+    } else {
+      $('#exSave').style.display = '';
+      title.textContent = ex.type === 'body' ? 'Registra reps y lastre de hoy' : 'Registra tu carga de hoy';
+      for (let s = 1; s <= ex.sets; s++){
+        const row = document.createElement('div');
+        row.className = 'setlog';
+        row.innerHTML = '<span class="mono sn">S' + s + '</span>';
+        if (ex.type === 'kg') row.appendChild(stepper('kg', ex.lastKg, 1, 2.5, 0));
+        else row.appendChild(stepper('kg lastre', ex.lastKg, 1, 2.5, 0));
+        row.appendChild(stepper('reps', ex.lastReps, 0, 1, 0));
+        const ghost = document.createElement('span');
+        ghost.className = 'ghost-last';
+        ghost.textContent = 'ant. ' + ex.lastKg.toFixed(1) + '×' + ex.lastReps;
+        row.appendChild(ghost);
+        log.appendChild(row);
+      }
+    }
+    $('#exSpark').innerHTML = ex.hist ? sparkline(ex.hist, ex.histLabel) : '';
+    exSheet.classList.add('open');
+    veil.classList.add('open');
+    exSheet.scrollTop = 0;
+  }
+  function closeEx(){ exSheet.classList.remove('open'); }
+  $('#exSave').addEventListener('click', () => { closeEx(); veil.classList.remove('open'); });
 
   /* ---------- Celebración ---------- */
   const cele = $('#celebrate');
