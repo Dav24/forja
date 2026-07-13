@@ -13,7 +13,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 const DAY_NAMES_ES = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
 const DAY_NAMES_EN = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -45,6 +45,7 @@ function getGreetingPeriod(): 'morning' | 'afternoon' | 'evening' {
 
 export default function HomeScreen() {
   const { t } = useTranslation('home');
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { data: profile } = useProfile();
@@ -147,7 +148,7 @@ export default function HomeScreen() {
                       {ex.sets != null && ex.reps != null && (
                         <View className="bg-surface-elevated rounded-md px-2 py-0.5">
                           <Text
-                            style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.primaryBright }}
+                            style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.accent }}
                           >
                             {ex.sets}×{ex.reps}
                           </Text>

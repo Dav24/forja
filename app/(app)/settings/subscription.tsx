@@ -9,10 +9,11 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { buildPortalURL } from '@/lib/payments';
 import { formatDate } from '@/lib/formatDate';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 export default function SubscriptionScreen() {
   const { t } = useTranslation('settings');
+  const { colors } = useTheme();
   const { user } = useAuthStore();
   const isPremium = useIsPremium();
   const { data: subscription } = useSubscription();

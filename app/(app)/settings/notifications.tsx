@@ -5,10 +5,11 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsRow';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 export default function NotificationsScreen() {
   const { t } = useTranslation('settings');
+  const { colors } = useTheme();
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
 

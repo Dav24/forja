@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useOnboardingStore } from '@/store/onboarding.store';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -29,6 +29,7 @@ const ACTIVITY_LEVELS: { value: ActivityLevel; labelKey: string; descriptionKey:
 
 export default function Step2Body() {
   const { t } = useTranslation('onboarding');
+  const { colors } = useTheme();
   const [weight, setWeight] = useState('');
   const [height, setHeight] = useState('');
   const [age, setAge] = useState('');

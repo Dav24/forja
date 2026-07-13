@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { Badge } from '@/components/ui/Badge';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
@@ -28,6 +28,7 @@ function getTodayDayIndex() {
 
 export default function PlansScreen() {
   const { t } = useTranslation('plans');
+  const { colors } = useTheme();
   const { data: activePlan, isLoading, refetch } = useActiveWorkoutPlan();
   const { generating, generate } = useGeneratePlan(refetch);
   // Pasivo: muestra la traducción SI ya está cacheada; nunca dispara la EF

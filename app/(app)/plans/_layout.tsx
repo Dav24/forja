@@ -1,13 +1,15 @@
 import { Stack } from 'expo-router';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 export default function PlansLayout() {
+  const { colors } = useTheme();
   return (
     <Stack
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
+        gestureEnabled: true,
       }}
     />
   );

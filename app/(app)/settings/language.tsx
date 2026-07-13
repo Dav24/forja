@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { setAppLanguage, type AppLanguage } from '@/lib/i18n';
 import { useUpdateProfile } from '@/hooks/useProfile';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 const OPTIONS: { value: AppLanguage; flag: string; labelKey: 'settings:language.spanish' | 'settings:language.english' }[] = [
   { value: 'es', flag: '🇲🇽', labelKey: 'settings:language.spanish' },
@@ -14,6 +14,7 @@ const OPTIONS: { value: AppLanguage; flag: string; labelKey: 'settings:language.
 
 export default function LanguageScreen() {
   const { t, i18n } = useTranslation('settings');
+  const { colors } = useTheme();
   const updateProfile = useUpdateProfile();
 
   function selectLanguage(lang: AppLanguage) {

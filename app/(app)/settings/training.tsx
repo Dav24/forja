@@ -13,7 +13,7 @@ import { GOALS, FITNESS_LEVELS, MODES, type GoalType, type FitnessLevel, type Tr
 import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 const GENDERS: { value: Gender; labelKey: string }[] = [
@@ -36,6 +36,7 @@ function Chip({ selected, label, onPress }: { selected: boolean; label: string; 
 }
 
 function SectionTitle({ children }: { children: string }) {
+  const { colors } = useTheme();
   return (
     <Text className="mb-3 mt-6" style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text }}>
       {children}
@@ -45,6 +46,7 @@ function SectionTitle({ children }: { children: string }) {
 
 export default function TrainingScreen() {
   const { t } = useTranslation('settings');
+  const { colors } = useTheme();
   const { user } = useAuthStore();
   const { data: goal } = useActiveGoal();
   const { data: latestBody } = useLatestBodyData();

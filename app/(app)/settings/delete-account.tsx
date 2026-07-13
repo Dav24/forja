@@ -7,10 +7,11 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 export default function DeleteAccountScreen() {
   const { t } = useTranslation('settings');
+  const { colors } = useTheme();
   const CONFIRM_WORD = t('deleteAccount.confirmWord');
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);

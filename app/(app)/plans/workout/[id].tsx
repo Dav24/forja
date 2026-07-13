@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { StatCard } from '@/components/ui/StatCard';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 
@@ -53,6 +53,7 @@ function getTodayDayIndex() {
 
 export default function WorkoutPlanDetailScreen() {
   const { t } = useTranslation('plans');
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const todayIndex = getTodayDayIndex();
@@ -289,13 +290,13 @@ export default function WorkoutPlanDetailScreen() {
                         {/* Chips — JetBrainsMono-Medium, primaryBright */}
                         <View style={{ flexDirection: 'row', gap: 4 }}>
                           <View style={{ backgroundColor: colors.surfaceElevated, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
-                            <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.primaryBright }}>
+                            <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.accent }}>
                               {ex.sets}×{ex.reps}
                             </Text>
                           </View>
                           {ex.rest_seconds ? (
                             <View style={{ backgroundColor: colors.surfaceElevated, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
-                              <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.primaryBright }}>
+                              <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.accent }}>
                                 {ex.rest_seconds}s
                               </Text>
                             </View>

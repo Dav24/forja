@@ -12,10 +12,11 @@ import {
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 export default function ForgotPasswordScreen() {
   const { t } = useTranslation('auth');
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);

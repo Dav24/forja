@@ -11,10 +11,11 @@ import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsRow';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 export default function AccountScreen() {
   const { t } = useTranslation('settings');
+  const { colors } = useTheme();
 
   function friendlyAuthError(message: string): string {
     const m = message.toLowerCase();

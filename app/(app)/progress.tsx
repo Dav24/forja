@@ -10,11 +10,12 @@ import { MeasurementForm } from '@/components/progress/MeasurementForm';
 import { Sheet } from '@/components/ui/Sheet';
 import { StatCard } from '@/components/ui/StatCard';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { formatDate } from '@/lib/formatDate';
 
 export default function ProgressScreen() {
   const { t } = useTranslation('progress');
+  const { colors } = useTheme();
   const sheetRef = useRef<any>(null);
   const { data: history } = useBodyHistory();
   const { data: latestBodyData } = useLatestBodyData();

@@ -7,10 +7,11 @@ import { ChatInput } from '@/components/chat/ChatInput';
 import { MessageLimitBanner } from '@/components/chat/MessageLimitBanner';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { useChat, type ChatMessage } from '@/hooks/useChat';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 function EmptyState() {
   const { t } = useTranslation('chat');
+  const { colors } = useTheme();
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
@@ -54,6 +55,7 @@ function renderItem({ item }: { item: ChatMessage }) {
 
 export default function ChatScreen() {
   const { t } = useTranslation('chat');
+  const { colors } = useTheme();
   const { messages, isLoading, dailyCount, limitReached, sendMessage } = useChat();
   const listRef = useRef<FlatList>(null);
 

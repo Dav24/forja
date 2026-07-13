@@ -7,12 +7,13 @@ import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { Button } from '@/components/ui/Button';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { PlanGenerating } from '@/components/plans/PlanGenerating';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
 
 export default function WorkoutPlansIndex() {
   const { t } = useTranslation('plans');
+  const { colors } = useTheme();
   const { data: activePlan, refetch } = useActiveWorkoutPlan();
   const { generating, generate } = useGeneratePlan(refetch);
   const sheetRef = useRef<BottomSheet>(null);

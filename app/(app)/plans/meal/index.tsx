@@ -5,7 +5,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
@@ -38,6 +38,7 @@ function ChipGroup({
   options: MealOption[]; selected: string[]; onSelect: (val: string) => void; multi?: boolean;
 }) {
   const { t } = useTranslation('plans');
+  const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
       {options.map((opt) => {
@@ -66,6 +67,7 @@ function ChipGroup({
 
 export default function MealPlansScreen() {
   const { t } = useTranslation('plans');
+  const { colors } = useTheme();
   const { data: activePlan, isLoading } = useActiveMealPlan();
   const { mutateAsync: generatePlan, isPending: generating } = useGenerateMealPlan();
   const isPremium = useIsPremium();

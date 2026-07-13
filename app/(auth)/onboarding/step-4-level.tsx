@@ -8,11 +8,12 @@ import { useAuthStore } from '@/store/auth.store';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { useProfileStore } from '@/store/profile.store';
 import { SparkBurst } from '@/components/effects/SparkBurst';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { FITNESS_LEVELS, MODES, type FitnessLevel, type TrainingMode } from '@/constants/goals';
 
 export default function Step3Level() {
   const { t } = useTranslation('onboarding');
+  const { colors } = useTheme();
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
   const [mode, setMode] = useState<TrainingMode | null>(null);
   const [loading, setLoading] = useState(false);

@@ -6,10 +6,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { SparkBurst } from '@/components/effects/SparkBurst';
 import { Button } from '@/components/ui/Button';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 
 export default function SuccessScreen() {
   const { t } = useTranslation('plans');
+  const { colors } = useTheme();
   const queryClient = useQueryClient();
   const [burst, setBurst] = useState(false);
 

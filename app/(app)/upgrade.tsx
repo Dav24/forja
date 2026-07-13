@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
 import { useIsPremium } from '@/hooks/useSubscription';
-import { colors, gradients } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
+import { gradientsByTheme } from '@/constants/themes';
 import { useAuthStore } from '@/store/auth.store';
 import { buildPaymentURL, buildPortalURL, type Billing } from '@/lib/payments';
 import {
@@ -47,6 +48,8 @@ const COMING_FEATURE_KEYS = [
 
 export default function UpgradeScreen() {
   const { t } = useTranslation('plans');
+  const { colors, resolved } = useTheme();
+  const gradients = gradientsByTheme[resolved];
   const isPremium = useIsPremium();
   const userId = useAuthStore((s) => s.user?.id);
   const [billing, setBilling] = useState<Billing>('yearly');

@@ -17,7 +17,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { StreakFlame } from '@/components/home/StreakFlame';
 import { MODALITIES } from '@/constants/modalities';
 import { GOALS, FITNESS_LEVELS } from '@/constants/goals';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
 import { formatDate } from '@/lib/formatDate';
 
 function daysInForja(createdAt: string | undefined): number {
@@ -27,6 +27,7 @@ function daysInForja(createdAt: string | undefined): number {
 
 export default function ProfileScreen() {
   const { t } = useTranslation(['profile']);
+  const { colors } = useTheme();
   const { user } = useAuthStore();
   const { data: profile } = useProfile();
   const { data: goal } = useActiveGoal();
