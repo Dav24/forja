@@ -11,6 +11,11 @@ Definir y validar la dirección visual/UX premium de Forja mediante **un prototi
 - **Dentro:** 7 pantallas navegables (Home, Coach, Planes hub, Detalle workout, Progreso, Perfil, Upgrade), navbar nuevo, sistema de transiciones, momentos de celebración clave, **sistema de temas (claro / oscuro / según sistema)** y **avatar-personaje de Vulcano** (dirección de diseño, no ilustración final).
 - **Fuera:** onboarding y pantallas de auth (fase 2 del prototipo), implementación RN, ilustraciones IA finales de Vulcano (el avatar del prototipo define la dirección; las 4 ilustraciones siguen en pendientes del proyecto).
 
+**Requisitos de datos del onboarding (decisión del usuario, v6 — se diseñan en la fase 2 del prototipo, se registran aquí):** al crear el perfil se agregan dos preguntas:
+1. **Trayectoria competitiva:** "¿Has competido alguna vez?" — opciones: nunca / deportista amateur con competencias / atleta de medio-alto rendimiento / fisicoculturismo o físico (competidor). Complementa al `fitness_level` existente (años de entrenamiento ≠ historial competitivo) y calibra volumen, intensidad y lenguaje del plan y de Vulcano.
+2. **Suplementación:** "¿Tomas suplementos actualmente?" — si sí, selección múltiple (creatina, proteína, cafeína/pre-entreno, multivitamínico, omega-3, otro con texto libre). Se inyecta como contexto en `generate-plan`/`generate-meal-plan`/chat (p. ej. el plan de comidas no duplica proteína si ya suplementa; Vulcano lo considera al hablar de recuperación). **Límite de seguridad:** la app REGISTRA suplementación declarada como contexto — nunca recomienda ni dosifica sustancias; ante menciones de sustancias controladas, Vulcano deriva a profesional de salud.
+Implicación DB (fase RN): campos nuevos en onboarding/perfil (p. ej. `goals.athletic_background` enum + `profiles.supplements TEXT[]`).
+
 ## 2. Calibración (respuestas del usuario)
 
 - **Alcance:** todas las pantallas de una vez (prototipo navegable completo).
@@ -60,7 +65,7 @@ Puntos de compartir con experiencia personal, pensados como growth loop (cada sh
 - **Sesión forjada / racha:** banner de celebración ("Sesión forjada · Día 2 Pull · racha 13") — el momento más viral, se ofrece desde la pantalla de celebración.
 - **Plan de entrenamiento:** banner del plan recién forjado.
 
-Formato banner: story 9:16 (1080×1920) con identidad Forja (carbón + ember, Bebas display, wordmark + forja.fit). El share usa la **hoja nativa del sistema** (funciona con WhatsApp/Instagram/Facebook/TikTok y cualquier app instalada). Viabilidad RN: `expo-print` (HTML→PDF), `react-native-view-shot` (componente→PNG del banner), `expo-sharing`/Share API — todo estándar; compartir DIRECTO a Instagram Stories/TikTok (sin pasar por la hoja del sistema) requiere `react-native-share` + development build (ya planeado para IAP/push). El prototipo demuestra la vista previa del banner y los destinos.
+Formato banner: story 9:16 (1080×1920) con identidad Forja (carbón + ember, Bebas display, wordmark + forja.fit). **Destinos (decisión del usuario, v6): botones directos con ícono oficial de cada app (WhatsApp, Instagram, TikTok, Facebook — íconos de Simple Icons con color de marca) + botón "Otra app"** que abre la hoja nativa del sistema para que el usuario elija cualquier app instalada. Viabilidad RN: `expo-print` (HTML→PDF), `react-native-view-shot` (componente→PNG del banner), `expo-sharing`/Share API — todo estándar; compartir DIRECTO a Instagram Stories/TikTok (sin pasar por la hoja del sistema) requiere `react-native-share` + development build (ya planeado para IAP/push). El prototipo demuestra la vista previa del banner y los destinos.
 
 ## 7. Mecánica de iteración
 
