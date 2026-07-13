@@ -8,10 +8,12 @@ import { supabase } from '@/lib/supabase';
 import { useSubscription, useIsPremium } from '@/hooks/useSubscription';
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsRow';
 import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/lib/config';
-import { colors } from '@/constants/colors';
+import { useTheme } from '@/lib/theme';
+import type { ThemePref } from '@/constants/themes';
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation('settings');
+  const { colors } = useTheme();
   const isPremium = useIsPremium();
   useSubscription(); // precalienta la query para la subpantalla
 
@@ -42,6 +44,12 @@ export default function SettingsScreen() {
             value={i18n.language === 'es' ? t('language.spanish') : t('language.english')}
             onPress={() => router.push('/(app)/settings/language' as never)}
           />
+          <View className="px-4 py-3.5 bg-surface">
+            <Text className="mb-2.5" style={{ fontFamily: 'Inter-Medium', fontSize: 15, color: colors.text }}>
+              {t('hub.rowAppearance')}
+            </Text>
+            <ThemeSegment />
+          </View>
         </SettingsGroup>
 
         <SettingsGroup title={t('hub.groupSubscription')}>
@@ -84,5 +92,40 @@ export default function SettingsScreen() {
         </Text>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function ThemeSegment() {
+  const { t } = useTranslation('settings');
+  const { colors, pref, setPref } = useTheme();
+  const options: { key: ThemePref; label: string }[] = [
+    { key: 'light', label: t('appearance.light') },
+    { key: 'system', label: t('appearance.system') },
+    { key: 'dark', label: t('appearance.dark') },
+  ];
+  return (
+    <View
+      className="flex-row"
+      style={{ backgroundColor: colors.chip, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 3, gap: 3 }}
+    >
+      {options.map((o) => (
+        <TouchableOpacity
+          key={o.key}
+          onPress={() => setPref(o.key)}
+          activeOpacity={0.7}
+          style={{
+            flex: 1,
+            paddingVertical: 8,
+            borderRadius: 9,
+            alignItems: 'center',
+            backgroundColor: pref === o.key ? colors.surfaceElevated : 'transparent',
+          }}
+        >
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12.5, color: pref === o.key ? colors.text : colors.textMuted }}>
+            {o.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
   );
 }

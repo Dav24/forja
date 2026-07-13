@@ -15,6 +15,7 @@
     "groupPreferences": "Preferencias",
     "rowNotifications": "Notificaciones",
     "rowLanguage": "Idioma",
+    "rowAppearance": "Apariencia",
     "groupSubscription": "Suscripción",
     "rowSubscription": "Suscripción",
     "groupLegal": "Legal",
@@ -119,5 +120,10 @@
     "manage": "Gestionar suscripción",
     "becomeMaster": "Hazte Maestro",
     "manageNotice": "Cambia de plan, actualiza tu método de pago o cancela desde el portal seguro de Stripe."
+  },
+  "appearance": {
+    "light": "Claro",
+    "system": "Sistema",
+    "dark": "Oscuro"
   }
 }
