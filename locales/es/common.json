@@ -9,6 +9,8 @@
   "daysShort": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
   "show": "Ver",
   "hide": "Ocultar",
+  "streakDays": "días de racha",
+  "continue": "Seguir",
   "tabs": {
     "home": "Inicio",
     "coach": "Coach",

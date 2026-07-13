@@ -9,6 +9,8 @@
   "daysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   "show": "Show",
   "hide": "Hide",
+  "streakDays": "day streak",
+  "continue": "Continue",
   "tabs": {
     "home": "Home",
     "coach": "Coach",

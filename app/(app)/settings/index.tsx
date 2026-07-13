@@ -9,12 +9,14 @@ import { useSubscription, useIsPremium } from '@/hooks/useSubscription';
 import { SettingsGroup, SettingsRow } from '@/components/settings/SettingsRow';
 import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/lib/config';
 import { useTheme } from '@/lib/theme';
+import { useCelebration } from '@/lib/celebration';
 import type { ThemePref } from '@/constants/themes';
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation('settings');
   const { colors } = useTheme();
   const isPremium = useIsPremium();
+  const { celebrate } = useCelebration();
   useSubscription(); // precalienta la query para la subpantalla
 
   return (
@@ -81,6 +83,13 @@ export default function SettingsScreen() {
         </SettingsGroup>
 
         <SettingsGroup>
+          {__DEV__ ? (
+            <SettingsRow
+              icon="sparkles-outline"
+              label="Probar celebración (dev)"
+              onPress={() => celebrate({ title: 'SESIÓN FORJADA', subtitle: 'Pull — Espalda y Bíceps · 60 min', streak: 13 })}
+            />
+          ) : null}
           <SettingsRow icon="log-out-outline" label={t('hub.signOut')} danger onPress={() => supabase.auth.signOut()} />
         </SettingsGroup>
 

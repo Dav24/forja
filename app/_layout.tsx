@@ -25,6 +25,7 @@ import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
 import { ThemeProvider } from '@/lib/theme';
 import { NavVisibilityProvider } from '@/lib/scrollNav';
+import { CelebrationProvider } from '@/lib/celebration';
 import { useAuthStore } from '@/store/auth.store';
 import { useProfileStore } from '@/store/profile.store';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -165,8 +166,10 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <NavVisibilityProvider>
-            <AuthGuard />
-            <Stack screenOptions={{ headerShown: false }} />
+            <CelebrationProvider>
+              <AuthGuard />
+              <Stack screenOptions={{ headerShown: false }} />
+            </CelebrationProvider>
           </NavVisibilityProvider>
         </ThemeProvider>
       </QueryClientProvider>
