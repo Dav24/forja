@@ -1,5 +1,7 @@
 # Guía de compra y configuración de dominios — Forja
 
+> ✅ **DECISIÓN EJECUTADA 2026-07-13:** comprados **forjafit.mx** (principal) y **forjafit.com.mx** (defensivo/redirect) en Akky. Siguiente: §7 pasos 4-8 (Cloudflare, Email Routing, Resend). Todo `forja.fit`/`pay.forja.fit` en código y docs se actualizará a `forjafit.mx` en el Paso 15. Oportunidad futura: forja.fit expira dic-2026 (backorder/broker si el dueño no renueva).
+
 **Fecha de verificación: 2026-07-13** (disponibilidad comprobada contra RDAP y whois oficial del NIC México ese día — re-verificar al momento de comprar, los dominios vuelan).
 
 ## 0. Hallazgo crítico: forja.fit NO está disponible
