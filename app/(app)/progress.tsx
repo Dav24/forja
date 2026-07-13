@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { GoalProgress } from '@/components/progress/GoalProgress';
@@ -9,6 +8,7 @@ import { WeightChart } from '@/components/progress/WeightChart';
 import { MeasurementForm } from '@/components/progress/MeasurementForm';
 import { Sheet } from '@/components/ui/Sheet';
 import { StatCard } from '@/components/ui/StatCard';
+import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
 import { useTheme } from '@/lib/theme';
 import { useHideNavOnScroll } from '@/lib/scrollNav';
@@ -44,13 +44,14 @@ export default function ProgressScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
-      <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1 }}>
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
         {...navScroll}
       >
         {/* Header */}
+        <StaggerIn index={0}>
         <View className="mb-5">
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text }}>
             {t('title')}
@@ -64,8 +65,10 @@ export default function ProgressScreen() {
             </Text>
           )}
         </View>
+        </StaggerIn>
 
         {/* Stat cards */}
+        <StaggerIn index={1}>
         <View className="flex-row gap-3 mb-4">
           <StatCard
             value={latestBodyData?.weight_kg ?? '—'}
@@ -86,18 +89,21 @@ export default function ProgressScreen() {
             decimals={1}
           />
         </View>
+        </StaggerIn>
 
-        {/* Meta */}
+        {/* Meta + gráfica */}
+        <StaggerIn index={2}>
         <GoalProgress />
 
         <View className="h-4" />
 
-        {/* Gráfica */}
         <WeightChart data={chartData} />
+        </StaggerIn>
 
         <View className="h-4" />
 
         {/* Últimos registros */}
+        <StaggerIn index={3}>
         {recentRecords.length > 0 && (
           <View
             className="rounded-2xl border overflow-hidden"
@@ -153,8 +159,8 @@ export default function ProgressScreen() {
             })}
           </View>
         )}
+        </StaggerIn>
       </ScrollView>
-      </Animated.View>
 
       {/* FAB */}
       <TouchableOpacity

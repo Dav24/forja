@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
@@ -11,6 +10,7 @@ import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { useTheme } from '@/lib/theme';
 import { useHideNavOnScroll } from '@/lib/scrollNav';
 import { Badge } from '@/components/ui/Badge';
+import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
 
@@ -70,9 +70,9 @@ export default function PlansScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
-      <Animated.View entering={FadeInUp.duration(250)} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} showsVerticalScrollIndicator={false} {...navScroll}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 120 }} showsVerticalScrollIndicator={false} {...navScroll}>
         {/* Header */}
+        <StaggerIn index={0}>
         <View style={{ marginBottom: 24 }}>
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
             {t('hub.title')}
@@ -81,8 +81,10 @@ export default function PlansScreen() {
             {t('hub.subtitle')}
           </Text>
         </View>
+        </StaggerIn>
 
         {/* Plan activo o estado vacío */}
+        <StaggerIn index={1}>
         {activePlan ? (
           <>
             {/* Card plan activo */}
@@ -279,8 +281,10 @@ export default function PlansScreen() {
             </TouchableOpacity>
           </View>
         )}
+        </StaggerIn>
 
         {/* Acceso a planes alimenticios */}
+        <StaggerIn index={2}>
         <TouchableOpacity
           onPress={() => router.push('/(app)/plans/meal')}
           activeOpacity={0.8}
@@ -312,8 +316,8 @@ export default function PlansScreen() {
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
         </TouchableOpacity>
+        </StaggerIn>
       </ScrollView>
-      </Animated.View>
 
       <GeneratePlanSheet
         ref={sheetRef}

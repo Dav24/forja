@@ -7,6 +7,7 @@ import { ChatInput } from '@/components/chat/ChatInput';
 import { MessageLimitBanner } from '@/components/chat/MessageLimitBanner';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { useChat, type ChatMessage } from '@/hooks/useChat';
+import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useTheme } from '@/lib/theme';
 
 function EmptyState() {
@@ -77,22 +78,24 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       {/* Header */}
-      <View
-        style={{
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        }}
-      >
-        <View className="flex-row items-center gap-3">
-          <VulcanoAvatar size={38} />
-          <View>
-            <Text className="text-text font-bold text-base" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>{t('header.name')}</Text>
-            <Text className="text-text-muted text-xs">{t('header.subtitle')}</Text>
+      <StaggerIn index={0}>
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+          }}
+        >
+          <View className="flex-row items-center gap-3">
+            <VulcanoAvatar size={38} />
+            <View>
+              <Text className="text-text font-bold text-base" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>{t('header.name')}</Text>
+              <Text className="text-text-muted text-xs">{t('header.subtitle')}</Text>
+            </View>
           </View>
         </View>
-      </View>
+      </StaggerIn>
 
       {/* En Android la ventana ya se encoge sola con el teclado (softwareKeyboardLayoutMode
           resize) — un behavior aquí restaría la altura del teclado dos veces y empuja el

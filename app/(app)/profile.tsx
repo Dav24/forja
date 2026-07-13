@@ -1,6 +1,5 @@
 import { ActivityIndicator, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -14,6 +13,7 @@ import { useIsPremium, useSubscription } from '@/hooks/useSubscription';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
+import { StaggerIn } from '@/components/ui/StaggerIn';
 import { StreakFlame } from '@/components/home/StreakFlame';
 import { MODALITIES } from '@/constants/modalities';
 import { GOALS, FITNESS_LEVELS } from '@/constants/goals';
@@ -66,7 +66,8 @@ export default function ProfileScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, gap: 20, paddingBottom: 120 }} {...navScroll}>
-        <Animated.View entering={FadeInUp.duration(250)} style={{ gap: 20 }}>
+        <StaggerIn index={0}>
+        <View style={{ gap: 20 }}>
           {/* Identidad */}
           <View className="items-center gap-3">
             <TouchableOpacity onPress={pickAndUpload} disabled={uploading} activeOpacity={0.8}>
@@ -138,15 +139,20 @@ export default function ProfileScreen() {
           <View className="items-center">
             <StreakFlame streak={streak ?? 0} />
           </View>
+        </View>
+        </StaggerIn>
 
-          {/* Stats */}
+        {/* Stats */}
+        <StaggerIn index={1}>
           <View className="flex-row gap-3">
             <StatCard value={stats?.plansGenerated ?? 0} label={t('stats.plans')} />
             <StatCard value={stats?.bodyRecords ?? 0} label={t('stats.records')} />
             <StatCard value={daysInForja(profile?.created_at)} label={t('stats.daysInForja')} />
           </View>
+        </StaggerIn>
 
-          {/* Objetivo activo */}
+        {/* Objetivo activo */}
+        <StaggerIn index={2}>
           {goal && goalMeta ? (
             <TouchableOpacity
               onPress={() => router.push('/(app)/settings/training' as never)}
@@ -188,8 +194,10 @@ export default function ProfileScreen() {
               <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           )}
+        </StaggerIn>
 
-          {/* Upgrade card — free users only */}
+        {/* Upgrade card — free users only, o Renewal info — premium users only */}
+        <StaggerIn index={3}>
           {!isPremium && (
             <View
               style={{
@@ -253,7 +261,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
           )}
-        </Animated.View>
+        </StaggerIn>
       </ScrollView>
     </SafeAreaView>
   );

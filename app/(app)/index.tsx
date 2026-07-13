@@ -1,7 +1,6 @@
 import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { useProfile, useActiveGoal } from '@/hooks/useProfile';
 import { useActiveWorkoutPlan } from '@/hooks/useWorkoutPlan';
@@ -13,6 +12,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useTheme } from '@/lib/theme';
 import { useHideNavOnScroll } from '@/lib/scrollNav';
 
@@ -91,15 +91,15 @@ export default function HomeScreen() {
       {...navScroll}
     >
       {/* Section 0 — Brand header */}
-      <Animated.View entering={FadeInUp.duration(250).delay(0)}>
+      <StaggerIn index={0}>
         <View className="px-5 mb-4 flex-row items-center justify-between">
           <ForjaWordmark size="sm" />
           <StreakFlame streak={streak} compact />
         </View>
-      </Animated.View>
+      </StaggerIn>
 
       {/* Section 1 — Saludo + hero editorial */}
-      <Animated.View entering={FadeInUp.duration(250).delay(60)}>
+      <StaggerIn index={1}>
         <View className="px-5 mb-4">
           <Text className="text-text-muted text-sm" style={{ fontFamily: 'Inter-Regular' }}>
             {greetingText}, {profile?.display_name ?? t('greeting.fallbackName')}
@@ -111,10 +111,10 @@ export default function HomeScreen() {
             {heroLine2}
           </Text>
         </View>
-      </Animated.View>
+      </StaggerIn>
 
       {/* Section 2 — Card del día */}
-      <Animated.View entering={FadeInUp.duration(250).delay(120)}>
+      <StaggerIn index={2}>
         <View className="px-5 mb-4">
           {loadingPlan ? (
             <Skeleton className="h-40 w-full" />
@@ -185,10 +185,10 @@ export default function HomeScreen() {
             </Card>
           )}
         </View>
-      </Animated.View>
+      </StaggerIn>
 
       {/* Section 3 — Stats + CTA */}
-      <Animated.View entering={FadeInUp.duration(250).delay(180)}>
+      <StaggerIn index={3}>
         <View className="px-5 mb-4 flex-row gap-2.5">
           <StatCard value={bodyData?.weight_kg ?? '—'} decimals={1} suffix=" kg" label={t('stats.current')} />
           <StatCard value={goal?.target_weight_kg ?? '—'} decimals={1} suffix=" kg" label={t('stats.goal')} />
@@ -198,7 +198,7 @@ export default function HomeScreen() {
         <View className="px-5">
           <Button label={t('chatCta')} size="md" onPress={() => router.push('/(app)/chat')} />
         </View>
-      </Animated.View>
+      </StaggerIn>
     </ScrollView>
   );
 }
