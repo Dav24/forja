@@ -11,7 +11,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
 import { useTheme } from '@/lib/theme';
-import { useHideNavOnScroll } from '@/lib/scrollNav';
+import { useHideNavOnScroll, useNavClearance } from '@/lib/scrollNav';
 import { formatDate } from '@/lib/formatDate';
 
 export default function ProgressScreen() {
@@ -21,6 +21,7 @@ export default function ProgressScreen() {
   const { data: history } = useBodyHistory();
   const { data: latestBodyData } = useLatestBodyData();
   const navScroll = useHideNavOnScroll();
+  const navClearance = useNavClearance();
 
   const isToday = !!latestBodyData?.recorded_at &&
     new Date(latestBodyData.recorded_at).toDateString() === new Date().toDateString();
@@ -169,7 +170,7 @@ export default function ProgressScreen() {
         className="w-14 h-14 rounded-full items-center justify-center"
         style={{
           position: 'absolute',
-          bottom: 24,
+          bottom: navClearance + 4,
           right: 24,
           backgroundColor: colors.primary,
           shadowColor: colors.primary,

@@ -38,6 +38,9 @@ export function PillTabBar({ state, descriptors, navigation }: BottomTabBarProps
 
   if (keyboardUp) return null; // conserva el comportamiento tabBarHideOnKeyboard
 
+  const focusedRouteName = state.routes[state.index].name;
+  if (!ICON_BY_ROUTE[focusedRouteName]) return null; // tabs ocultos (settings/upgrade/success): sin pill
+
   const visibleRoutes = state.routes.filter((r) => ICON_BY_ROUTE[r.name]);
 
   const inner = (
@@ -56,6 +59,7 @@ export function PillTabBar({ state, descriptors, navigation }: BottomTabBarProps
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name as never);
             }}
+            onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -75,7 +79,7 @@ export function PillTabBar({ state, descriptors, navigation }: BottomTabBarProps
             {focused ? (
               <View
                 style={{
-                  position: 'absolute', bottom: 4, alignSelf: 'center', left: '50%',
+                  position: 'absolute', bottom: 4, alignSelf: 'center', left: '50%', marginLeft: -2,
                   width: 4, height: 4, borderRadius: 99,
                   backgroundColor: colors.accent,
                   shadowColor: colors.primary, shadowOpacity: 0.9, shadowRadius: 5, shadowOffset: { width: 0, height: 0 },

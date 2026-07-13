@@ -1,5 +1,5 @@
-import { useRef, useEffect } from 'react';
-import { View, FlatList, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRef, useEffect, useState } from 'react';
+import { View, FlatList, Text, KeyboardAvoidingView, Keyboard, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { ChatBubble } from '@/components/chat/ChatBubble';
@@ -9,6 +9,19 @@ import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { useChat, type ChatMessage } from '@/hooks/useChat';
 import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useTheme } from '@/lib/theme';
+import { useNavClearance } from '@/lib/scrollNav';
+
+// Con teclado cerrado el input debe quedar arriba de la pill flotante;
+// con teclado abierto la pill ya está oculta (ver PillTabBar), así que no hace falta aire extra.
+function useKeyboardClosedPadding(clearance: number) {
+  const [padding, setPadding] = useState(clearance);
+  useEffect(() => {
+    const show = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setPadding(0));
+    const hide = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setPadding(clearance));
+    return () => { show.remove(); hide.remove(); };
+  }, [clearance]);
+  return padding;
+}
 
 function EmptyState() {
   const { t } = useTranslation('chat');
@@ -59,6 +72,8 @@ export default function ChatScreen() {
   const { colors } = useTheme();
   const { messages, isLoading, dailyCount, limitReached, sendMessage } = useChat();
   const listRef = useRef<FlatList>(null);
+  const clearance = useNavClearance();
+  const inputPaddingBottom = useKeyboardClosedPadding(clearance);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -121,7 +136,9 @@ export default function ChatScreen() {
         )}
 
         <MessageLimitBanner count={dailyCount} limitReached={limitReached} />
-        <ChatInput onSend={sendMessage} disabled={isLoading || limitReached} />
+        <View style={{ paddingBottom: inputPaddingBottom }}>
+          <ChatInput onSend={sendMessage} disabled={isLoading || limitReached} />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

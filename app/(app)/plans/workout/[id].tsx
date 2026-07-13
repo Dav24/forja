@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useTheme } from '@/lib/theme';
+import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { StatCard } from '@/components/ui/StatCard';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 
@@ -58,6 +59,7 @@ export default function WorkoutPlanDetailScreen() {
   const { user } = useAuthStore();
   const todayIndex = getTodayDayIndex();
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
+  useHideNavWhileFocused();
 
   const { data: plan, isLoading } = useQuery<WorkoutPlan>({
     queryKey: ['workout_plan', id],

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/lib/theme';
+import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
@@ -80,6 +81,7 @@ export default function MealPlansScreen() {
   const [selectedDiet, setSelectedDiet] = useState<string[]>([DIET_OPTIONS[0].value]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([AVAILABILITY_OPTIONS[1].value]);
   const [selectedDay, setSelectedDay] = useState(0);
+  useHideNavWhileFocused();
 
   function toggleAllergy(val: string) {
     if (val === ALLERGY_NONE) { setSelectedAllergies([ALLERGY_NONE]); return; }
