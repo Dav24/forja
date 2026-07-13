@@ -1,7 +1,7 @@
 # Rediseño premium "Forja Atlética" — Design Spec (fase prototipo)
 
 **Fecha:** 2026-07-12
-**Estado:** Aprobado en brainstorming (secciones A y B validadas por el usuario)
+**Estado:** 🧊 **CONGELADA 2026-07-13 en v7 del prototipo** — dirección final aprobada por el usuario para la implementación RN
 **Contexto:** El usuario inició un rediseño en Claude Design (proyecto "App entrenamiento personal", `Forja Redesign.dc.html`: 1a Refined vs 1b Bold + principios). Se decidió continuar la iteración aquí con prototipos HTML interactivos, porque permiten evaluar lo que el canvas estático no puede: transiciones, navbar vivo y micro-interacciones.
 
 ## 1. Objetivo y alcance
@@ -54,7 +54,7 @@ Pill flotante con glassmorphism sobre el contenido: 5 íconos duotono, activo co
 5. **Progreso** — Strava-style: gráfica de peso héroe full-bleed (sin caja), rangos en pills, stats del período en fila Mono, registro de medidas como sheet.
 6. **Perfil** — avatar + racha + "título de forjador" por nivel, objetivo activo como card con progreso, ajustes como lista limpia con chevrons duotono. **Incluye el selector de tema (claro / oscuro / sistema).**
 7. **Plan alimenticio** (push desde la card de Planes; agregado en v4 a pedido del usuario) — título editorial con acento ámbar (la nutrición usa ámbar como color de familia, el entrenamiento usa naranja), card héroe con objetivo diario y barra de macros, navegador de días en chips, 5 comidas como cards con hora/kcal/mini-barra de macros e **ingredientes expandibles** (acordeón); la comida próxima resaltada con chip "SIGUIENTE" y borde ember; regenerar como acción secundaria (gate Maestro). **Swap de comida (decisión del usuario, v5 — feedback real de betatester: "odio el hígado, no seguiría la dieta"):** cada comida tiene acción "Cambiar" que regenera SOLO esa comida con IA bajo restricciones duras (mismas kcal ±5%, mismos macros ±5g, respetando alergias/dieta/disponibilidad — patrón de validación estructural probado en translate-plan), y el alimento rechazado entra a una **lista de disgustos persistente** en el perfil (separada de alergias: alergia=seguridad, disgusto=preferencia) que se inyecta en TODAS las generaciones futuras. Monetización: swaps limitados en Aprendiz (p. ej. 3/plan), ilimitados en Maestro. NO pre-generar alternativas (duplica tokens).
-8. **Upgrade** — bento grid Bold completo (pantalla de conversión): beneficios en celdas mixtas, anual destacado con ahorro, momento aspiracional, CTA con gradiente flame.
+8. **Upgrade** — bento grid Bold completo (pantalla de conversión): beneficios en celdas mixtas, anual destacado con ahorro, momento aspiracional, CTA con gradiente flame. **Pricing (decisión del usuario al congelar): SIN tier Pro — un solo premium Maestro Forjador a $219 MXN/mes o $1,579 MXN/año (~40% ahorro).** Las features antes listadas como "Pro/En camino" (fotos de comida con IA, análisis de técnica, coaching en tiempo real) pasan a roadmap del premium para V1.5+; fotos de comida explícitamente pospuesta hasta después del lanzamiento.
 
 ## 6.b Compartir (decisión del usuario, v5)
 

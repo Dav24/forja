@@ -640,7 +640,7 @@ h1,h2,h3,p{margin:0}
           <p class="eyebrow" style="color:#C9B8A8">Plan premium</p>
           <h1 class="bebas" style="font-size:34px;margin-top:5px">MAESTRO FORJADOR</h1>
           <div style="display:flex;align-items:baseline;gap:4px;margin-top:10px">
-            <span class="bebas up-price" id="price">$1,299</span>
+            <span class="bebas up-price" id="price">$1,579</span>
             <span class="mono" style="font-size:12px;opacity:.7" id="priceUnit">/año MXN</span>
             <span class="save-badge" id="saveBadge">Ahorras 40%</span>
           </div>
@@ -1186,7 +1186,7 @@ h1,h2,h3,p{margin:0}
   $$('#billSeg button').forEach(b => b.addEventListener('click', () => {
     $$('#billSeg button').forEach(x => x.classList.toggle('on', x === b));
     const yearly = b.dataset.bill === 'y';
-    $('#price').textContent = yearly ? '$1,299' : '$179';
+    $('#price').textContent = yearly ? '$1,579' : '$219';
     $('#priceUnit').textContent = yearly ? '/año MXN' : '/mes MXN';
     $('#saveBadge').style.display = yearly ? '' : 'none';
   }));
