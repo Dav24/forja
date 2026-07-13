@@ -216,6 +216,26 @@ h1,h2,h3,p{margin:0}
 .ingrow{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:12.5px;color:var(--tx2)}
 .ingrow i{width:5px;height:5px;border-radius:99px;background:var(--amber);flex:none}
 .next-chip{font-size:9.5px;font-family:'Space Grotesk';font-weight:700;letter-spacing:1px;color:var(--on-ember);background:var(--ember);border-radius:99px;padding:3px 8px}
+.swapbtn{display:flex;align-items:center;gap:6px;margin-top:11px;background:none;border:1px dashed var(--line2);border-radius:11px;padding:9px;width:100%;color:var(--tx2);font-family:'Inter';font-weight:500;font-size:11.5px;cursor:pointer;justify-content:center}
+.swapbtn b{color:var(--ember-tx);font-weight:500}
+@keyframes reforge{0%,100%{opacity:1}50%{opacity:.45}}
+.mealcard.reforging{animation:reforge 1.1s ease-in-out infinite;pointer-events:none}
+.toast{position:absolute;left:50%;transform:translateX(-50%) translateY(16px);bottom:104px;background:var(--sf2);border:1px solid var(--line2);border-radius:999px;padding:10px 18px;font-size:12px;color:var(--tx);opacity:0;transition:all .35s cubic-bezier(.3,.9,.3,1);z-index:52;white-space:nowrap;max-width:88%;overflow:hidden;text-overflow:ellipsis;box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* compartir */
+.iconbtn{width:38px;height:38px;flex:none;border-radius:99px;background:var(--chip);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sbanner{width:198px;margin:14px auto 0;border-radius:18px;overflow:hidden;background:radial-gradient(130% 90% at 50% 0%,rgba(249,115,22,.35),transparent 55%),linear-gradient(165deg,#171310,#0C0A09);border:1px solid rgba(249,115,22,.35);padding:18px 16px 14px;color:#FAF7F2;display:flex;flex-direction:column;gap:4px;min-height:300px;position:relative}
+.sbanner .wm{font-family:'Bebas Neue';font-size:15px;letter-spacing:2.5px}
+.sbanner .wm span{color:var(--ember)}
+.sbanner .big{font-family:'Bebas Neue';font-size:46px;line-height:.95;margin-top:auto}
+.sbanner .sub{font-family:'JetBrains Mono';font-weight:500;font-size:10px;color:#FBBF24;letter-spacing:.5px;margin-top:4px}
+.sbanner .foot{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;align-items:baseline}
+.sbanner .foot span{font-family:'JetBrains Mono';font-weight:500;font-size:9px;color:rgba(250,247,242,.55)}
+.dests{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.dests .chip{cursor:pointer;padding:8px 14px;font-size:12px}
+#shareSheet{z-index:53}
+#shareSheet .grab{cursor:pointer;padding:6px 0;background-clip:content-box}
 
 /* ============ NAVBAR PILL ============ */
 .nav{position:absolute;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;display:flex;align-items:center;gap:2px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);border-radius:999px;padding:7px;box-shadow:0 12px 40px rgba(0,0,0,.35);transition:transform .4s cubic-bezier(.32,.72,0,1),opacity .3s}
@@ -436,8 +456,13 @@ h1,h2,h3,p{margin:0}
     <!-- ─── PROGRESO ─── -->
     <section class="screen" data-s="progress">
       <div class="scroll">
-        <div class="st" style="display:flex;justify-content:space-between;align-items:center;padding-top:6px">
-          <h1 class="bebas" style="font-size:34px">PROGRESO</h1>
+        <div class="st" style="display:flex;justify-content:space-between;align-items:center;padding-top:6px;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <h1 class="bebas" style="font-size:34px">PROGRESO</h1>
+            <button class="iconbtn" data-share="progress" aria-label="Compartir progreso" style="width:32px;height:32px">
+              <svg width="13" height="14" viewBox="0 0 15 16" fill="none"><path d="M7.5 1v9M7.5 1 4.2 4.3M7.5 1l3.3 3.3M2 8v5.5A1.5 1.5 0 0 0 3.5 15h8a1.5 1.5 0 0 0 1.5-1.5V8" stroke="var(--tx)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
           <div style="text-align:right">
             <p class="mono" style="font-size:22px">82.4 <small style="font-size:12px;color:var(--tx2)">kg</small></p>
             <p class="delta-ok">↓ 0.4 esta semana</p>
@@ -565,7 +590,9 @@ h1,h2,h3,p{margin:0}
         <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M7 1L2 6.5 7 12" stroke="var(--tx)" stroke-width="1.9" stroke-linecap="round"/></svg>
       </button>
       <span class="eyebrow">Nutrición · 2,800 kcal/día</span>
-      <span style="width:38px"></span>
+      <button class="iconbtn" data-share="meal" aria-label="Compartir plan">
+        <svg width="15" height="16" viewBox="0 0 15 16" fill="none"><path d="M7.5 1v9M7.5 1 4.2 4.3M7.5 1l3.3 3.3M2 8v5.5A1.5 1.5 0 0 0 3.5 15h8a1.5 1.5 0 0 0 1.5-1.5V8" stroke="var(--tx)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
     <div class="scroll" style="padding-top:4px">
       <h1 class="bebas" style="font-size:30px;line-height:1.05">NUTRICIÓN HIPERTROFIA<br><span style="color:var(--amber-tx)">VOLUMEN LIMPIO</span></h1>
@@ -673,8 +700,28 @@ h1,h2,h3,p{margin:0}
       <span class="mono" id="streakNum">13</span>
       <span style="font-size:12px;color:var(--tx2)">días de racha</span>
     </div>
-    <button class="btn-ghost dismiss" id="celeClose" style="width:auto;padding:11px 26px">Seguir</button>
+    <div class="dismiss" style="display:flex;gap:10px">
+      <button class="btn-ghost" data-share="session" style="width:auto;padding:11px 22px;border-color:rgba(249,115,22,.4);color:var(--ember-tx)">Compartir</button>
+      <button class="btn-ghost" id="celeClose" style="width:auto;padding:11px 26px">Seguir</button>
+    </div>
   </div>
+
+  <!-- ══════════ COMPARTIR ══════════ -->
+  <div class="sheet" id="shareSheet">
+    <div class="grab"></div>
+    <h2 class="bebas" style="font-size:24px">COMPARTE TU FUEGO</h2>
+    <p style="font-size:12px;color:var(--tx2);margin-top:4px">Vista previa — se comparte como imagen (o PDF)</p>
+    <div class="sbanner" id="shareBanner"></div>
+    <div class="dests">
+      <span class="chip">WhatsApp</span><span class="chip">Instagram</span><span class="chip">TikTok</span><span class="chip">Facebook</span>
+    </div>
+    <button class="btn-ghost" id="sharePdf" style="margin-top:12px">
+      <svg width="13" height="14" viewBox="0 0 13 14" fill="none"><path d="M6.5 1v8m0 0L3.5 6m3 3 3-3M1.5 11.5v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Guardar como PDF
+    </button>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
   <!-- ══════════ NAVBAR ══════════ -->
   <nav class="nav" id="nav">
@@ -865,6 +912,7 @@ h1,h2,h3,p{margin:0}
   function closeSheet(){
     sheet.classList.remove('open');
     document.getElementById('exSheet').classList.remove('open');
+    document.getElementById('shareSheet').classList.remove('open');
     veil.classList.remove('open');
   }
   $('#openSheet').addEventListener('click', openSheet);
@@ -1017,16 +1065,29 @@ h1,h2,h3,p{margin:0}
   /* ---------- Plan alimenticio: comidas del día ---------- */
   const MEALS = [
     { type:'Desayuno', time:'7:00–8:00', name:'Avena proteica con plátano', kcal:520, p:35, c:65, g:10,
-      ing:['80g avena','1 scoop proteína','1 plátano','200ml leche descremada','Canela al gusto'] },
+      ing:['80g avena','1 scoop proteína','1 plátano','200ml leche descremada','Canela al gusto'],
+      alt:{ name:'Huevos revueltos con pan integral', ing:['3 huevos + 2 claras','2 rebanadas pan integral','1/2 aguacate','1 naranja'] } },
     { type:'Media mañana', time:'10:00–10:30', name:'Yogur griego con nueces', kcal:280, p:22, c:18, g:12,
-      ing:['200g yogur griego natural','20g nueces','1 cdta miel'] },
+      ing:['200g yogur griego natural','20g nueces','1 cdta miel'],
+      alt:{ name:'Queso cottage con fruta y almendras', ing:['180g queso cottage','1 durazno','15g almendras'] } },
     { type:'Almuerzo', time:'13:00–14:00', name:'Pollo a la plancha con arroz', kcal:700, p:55, c:80, g:15, next:true,
-      ing:['200g pechuga de pollo','120g arroz (en seco)','Ensalada verde con limón','1 cda aceite de oliva'] },
+      ing:['200g pechuga de pollo','120g arroz (en seco)','Ensalada verde con limón','1 cda aceite de oliva'],
+      alt:{ name:'Tacos de res magra con frijoles', ing:['180g res magra 95/5','3 tortillas de maíz','100g frijoles de olla','Pico de gallo'] } },
     { type:'Merienda', time:'17:00–17:30', name:'Batido post-entreno', kcal:400, p:40, c:45, g:6,
-      ing:['1.5 scoop proteína','1 plátano','300ml agua','30g avena'] },
+      ing:['1.5 scoop proteína','1 plátano','300ml agua','30g avena'],
+      alt:{ name:'Sándwich de pavo post-entreno', ing:['120g pechuga de pavo','2 rebanadas pan integral','1 cdta mostaza','1 manzana'] } },
     { type:'Cena', time:'20:00–21:00', name:'Salmón con papa y espárragos', kcal:620, p:45, c:50, g:22,
-      ing:['180g salmón','200g papa cocida','150g espárragos','Limón y eneldo'] },
+      ing:['180g salmón','200g papa cocida','150g espárragos','Limón y eneldo'],
+      alt:{ name:'Atún sellado con quinoa y brócoli', ing:['180g atún fresco','90g quinoa (en seco)','150g brócoli al vapor','1 cda aceite de oliva'] } },
   ];
+  const toastEl = $('#toast');
+  let toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  }
   const mealList = $('#mealList');
   MEALS.forEach((m, i) => {
     const card = document.createElement('div');
@@ -1043,13 +1104,57 @@ h1,h2,h3,p{margin:0}
         '<span class="mono" style="font-size:10px;color:var(--tx3)">' + m.p + 'p</span>' +
         '<span class="mono" style="font-size:10px;color:var(--tx3)">' + m.c + 'c</span>' +
         '<span class="mono" style="font-size:10px;color:var(--tx3)">' + m.g + 'g</span></div>' +
-      '<div class="ing">' + m.ing.map(x => '<div class="ingrow"><i></i>' + x + '</div>').join('') + '</div>';
+      '<div class="ing"><div class="inglist">' + m.ing.map(x => '<div class="ingrow"><i></i>' + x + '</div>').join('') + '</div>' +
+        '<button class="swapbtn" type="button">' +
+          '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 4h8.5M7 1.5 9.5 4 7 6.5M11 8H2.5M5 5.5 2.5 8 5 10.5" stroke="var(--ember)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '¿No te gusta? <b>Cambiar — misma energía</b></button></div>';
+    const nameEl = card.querySelectorAll('p')[1];
+    const ingList = card.querySelector('.inglist');
+    let swapped = false;
+    card.querySelector('.swapbtn').addEventListener('click', e => {
+      e.stopPropagation();
+      card.classList.add('reforging');
+      const prev = swapped ? m.alt.name : m.name;
+      setTimeout(() => {
+        card.classList.remove('reforging');
+        swapped = !swapped;
+        const cur = swapped ? m.alt : m;
+        nameEl.textContent = cur.name;
+        ingList.innerHTML = cur.ing.map(x => '<div class="ingrow"><i></i>' + x + '</div>').join('');
+        toast('Cambiada · ' + m.kcal + ' kcal intactas — «' + prev + '» anotado en tus gustos');
+      }, 1100);
+    });
     card.addEventListener('click', () => card.classList.toggle('exp'));
     mealList.appendChild(card);
   });
   $$('#dayChips button').forEach(b => b.addEventListener('click', () => {
     $$('#dayChips button').forEach(x => x.classList.toggle('on', x === b));
   }));
+
+  /* ---------- Compartir: banner por contexto ---------- */
+  const BANNERS = {
+    meal: '<span class="wm">F<span>O</span>RJA</span>' +
+      '<p class="big">2,800<br>KCAL AL DÍA</p><p class="sub">210P · 280C · 80G — FORJADO CON VULCANO</p>' +
+      '<div class="foot"><span>MI PLAN DE NUTRICIÓN</span><span>forja.fit</span></div>',
+    progress: '<span class="wm">F<span>O</span>RJA</span>' +
+      '<p class="big">−2.1 KG<br>ESTE MES</p><p class="sub">RACHA DE 12 DÍAS · EL METAL RECUERDA</p>' +
+      '<div class="foot"><span>MI PROGRESO</span><span>forja.fit</span></div>',
+    session: '<span class="wm">F<span>O</span>RJA</span>' +
+      '<p class="big">SESIÓN<br>FORJADA</p><p class="sub">DÍA 2 · PULL — ESPALDA Y BÍCEPS · RACHA 13</p>' +
+      '<div class="foot"><span>HOY SE FORJA</span><span>forja.fit</span></div>',
+  };
+  const shareSheet = $('#shareSheet');
+  function openShare(kind){
+    $('#shareBanner').innerHTML = BANNERS[kind];
+    $('#sharePdf').style.display = kind === 'meal' ? '' : 'none';
+    shareSheet.classList.add('open');
+    veil.classList.add('open');
+  }
+  $$('[data-share]').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); openShare(el.dataset.share); }));
+  $$('#shareSheet .dests .chip').forEach(ch => ch.addEventListener('click', () =>
+    toast('Demo — en la app se abre ' + ch.textContent + ' con tu banner')));
+  $('#sharePdf').addEventListener('click', () => toast('Demo — en la app se genera el PDF con tu plan'));
+  $('#shareSheet .grab').addEventListener('click', closeSheet);
 
   /* ---------- Celebración ---------- */
   const cele = $('#celebrate');
