@@ -240,8 +240,10 @@ h1,h2,h3,p{margin:0}
 .step{display:flex;align-items:center;gap:2px;background:var(--chip);border:1px solid var(--line);border-radius:11px;padding:3px}
 .step button{width:30px;height:30px;border:none;background:none;color:var(--ember-tx);font-size:17px;font-weight:500;cursor:pointer;border-radius:8px;line-height:1;font-family:'Inter'}
 .step button:active{background:var(--sf2)}
-.step .val{min-width:56px;text-align:center;font-size:13.5px}
+.step .val{min-width:56px;display:flex;align-items:baseline;justify-content:center;gap:3px;font-size:13.5px}
 .step .val small{font-size:9.5px;color:var(--tx3)}
+.step .vin{width:42px;background:none;border:none;outline:none;text-align:right;color:var(--tx);font-family:'JetBrains Mono';font-weight:500;font-size:13.5px;padding:0;border-radius:6px}
+.step .vin:focus{background:var(--sf2);box-shadow:0 0 0 1.5px var(--ember)}
 .ghost-last{font-size:10.5px;color:var(--tx3);font-family:'JetBrains Mono';margin-left:auto;text-align:right;line-height:1.4}
 .exspark{margin-top:6px}
 
@@ -878,17 +880,29 @@ h1,h2,h3,p{margin:0}
 
   /* ficha */
   const exSheet = $('#exSheet');
+  // Botones ±step Y captura directa: teclea "67" → se formatea al múltiplo
+  // más cercano del incremento ("67.5"); "70" → "70.0"; reps "10.7" → "11".
   function stepper(unit, val, decimals, step, min){
     const wrap = document.createElement('div');
     wrap.className = 'step';
     wrap.innerHTML = '<button type="button" aria-label="menos">−</button>' +
-      '<span class="val mono">' + val.toFixed(decimals) + '<small> ' + unit + '</small></span>' +
+      '<span class="val"><input class="vin" type="text" inputmode="decimal" aria-label="valor"><small>' + unit + '</small></span>' +
       '<button type="button" aria-label="más">+</button>';
     let v = val;
-    const span = wrap.querySelector('.val');
+    const inp = wrap.querySelector('.vin');
+    const fmt = () => { inp.value = v.toFixed(decimals); };
+    const snap = raw => {
+      const n = parseFloat(String(raw).replace(',', '.'));
+      if (isNaN(n)) return v;
+      return Math.max(min, Math.round(n / step) * step);
+    };
+    fmt();
     const btns = wrap.querySelectorAll('button');
-    btns[0].addEventListener('click', () => { v = Math.max(min, v - step); span.innerHTML = v.toFixed(decimals) + '<small> ' + unit + '</small>'; });
-    btns[1].addEventListener('click', () => { v = v + step; span.innerHTML = v.toFixed(decimals) + '<small> ' + unit + '</small>'; });
+    btns[0].addEventListener('click', () => { v = Math.max(min, v - step); fmt(); });
+    btns[1].addEventListener('click', () => { v = v + step; fmt(); });
+    inp.addEventListener('focus', () => inp.select());
+    inp.addEventListener('blur', () => { v = snap(inp.value); fmt(); });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
     return wrap;
   }
   function sparkline(hist, label){
