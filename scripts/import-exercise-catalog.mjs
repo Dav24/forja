@@ -101,9 +101,11 @@ async function main() {
 
     const { nameEs, instructionsEs } = await translateExercise(name, instructions);
 
-    const { data: videoUrlData } = supabase.storage.from('exercise-media').getPublicUrl(`videos/${slug}.mp4`);
-    const { data: posterUrlData } = supabase.storage.from('exercise-media').getPublicUrl(`posters/${slug}.webp`);
-
+    // Se guarda la RUTA relativa dentro del bucket, no la URL pública absoluta:
+    // getPublicUrl() la arma con el SUPABASE_URL de ESTE script (127.0.0.1 en
+    // dev), que no coincide con el host que usa la app (LAN IP para llegar a
+    // un teléfono físico) ni con el host de producción. El cliente construye
+    // la URL completa en el momento de leer, con su propio host correcto.
     const { error } = await supabase.from('exercise_catalog').upsert({
       slug,
       name_en: name,
@@ -113,8 +115,8 @@ async function main() {
       movement_pattern: movementPattern[0] ?? 'Isolation',
       difficulty,
       instructions_es: instructionsEs,
-      video_url: videoUrlData.publicUrl,
-      poster_url: posterUrlData.publicUrl,
+      video_url: `videos/${slug}.mp4`,
+      poster_url: `posters/${slug}.webp`,
     }, { onConflict: 'slug' });
 
     if (error) throw new Error(`Error insertando ${slug}: ${error.message}`);
