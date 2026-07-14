@@ -124,6 +124,7 @@
     "priceYearly": "{{price}}/año",
     "ctaMonthly": "Continuar — {{price}}/mes",
     "ctaYearly": "Continuar — {{price}}/año",
+    "ctaBecome": "Convertirme en Maestro",
     "free": {
       "title": "Aprendiz",
       "price": "{{price}}",
@@ -138,10 +139,16 @@
     },
     "premium": {
       "title": "MAESTRO FORJADOR",
+      "eyebrow": "Plan premium",
       "bestValueBadge": "MEJOR VALOR",
       "recommendedBadge": "Recomendado",
       "yearlyBreakdown": "{{price}}/mes — 40% off",
+      "unitMonthly": "/mes MXN",
+      "unitYearly": "/año MXN",
+      "saveBadge": "Ahorras 40%",
       "activeBadge": "✓ Activo",
+      "vulcanoTitle": "Vulcano analiza tus datos",
+      "vulcanoBody": "tu entrenador lee tu actividad real y ajusta el fuego cada semana.",
       "features": [
         "Chat ilimitado con Vulcano",
         "Planes de entrenamiento ilimitados",

@@ -124,6 +124,7 @@
     "priceYearly": "{{price}}/yr",
     "ctaMonthly": "Continue — {{price}}/mo",
     "ctaYearly": "Continue — {{price}}/yr",
+    "ctaBecome": "Become a Master",
     "free": {
       "title": "Apprentice",
       "price": "{{price}}",
@@ -138,10 +139,16 @@
     },
     "premium": {
       "title": "MASTER FORGER",
+      "eyebrow": "Premium plan",
       "bestValueBadge": "BEST VALUE",
       "recommendedBadge": "Recommended",
       "yearlyBreakdown": "{{price}}/mo — 40% off",
+      "unitMonthly": "/mo MXN",
+      "unitYearly": "/yr MXN",
+      "saveBadge": "Save 40%",
       "activeBadge": "✓ Active",
+      "vulcanoTitle": "Vulcano analyzes your data",
+      "vulcanoBody": "your coach reads your real activity and adjusts the fire every week.",
       "features": [
         "Unlimited chat with Vulcano",
         "Unlimited workout plans",
