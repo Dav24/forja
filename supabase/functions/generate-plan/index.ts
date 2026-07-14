@@ -36,6 +36,7 @@ function buildPlanPrompt(userData: {
   modality: string | null;
   secondary_modalities: string[];
   language: 'es' | 'en';
+  catalogBlock: string;
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -76,6 +77,11 @@ ${userData.language === 'en'
   ? 'LANGUAGE: Write ALL content values (title, description, focus, day_name, technique_notes, weekly_schedule_summary, progression_notes, exercise names) in ENGLISH. day_name must be the English weekday name (Monday...Sunday). Keep every JSON key exactly as specified.'
   : 'IDIOMA: Escribe TODOS los valores de contenido en español. day_name en español (Lunes...Domingo). Mantén las claves JSON exactamente como se especifican.'}
 
+CATÁLOGO DE EJERCICIOS CON ANIMACIÓN REAL (usa el slug exacto cuando haya coincidencia):
+${userData.catalogBlock}
+
+Para CADA ejercicio del plan: revisa primero si existe una coincidencia real en el catálogo de arriba (mismo movimiento, aunque el nombre no sea idéntico) — si existe, usa exactamente ese "slug" en el campo "exercise_slug" y usa su nombre. Si el ejercicio es específico de cardio, running, ciclismo, natación o deporte de balón y NO tiene equivalente en el catálogo, escríbelo libremente y deja "exercise_slug" en null. Nunca fuerces una coincidencia falsa.
+
 FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
 {
   "title": "Nombre del plan (ej: Plan Hipertrofia 4 días)",
@@ -94,6 +100,7 @@ FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
         {
           "order": 1,
           "name": "Press de banca con barra",
+          "exercise_slug": "barbell-bench-press-slug-o-null",
           "muscle_group": "Pecho",
           "sets": 4,
           "reps": "8-10",
@@ -240,6 +247,13 @@ Deno.serve(async (req) => {
       );
     }
 
+    const { data: catalogRows } = await supabase
+      .from('exercise_catalog')
+      .select('slug, name_es, name_en, equipment');
+    const catalogBlock = (catalogRows ?? [])
+      .map((r) => `${r.slug}|${language === 'en' ? r.name_en : r.name_es}|${r.equipment}`)
+      .join('\n');
+
     // Crear registro de async_job
     const { data: job, error: jobError } = await supabase
       .from('async_jobs')
@@ -276,6 +290,7 @@ Deno.serve(async (req) => {
       modality: safeModality,
       secondary_modalities: safeSecondary,
       language,
+      catalogBlock,
     });
 
     // Llamar a Sonnet para generar el plan
