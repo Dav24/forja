@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useTheme } from '@/lib/theme';
 import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { StatCard } from '@/components/ui/StatCard';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
+import { ExerciseSheet } from '@/components/plans/ExerciseSheet';
 
 type Exercise = {
   order: number;
@@ -20,6 +22,7 @@ type Exercise = {
   reps: string;
   rest_seconds: number;
   technique_notes: string;
+  exercise_slug?: string | null;
 };
 
 type WorkoutDay = {
@@ -59,6 +62,8 @@ export default function WorkoutPlanDetailScreen() {
   const { user } = useAuthStore();
   const todayIndex = getTodayDayIndex();
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
+  const exerciseSheetRef = useRef<BottomSheet>(null);
+  const [activeExercise, setActiveExercise] = useState<{ exercise: Exercise; dayNumber: number } | null>(null);
   useHideNavWhileFocused();
 
   const { data: plan, isLoading } = useQuery<WorkoutPlan>({
@@ -271,7 +276,14 @@ export default function WorkoutPlanDetailScreen() {
               {isExpanded && !day.is_rest && (
                 <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: 14, paddingBottom: 14 }}>
                   {day.exercises.map((ex, ei) => (
-                    <View key={ei}>
+                    <TouchableOpacity
+                      key={ei}
+                      activeOpacity={0.7}
+                      onPress={() => {
+                        setActiveExercise({ exercise: ex, dayNumber: day.day_number });
+                        exerciseSheetRef.current?.expand();
+                      }}
+                    >
                       {/* Exercise row */}
                       <View style={{
                         flexDirection: 'row',
@@ -303,6 +315,9 @@ export default function WorkoutPlanDetailScreen() {
                               </Text>
                             </View>
                           ) : null}
+                          <View style={{ width: 22, height: 22, borderRadius: 99, backgroundColor: colors.chip, alignItems: 'center', justifyContent: 'center' }}>
+                            <Ionicons name="play" size={10} color={colors.primary} style={{ marginLeft: 1 }} />
+                          </View>
                         </View>
                       </View>
                       {/* Technique notes — Inter-Regular 12 italic textMuted */}
@@ -319,7 +334,7 @@ export default function WorkoutPlanDetailScreen() {
                           {ex.technique_notes}
                         </Text>
                       ) : null}
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </View>
               )}
@@ -327,6 +342,13 @@ export default function WorkoutPlanDetailScreen() {
           );
         })}
       </ScrollView>
+
+      <ExerciseSheet
+        ref={exerciseSheetRef}
+        exercise={activeExercise?.exercise ?? null}
+        workoutPlanId={plan.id}
+        dayNumber={activeExercise?.dayNumber ?? 0}
+      />
     </SafeAreaView>
   );
 }
