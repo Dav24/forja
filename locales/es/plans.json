@@ -212,6 +212,20 @@
   "paywall": {
     "defaultCta": "Hazte Premium"
   },
+  "exerciseSheet": {
+    "demoTag": "DEMO · animación real",
+    "noVideoNote": "Sin animación disponible para este ejercicio — sigue las notas de técnica.",
+    "logTitle": "Registra tu carga de hoy",
+    "logTitleBodyweight": "Registra reps y lastre de hoy",
+    "noLogNote": "Ejercicio de preparación — sin registro de carga.",
+    "save": "GUARDAR SERIES",
+    "saved": "Series guardadas",
+    "set": "S{{n}}",
+    "kg": "kg",
+    "reps": "reps",
+    "lastre": "kg lastre",
+    "progressionLabel": "Progresión"
+  },
   "success": {
     "title": "EL ACERO ESTÁ FORJADO",
     "subtitle": "Ya eres Maestro Forjador. Vulcano te espera.",

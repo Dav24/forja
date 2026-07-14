@@ -212,6 +212,20 @@
   "paywall": {
     "defaultCta": "Go Premium"
   },
+  "exerciseSheet": {
+    "demoTag": "DEMO · real animation",
+    "noVideoNote": "No animation available for this exercise — follow the technique notes.",
+    "logTitle": "Log today's load",
+    "logTitleBodyweight": "Log today's reps and added weight",
+    "noLogNote": "Warm-up exercise — no load tracking.",
+    "save": "SAVE SETS",
+    "saved": "Sets saved",
+    "set": "S{{n}}",
+    "kg": "kg",
+    "reps": "reps",
+    "lastre": "kg added",
+    "progressionLabel": "Progression"
+  },
   "success": {
     "title": "THE STEEL IS FORGED",
     "subtitle": "You're now a Master Forger. Vulcano awaits.",
