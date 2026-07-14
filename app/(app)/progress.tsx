@@ -1,7 +1,6 @@
 import { useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { GoalProgress } from '@/components/progress/GoalProgress';
 import { WeightChart } from '@/components/progress/WeightChart';
@@ -9,10 +8,26 @@ import { MeasurementForm } from '@/components/progress/MeasurementForm';
 import { Sheet } from '@/components/ui/Sheet';
 import { StatCard } from '@/components/ui/StatCard';
 import { StaggerIn } from '@/components/ui/StaggerIn';
+import { Button } from '@/components/ui/Button';
 import { useBodyHistory, useLatestBodyData } from '@/hooks/useBodyTracking';
+import { useStreak } from '@/hooks/useStreak';
+import { useIsPremium } from '@/hooks/useSubscription';
 import { useTheme } from '@/lib/theme';
-import { useHideNavOnScroll, useNavClearance } from '@/lib/scrollNav';
+import { typography } from '@/constants/typography';
+import { useHideNavOnScroll } from '@/lib/scrollNav';
 import { formatDate } from '@/lib/formatDate';
+
+// Delta honesto: compara solo si hay ≥2 registros reales dentro de la
+// ventana pedida — nunca inventa "esta semana"/"este mes" sin datos
+// (mismo criterio que el fix de home.tsx: nunca prometer un timeframe que
+// los datos no respaldan).
+function windowDelta(history: { recorded_at: string; weight_kg: number }[], days: number): number | null {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  const inWindow = history.filter((r) => new Date(r.recorded_at) >= cutoff);
+  if (inWindow.length < 2) return null;
+  return inWindow[inWindow.length - 1].weight_kg - inWindow[0].weight_kg;
+}
 
 export default function ProgressScreen() {
   const { t } = useTranslation('progress');
@@ -20,20 +35,32 @@ export default function ProgressScreen() {
   const sheetRef = useRef<any>(null);
   const { data: history } = useBodyHistory();
   const { data: latestBodyData } = useLatestBodyData();
+  const { data: streak = 0 } = useStreak();
+  const isPremium = useIsPremium();
   const navScroll = useHideNavOnScroll();
-  const navClearance = useNavClearance();
 
   const isToday = !!latestBodyData?.recorded_at &&
     new Date(latestBodyData.recorded_at).toDateString() === new Date().toDateString();
 
-  const recentRecords = (history ?? [])
-    .filter((r): r is typeof r & { weight_kg: number } => r.weight_kg != null)
-    .slice(-5)
-    .reverse();
+  const validHistory = (history ?? [])
+    .filter((r): r is typeof r & { weight_kg: number } => r.weight_kg != null);
 
-  const chartData = (history ?? [])
-    .filter((r): r is typeof r & { weight_kg: number } => r.weight_kg != null)
-    .map((r) => ({ recorded_at: r.recorded_at, weight_kg: r.weight_kg }));
+  const recentRecords = validHistory.slice(-5).reverse();
+  const chartData = validHistory.map((r) => ({ recorded_at: r.recorded_at, weight_kg: r.weight_kg }));
+
+  const weekDelta = windowDelta(validHistory, 7);
+  const monthDelta = windowDelta(validHistory, 30);
+
+  // Presentación: IMC calculado inline a partir de datos ya fetcheados por
+  // los hooks de esta pantalla (body_data trae height_cm en el registro más
+  // reciente que lo tenga — no todos los logs lo piden). Si no hay altura
+  // conocida en la ventana ya cargada, se omite la columna.
+  const heightCm = latestBodyData?.height_cm
+    ?? [...(history ?? [])].reverse().find((r) => r.height_cm != null)?.height_cm
+    ?? null;
+  const bmi = heightCm && latestBodyData?.weight_kg
+    ? latestBodyData.weight_kg / (heightCm / 100) ** 2
+    : null;
 
   function handleOpenSheet() {
     sheetRef.current?.expand();
@@ -51,25 +78,98 @@ export default function ProgressScreen() {
         showsVerticalScrollIndicator={false}
         {...navScroll}
       >
-        {/* Header */}
+        {/* Header: título + peso actual */}
         <StaggerIn index={0}>
-        <View className="mb-5">
-          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text }}>
+        <View className="flex-row justify-between items-center">
+          <Text className="uppercase" style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text, letterSpacing: 1 }}>
             {t('title')}
           </Text>
-          {latestBodyData?.weight_kg && (
-            <Text
-              className="mt-0.5 text-sm"
-              style={{ fontFamily: 'Inter-Regular', color: colors.textMuted }}
-            >
-              {t('lastRecord', { weight: latestBodyData.weight_kg.toFixed(1) })}
-            </Text>
+          {latestBodyData?.weight_kg != null && (
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 22, color: colors.text }}>
+                {latestBodyData.weight_kg.toFixed(1)}
+                <Text style={{ fontSize: 12, color: colors.textMuted }}> kg</Text>
+              </Text>
+              {weekDelta != null && (
+                <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11.5, color: colors.success, marginTop: 2 }}>
+                  {t('headerWeightDelta', { arrow: weekDelta <= 0 ? '↓' : '↑', value: Math.abs(weekDelta).toFixed(1) })}
+                </Text>
+              )}
+            </View>
           )}
         </View>
         </StaggerIn>
 
-        {/* Stat cards */}
+        {/* Gráfica protagonista — full-bleed (bleed del padding real del scroll, 16px) */}
         <StaggerIn index={1}>
+        <View style={{ marginHorizontal: -16, marginTop: 4 }}>
+          <WeightChart data={chartData} />
+        </View>
+
+        {/* Stats en fila */}
+        <View
+          className="flex-row"
+          style={{ borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, paddingVertical: 14, marginTop: 4 }}
+        >
+          {monthDelta != null && (
+            <View className="flex-1 items-center">
+              <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 16, color: monthDelta <= 0 ? colors.success : colors.text }}>
+                {monthDelta <= 0 ? '' : '+'}{monthDelta.toFixed(1)}
+                <Text style={{ fontSize: 11 }}> kg</Text>
+              </Text>
+              <Text
+                className="uppercase mt-1"
+                style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 10, letterSpacing: 1.4, color: colors.textFaint }}
+              >
+                {t('monthDelta')}
+              </Text>
+            </View>
+          )}
+          {bmi != null && (
+            <View className="flex-1 items-center">
+              <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 16, color: colors.text }}>
+                {bmi.toFixed(1)}
+              </Text>
+              <Text
+                className="uppercase mt-1"
+                style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 10, letterSpacing: 1.4, color: colors.textFaint }}
+              >
+                {t('bmi')}
+              </Text>
+            </View>
+          )}
+          <View className="flex-1 items-center">
+            <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 16, color: colors.accentText }}>
+              {streak}
+            </Text>
+            <Text
+              className="uppercase mt-1"
+              style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 10, letterSpacing: 1.4, color: colors.textFaint }}
+            >
+              {t('streak')}
+            </Text>
+          </View>
+        </View>
+
+        {/* CTA — registrar medida (reemplaza al FAB, mismo Sheet) */}
+        <View style={{ marginTop: 16 }}>
+          <Button label={t('logMeasurement')} onPress={handleOpenSheet} />
+        </View>
+
+        {!isPremium && (
+          <Text
+            className="text-center"
+            style={{ fontFamily: 'Inter-Regular', fontSize: 11, color: colors.textMuted, marginTop: 10 }}
+          >
+            {t('compositionNote')}
+          </Text>
+        )}
+        </StaggerIn>
+
+        <View className="h-4" />
+
+        {/* Stat cards detallados */}
+        <StaggerIn index={2}>
         <View className="flex-row gap-3 mb-4">
           <StatCard
             value={latestBodyData?.weight_kg ?? '—'}
@@ -92,19 +192,15 @@ export default function ProgressScreen() {
         </View>
         </StaggerIn>
 
-        {/* Meta + gráfica */}
-        <StaggerIn index={2}>
+        {/* Meta */}
+        <StaggerIn index={3}>
         <GoalProgress />
-
-        <View className="h-4" />
-
-        <WeightChart data={chartData} />
         </StaggerIn>
 
         <View className="h-4" />
 
         {/* Últimos registros */}
-        <StaggerIn index={3}>
+        <StaggerIn index={4}>
         {recentRecords.length > 0 && (
           <View
             className="rounded-2xl border overflow-hidden"
@@ -162,26 +258,6 @@ export default function ProgressScreen() {
         )}
         </StaggerIn>
       </ScrollView>
-
-      {/* FAB */}
-      <TouchableOpacity
-        onPress={handleOpenSheet}
-        activeOpacity={0.8}
-        className="w-14 h-14 rounded-full items-center justify-center"
-        style={{
-          position: 'absolute',
-          bottom: navClearance + 4,
-          right: 24,
-          backgroundColor: colors.primary,
-          shadowColor: colors.primary,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.4,
-          shadowRadius: 8,
-          elevation: 8,
-        }}
-      >
-        <Ionicons name="add" size={28} color={colors.background} />
-      </TouchableOpacity>
 
       {/* Bottom Sheet */}
       <Sheet ref={sheetRef} snapPoints={['75%']}>

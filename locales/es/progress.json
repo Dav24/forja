@@ -1,6 +1,12 @@
 {
   "title": "Progreso",
   "lastRecord": "Último registro: {{weight}} kg",
+  "headerWeightDelta": "{{arrow}} {{value}} kg esta semana",
+  "monthDelta": "Este mes",
+  "bmi": "IMC",
+  "streak": "Racha",
+  "logMeasurement": "REGISTRAR MEDIDA",
+  "compositionNote": "% grasa y masa muscular disponibles en Maestro Forjador",
   "stats": {
     "weight": "Peso",
     "fat": "Grasa",

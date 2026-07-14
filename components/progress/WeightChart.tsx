@@ -86,7 +86,9 @@ export function WeightChart({ data }: WeightChartProps) {
   const [range, setRange] = useState<RangeKey>('2w');
   const upgradeSheetRef = useRef<any>(null);
 
-  const chartW = screenW - 32;
+  // Full-bleed (spec §5): el padre bleeds los 16px del padding del scroll,
+  // así que el ancho disponible aquí es el ancho completo de pantalla.
+  const chartW = screenW;
 
   const validData = useMemo(
     () => data.filter((d) => d.weight_kg != null),
@@ -114,12 +116,12 @@ export function WeightChart({ data }: WeightChartProps) {
   }, [filtered, points]);
 
   return (
-    <View
-      className="rounded-2xl p-4 border"
-      style={{ backgroundColor: colors.surface, borderColor: colors.border }}
-    >
+    // Sin card (bg/border): el padre la hace full-bleed (spec §5). El header
+    // y las etiquetas del eje X sí llevan padding para alinear con el resto
+    // de la pantalla; el <Svg> queda a todo el ancho.
+    <View className="pt-1">
       {/* Header + range selector */}
-      <View className="flex-row justify-between items-center mb-3">
+      <View className="flex-row justify-between items-center mb-3" style={{ paddingHorizontal: 16 }}>
         <Text style={{ fontFamily: 'SpaceGrotesk-SemiBold', fontSize: 13, color: colors.textMuted, letterSpacing: 0.5 }}>
           {t('chart.title')}
         </Text>
@@ -141,12 +143,12 @@ export function WeightChart({ data }: WeightChartProps) {
                 className="px-[10px] py-1 rounded-[20px] border flex-row items-center gap-[3px]"
                 style={{
                   borderColor: active ? colors.primary : colors.border,
-                  backgroundColor: active ? colors.primaryDim : 'transparent',
+                  backgroundColor: active ? colors.primary : colors.chip,
                 }}
               >
                 <Text style={{
                   fontFamily: 'Inter-Medium', fontSize: 11,
-                  color: locked ? colors.textMuted : active ? colors.primary : colors.textMuted,
+                  color: active ? colors.onPrimary : colors.textMuted,
                 }}>
                   {t(labelKey)}
                 </Text>
@@ -159,7 +161,7 @@ export function WeightChart({ data }: WeightChartProps) {
 
       {/* Chart or empty state */}
       {filtered.length < 2 ? (
-        <View className="h-[160px] items-center justify-center gap-2">
+        <View className="h-[160px] items-center justify-center gap-2" style={{ paddingHorizontal: 16 }}>
           <Ionicons name="trending-up-outline" size={32} color={colors.textMuted} />
           <Text
             className="text-center"
@@ -173,8 +175,8 @@ export function WeightChart({ data }: WeightChartProps) {
           <Svg width={chartW} height={CHART_HEIGHT}>
             <Defs>
               <LinearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor="#F97316" stopOpacity="0.3" />
-                <Stop offset="1" stopColor="#F97316" stopOpacity="0" />
+                <Stop offset="0" stopColor={colors.primary} stopOpacity="0.3" />
+                <Stop offset="1" stopColor={colors.primary} stopOpacity="0" />
               </LinearGradient>
             </Defs>
             {areaPath ? (

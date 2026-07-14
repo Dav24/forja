@@ -1,6 +1,12 @@
 {
   "title": "Progress",
   "lastRecord": "Last record: {{weight}} kg",
+  "headerWeightDelta": "{{arrow}} {{value}} kg this week",
+  "monthDelta": "This month",
+  "bmi": "BMI",
+  "streak": "Streak",
+  "logMeasurement": "LOG MEASUREMENT",
+  "compositionNote": "Body fat % and muscle mass available in Master Forger",
   "stats": {
     "weight": "Weight",
     "fat": "Fat",
