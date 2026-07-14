@@ -469,6 +469,112 @@ export type Database = {
           },
         ]
       }
+      exercise_catalog: {
+        Row: {
+          slug: string
+          name_en: string
+          name_es: string
+          primary_muscle: string
+          equipment: string
+          movement_pattern: string
+          difficulty: string
+          instructions_es: string[]
+          video_url: string
+          poster_url: string
+          created_at: string
+        }
+        Insert: {
+          slug: string
+          name_en: string
+          name_es: string
+          primary_muscle: string
+          equipment: string
+          movement_pattern: string
+          difficulty: string
+          instructions_es: string[]
+          video_url: string
+          poster_url: string
+          created_at?: string
+        }
+        Update: {
+          slug?: string
+          name_en?: string
+          name_es?: string
+          primary_muscle?: string
+          equipment?: string
+          movement_pattern?: string
+          difficulty?: string
+          instructions_es?: string[]
+          video_url?: string
+          poster_url?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      exercise_logs: {
+        Row: {
+          id: string
+          user_id: string
+          workout_plan_id: string
+          day_number: number
+          exercise_order: number
+          exercise_slug: string | null
+          set_number: number
+          kg: number | null
+          reps: number | null
+          bodyweight_lastre_kg: number | null
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          workout_plan_id: string
+          day_number: number
+          exercise_order: number
+          exercise_slug?: string | null
+          set_number: number
+          kg?: number | null
+          reps?: number | null
+          bodyweight_lastre_kg?: number | null
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          workout_plan_id?: string
+          day_number?: number
+          exercise_order?: number
+          exercise_slug?: string | null
+          set_number?: number
+          kg?: number | null
+          reps?: number | null
+          bodyweight_lastre_kg?: number | null
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_logs_workout_plan_id_fkey"
+            columns: ["workout_plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_logs_exercise_slug_fkey"
+            columns: ["exercise_slug"]
+            isOneToOne: false
+            referencedRelation: "exercise_catalog"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
