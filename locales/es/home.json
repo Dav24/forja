@@ -21,7 +21,7 @@
   },
   "bento": {
     "weightLabel": "Peso actual",
-    "weightDelta": "{{arrow}} {{value}} kg este mes",
+    "weightDelta": "{{arrow}} {{value}} kg desde tu inicio",
     "nextMealLabel": "Siguiente comida",
     "mealMeta": "{{time}} · {{kcal}} kcal"
   },
