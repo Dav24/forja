@@ -48,3 +48,7 @@ deno.lock
 
 # Secrets de Edge Functions locales (cargado automáticamente por supabase start)
 supabase/functions/.env
+
+# Staging local de assets comprados (MoveKit, licencia comercial) — se suben
+# al bucket exercise-media de Supabase Storage vía script, nunca a git.
+/assets-import/
