@@ -80,7 +80,7 @@ ${userData.language === 'en'
 CATÁLOGO DE EJERCICIOS CON ANIMACIÓN REAL (usa el slug exacto cuando haya coincidencia):
 ${userData.catalogBlock}
 
-Para CADA ejercicio del plan: revisa primero si existe una coincidencia real en el catálogo de arriba (mismo movimiento, aunque el nombre no sea idéntico) — si existe, usa exactamente ese "slug" en el campo "exercise_slug" y usa su nombre. Si el ejercicio es específico de cardio, running, ciclismo, natación o deporte de balón y NO tiene equivalente en el catálogo, escríbelo libremente y deja "exercise_slug" en null. Nunca fuerces una coincidencia falsa.
+Para CADA ejercicio del plan: revisa primero si existe una coincidencia real en el catálogo de arriba (mismo movimiento y, si aplica, mismo equipo — no sustituyas por una variante con equipo distinto o técnica distinta). Si existe, usa exactamente ese "slug" en el campo "exercise_slug" y usa su nombre. Si NO hay una coincidencia real y precisa (sea porque es cardio, running, ciclismo, natación o deporte de balón sin equivalente, sea porque es un ejercicio de fuerza cuyo equipo o variante exacta no está en el catálogo), escríbelo libremente y deja "exercise_slug" en null. Es preferible dejar null que asignar un slug de una variante distinta — nunca fuerces una coincidencia falsa ni aproximada.
 
 FORMATO JSON REQUERIDO (responde EXACTAMENTE así):
 {
@@ -361,6 +361,23 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: 'invalid_ai_response', job_id: job.id }),
         { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
       );
+    }
+
+    // Descartar exercise_slug alucinados: el modelo puede devolver un slug que no
+    // existe en exercise_catalog (typo, variante inventada). Un slug inválido
+    // rompería silenciosamente la ficha de ejercicio en el cliente, así que se
+    // limpia a null antes de persistir en vez de confiar ciegamente en la IA.
+    const validSlugs = new Set((catalogRows ?? []).map((r) => r.slug));
+    if (Array.isArray(planData.schedule)) {
+      for (const day of planData.schedule as any[]) {
+        if (Array.isArray(day?.exercises)) {
+          for (const ex of day.exercises) {
+            if (ex?.exercise_slug && !validSlugs.has(ex.exercise_slug)) {
+              ex.exercise_slug = null;
+            }
+          }
+        }
+      }
     }
 
     // Desactivar planes anteriores del mes y guardar el nuevo
