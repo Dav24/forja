@@ -1,34 +1,38 @@
 {
   "greeting": {
-    "morning": "Buenos días",
-    "afternoon": "Buenas tardes",
-    "evening": "Buenas noches",
-    "fallbackName": "atleta"
+    "fallbackName": "atleta",
+    "title": "HOY SE FORJA,"
   },
   "hero": {
     "noPlanLine1": "AÚN NO FORJAMOS",
     "noPlanLine2": "TU PLAN",
-    "workoutLine1": "HOY SE FORJA",
     "restLine1": "HOY: DESCANSO",
     "restLine2": "Y RECUPERACIÓN",
-    "defaultFocus": "ENTRENAMIENTO"
-  },
-  "today": {
-    "dayHeader": "DÍA {{number}} · {{focus}}",
-    "moreExercises": "+{{count}} ejercicios más →",
-    "restDay": "Día de descanso 💤 — recupera y descansa",
-    "noWorkout": "Sin entrenamiento asignado hoy"
+    "defaultFocus": "ENTRENAMIENTO",
+    "weekEyebrow": "Semana de forja · {{done}} de {{total}}",
+    "dayEyebrow": "Día {{number}} · {{focus}}",
+    "meta": "{{count}} ejercicios · ~{{minutes}} min",
+    "cta": "EMPEZAR SESIÓN",
+    "ctaRest": "VER PLAN COMPLETO"
   },
   "empty": {
     "message": "Tu coach IA generará un plan personalizado para ti",
     "cta": "Ir a planes"
   },
+  "bento": {
+    "weightLabel": "Peso actual",
+    "weightDelta": "{{arrow}} {{value}} kg este mes",
+    "nextMealLabel": "Siguiente comida",
+    "mealMeta": "{{time}} · {{kcal}} kcal"
+  },
+  "vulcano": {
+    "title": "Vulcano te espera",
+    "quote": "«Las dominadas van primero, cuando aún tienes fuego.»"
+  },
   "stats": {
-    "current": "Actual",
     "goal": "Meta",
     "progress": "Progreso"
   },
-  "chatCta": "⚒️  Hablar con Vulcano",
   "streak": {
     "revive": "reaviva tu racha",
     "days": "días"
