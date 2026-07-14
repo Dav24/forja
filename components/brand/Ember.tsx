@@ -9,6 +9,7 @@ interface EmberProps {
 export function Ember({ size, glow = false }: EmberProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 44 44">
+      {/* Degradado de la brasa (glow + coal) — color de marca fijo — no varía por tema */}
       <Defs>
         <RadialGradient id="emberCoal" cx="0.5" cy="0.55" r="0.6">
           <Stop offset="0" stopColor="#FDE68A" />
@@ -22,6 +23,7 @@ export function Ember({ size, glow = false }: EmberProps) {
       </Defs>
       {glow && <Circle cx="22" cy="22" r="22" fill="url(#emberHalo)" />}
       <Circle cx="22" cy="22" r="16" fill="url(#emberCoal)" />
+      {/* Centro carbonizado de la brasa — negro fijo por diseño (no es fondo de pantalla) — no varía por tema */}
       <Circle cx="22" cy="22" r="7" fill="#0C0A09" />
     </Svg>
   );

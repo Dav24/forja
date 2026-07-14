@@ -64,7 +64,7 @@ export type Theme = typeof dark;
 export const themes: Record<ThemeName, Theme> = { dark, light };
 
 export const gradientsByTheme: Record<ThemeName, { ember: readonly [string, string]; flame: readonly [string, string, string] }> = {
-  dark: { ember: ['#FBBF24', '#FF6B1A'], flame: ['#EA580C', '#FF6B1A', '#FDE68A'] },
+  dark: { ember: ['#FBBF24', '#FF6B1A'], flame: ['#EA580C', '#F97316', '#FDE68A'] },
   light: { ember: ['#D97706', '#EA580C'], flame: ['#C2410C', '#EA580C', '#FBBF24'] },
 };
 

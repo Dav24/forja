@@ -28,6 +28,7 @@ function getFlatVariants(colors: Theme): Record<Exclude<Variant, 'primary'>, { c
   return {
     secondary: { container: 'bg-surface border border-primary', text: 'text-primary', indicator: colors.primary },
     ghost: { container: 'bg-transparent', text: 'text-text-muted', indicator: colors.text },
+    // indicator en blanco fijo para calzar con el 'text-white' del label — no varía por tema
     destructive: { container: 'bg-destructive', text: 'text-white', indicator: '#ffffff' },
   };
 }

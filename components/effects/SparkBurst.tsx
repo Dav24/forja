@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const SPARK_COUNT = 14;
+// Paleta de chispas de marca (familia ember/amber) — no varía por tema
 const COLORS = ['#FDE68A', '#FBBF24', '#F97316', '#EA580C'];
 const DURATION = 900;
 
