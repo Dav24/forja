@@ -1387,3 +1387,16 @@ hardcodeado documentado inline en cada archivo, no tokenizado. Diferidos de Fase
 (hardcodes sueltos en `Badge`, `ProgressBar`, `StreakFlame`, detalle de workout) y la
 geometría compartida de la pill (`PILL_HEIGHT`/`PILL_BOTTOM_GAP` en `lib/scrollNav.tsx`)
 se cerraron en la Task 8.
+
+## Fase C del rediseño — fichas de ejercicio (MoveKit)
+
+Catálogo `exercise_catalog` (206 ejercicios, licencia comercial MoveKit) poblado una
+vez por `scripts/import-exercise-catalog.mjs` desde `assets-import/exercise-media/`
+(gitignorado) hacia el bucket `exercise-media` + traducción con Haiku. `generate-plan`
+recibe el catálogo completo en el prompt y marca `exercise_slug` por ejercicio SOLO
+cuando hay coincidencia real (cardio/deporte sin match queda sin slug — fallback a
+solo-texto en la ficha). Ficha de ejercicio (`ExerciseSheet`): video real vía
+`expo-video`, técnica traducida, registro de carga adaptativo por `equipment`
+(`Stepper` con snap al incremento) y sparkline de progresión (`exercise_logs`,
+consultado por `exercise_slug` a través del tiempo — sobrevive a regenerar el plan).
+Spec: `docs/superpowers/specs/2026-07-14-redesign-fase-c-ejercicios-design.md`.
