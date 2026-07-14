@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Text, View } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useTranslation } from 'react-i18next';
@@ -78,6 +78,11 @@ export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(functio
   const kind = registerKind(catalogEntry?.equipment, catalogEntry?.movement_pattern);
   const numSets = exercise?.sets ?? 0;
   const [values, setValues] = useState<{ kg: number; reps: number; lastre: number }[]>([]);
+
+  useEffect(() => {
+    setValues([]);
+    setSaved(false);
+  }, [dayNumber, exercise?.order]);
 
   const rows = useMemo(() => {
     if (values.length === numSets) return values;

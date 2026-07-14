@@ -47,10 +47,10 @@ export function useExerciseProgression(slug: string | null) {
         .from('exercise_logs')
         .select('recorded_at, kg, reps, bodyweight_lastre_kg')
         .eq('exercise_slug', slug!)
-        .order('recorded_at', { ascending: true })
+        .order('recorded_at', { ascending: false })
         .limit(10);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).reverse();
     },
   });
 }
