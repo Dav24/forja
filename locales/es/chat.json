@@ -1,8 +1,8 @@
 {
   "header": {
-    "name": "Vulcano",
-    "subtitle": "El Forjador · tu coach"
+    "name": "Vulcano"
   },
+  "statusForge": "En la fragua",
   "empty": {
     "greeting": "Hola, soy Vulcano",
     "subtitle": "Tu coach en Forja. Cuéntame cuál es tu objetivo y te armo un plan personalizado."

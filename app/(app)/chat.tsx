@@ -92,21 +92,41 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
-      {/* Header */}
+      {/* Header — editorial: Vulcano + estado "en la fragua" (dot ember con glow) */}
       <StaggerIn index={0}>
         <View
           style={{
-            paddingHorizontal: 16,
-            paddingVertical: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            paddingHorizontal: 20,
+            paddingTop: 6,
+            paddingBottom: 12,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
           }}
         >
-          <View className="flex-row items-center gap-3">
-            <VulcanoAvatar size={38} />
-            <View>
-              <Text className="text-text font-bold text-base" style={{ fontFamily: 'SpaceGrotesk-Bold' }}>{t('header.name')}</Text>
-              <Text className="text-text-muted text-xs">{t('header.subtitle')}</Text>
+          <VulcanoAvatar size={46} />
+          <View>
+            <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 15.5, color: colors.text }}>
+              {t('header.name')}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 }}>
+              <View
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 99,
+                  backgroundColor: colors.primary,
+                  shadowColor: colors.primary,
+                  shadowOpacity: 0.9,
+                  shadowRadius: 5,
+                  shadowOffset: { width: 0, height: 0 },
+                }}
+              />
+              <Text style={{ fontFamily: 'Inter-Regular', fontSize: 11.5, color: colors.primaryText }}>
+                {t('statusForge')}
+              </Text>
             </View>
           </View>
         </View>
