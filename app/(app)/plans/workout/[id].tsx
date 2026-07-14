@@ -282,7 +282,7 @@ export default function WorkoutPlanDetailScreen() {
                         borderBottomColor: colors.border,
                       }}>
                         {/* Order number — Bebas 16px stone */}
-                        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 16, color: '#57534E', minWidth: 22 }}>
+                        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 16, color: colors.textFaint, minWidth: 22 }}>
                           {String(ex.order ?? ei + 1).padStart(2, '0')}
                         </Text>
                         {/* Exercise name — Inter-Medium */}

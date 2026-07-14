@@ -11,7 +11,7 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ value, className = '' }: ProgressBarProps) {
-  const { resolved } = useTheme();
+  const { colors, resolved } = useTheme();
   const gradients = gradientsByTheme[resolved];
   const width = useSharedValue(0);
 
@@ -25,7 +25,7 @@ export function ProgressBar({ value, className = '' }: ProgressBarProps) {
     <View className={`h-2.5 bg-surface-elevated rounded-full overflow-hidden ${className}`}>
       <Animated.View
         style={[
-          { height: '100%', borderRadius: 9999, shadowColor: '#FBBF24', shadowOpacity: 0.5, shadowRadius: 12, elevation: 4 },
+          { height: '100%', borderRadius: 9999, shadowColor: colors.accent, shadowOpacity: 0.5, shadowRadius: 12, elevation: 4 },
           animatedStyle,
         ]}
       >

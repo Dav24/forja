@@ -1011,6 +1011,8 @@ El hook usa un `AbortController` para permitir cancelar el stream si el usuario 
 
 ## 14. Sistema de Diseño
 
+> ⚠️ Desactualizado desde la Fase A del rediseño: los tokens viven en constants/themes.ts (dos temas) — ver §22.
+
 ### Paleta Ember (`constants/colors.ts`)
 
 Paleta de marca basada en fuego / brasa incandescente. Reemplaza la paleta fría (verde + índigo + azul oscuro) con tonos cálidos naranja–ámbar sobre fondos oscuros marrón-carbón.
@@ -1371,3 +1373,17 @@ En el cliente, `hooks/useLocalizedPlan.ts` resuelve el contenido a renderizar; l
 pantallas de detalle disparan la traducción al abrir (spinner `plans:translating`,
 error → original + banner `plans:translateError`); el hub usa `{ trigger: false }` y
 nunca llama a la EF. Spec: `docs/superpowers/specs/2026-07-09-plan-translation-design.md`.
+
+## §23 Rediseño Fase B — pantallas core
+
+Las 6 pantallas core (Home, Coach, Planes, Progreso, Perfil, Upgrade) igualan el
+prototipo congelado `forja-atletica.html` usando los tokens de `constants/themes.ts`
+(§22). Home y Progreso comparten `WeekRing`/`WeekBars` y el cálculo `weekProgress`
+(`lib/weekProgress.ts`) para el anillo/barras semanales. Pricing: $219 MXN/mes y
+$1,579 MXN/año, con `price_...` de Stripe test mode nuevos (ver §8). Por decisión de
+producto, el hero de Upgrade (celda bento superior) y el up-hero de Perfil (card de
+upgrade para usuarios free) se mantienen siempre oscuros en ambos temas — hex
+hardcodeado documentado inline en cada archivo, no tokenizado. Diferidos de Fase A
+(hardcodes sueltos en `Badge`, `ProgressBar`, `StreakFlame`, detalle de workout) y la
+geometría compartida de la pill (`PILL_HEIGHT`/`PILL_BOTTOM_GAP` en `lib/scrollNav.tsx`)
+se cerraron en la Task 8.

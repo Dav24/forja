@@ -11,16 +11,16 @@ interface BadgeProps {
   className?: string;
 }
 
-const variantStyles: Record<Exclude<BadgeVariant, 'premium'>, { container: string; text: string }> = {
-  primary:     { container: 'bg-primary-dim border border-primary',       text: 'text-primary' },
-  accent:      { container: 'bg-[#451a03] border border-accent',          text: 'text-accent' },
-  warning:     { container: 'bg-[#451a03] border border-warning',          text: 'text-warning' },
-  destructive: { container: 'bg-[#450a0a] border border-destructive',      text: 'text-destructive' },
-  muted:       { container: 'bg-surface border border-border',             text: 'text-text-muted' },
+const variantStyles: Record<Exclude<BadgeVariant, 'premium'>, { container: string; text: string; bgToken?: 'chipWarning' | 'chipDanger' }> = {
+  primary:     { container: 'bg-primary-dim border border-primary',  text: 'text-primary' },
+  accent:      { container: 'border border-accent',                  text: 'text-accent',      bgToken: 'chipWarning' },
+  warning:     { container: 'border border-warning',                 text: 'text-warning',      bgToken: 'chipWarning' },
+  destructive: { container: 'border border-destructive',             text: 'text-destructive',  bgToken: 'chipDanger' },
+  muted:       { container: 'bg-surface border border-border',       text: 'text-text-muted' },
 };
 
 export function Badge({ label, variant = 'muted', className = '' }: BadgeProps) {
-  const { resolved } = useTheme();
+  const { colors, resolved } = useTheme();
   const gradients = gradientsByTheme[resolved];
   if (variant === 'premium') {
     return (
@@ -31,6 +31,8 @@ export function Badge({ label, variant = 'muted', className = '' }: BadgeProps) 
         style={{ borderRadius: 9999, alignSelf: 'flex-start' }}
       >
         <View className={`rounded-full px-3 py-1 flex-row items-center gap-1 ${className}`}>
+          {/* Siempre texto carbón oscuro sobre el degradado ember (cálido y brillante
+              en ambos temas) — contraste, no depende de tema */}
           <Text className="text-xs font-bold" style={{ color: '#0C0A09' }}>⚒ {label}</Text>
         </View>
       </LinearGradient>
@@ -38,8 +40,9 @@ export function Badge({ label, variant = 'muted', className = '' }: BadgeProps) 
   }
 
   const v = variantStyles[variant];
+  const bgStyle = v.bgToken ? { backgroundColor: colors[v.bgToken] } : undefined;
   return (
-    <View className={`${v.container} rounded-full px-3 py-1 self-start ${className}`}>
+    <View className={`${v.container} rounded-full px-3 py-1 self-start ${className}`} style={bgStyle}>
       <Text className={`${v.text} text-xs font-semibold`}>{label}</Text>
     </View>
   );

@@ -83,7 +83,7 @@ export function PricingSection({
         ))}
       </div>
       <p className="mb-8 h-5 text-center text-sm text-amber-bright">
-        {billing === 'yearly' ? '2 meses gratis · ahorra 40%' : ''}
+        {billing === 'yearly' ? 'Ahorra 40% frente al plan mensual' : ''}
       </p>
 
       <div className="grid gap-6 md:grid-cols-2">

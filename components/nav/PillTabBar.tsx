@@ -5,7 +5,7 @@ import { BlurView } from 'expo-blur';
 import Animated, { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import { useTheme } from '@/lib/theme';
-import { useNavVisibility } from '@/lib/scrollNav';
+import { useNavVisibility, PILL_BOTTOM_GAP } from '@/lib/scrollNav';
 import { TabIcon, type TabIconName } from '@/components/nav/TabIcons';
 
 const ICON_BY_ROUTE: Record<string, TabIconName> = {
@@ -98,7 +98,7 @@ export function PillTabBar({ state, descriptors, navigation }: BottomTabBarProps
         {
           position: 'absolute',
           alignSelf: 'center',
-          bottom: Math.max(insets.bottom, 12) + 10,
+          bottom: Math.max(insets.bottom, 12) + PILL_BOTTOM_GAP,
           borderRadius: 999,
           overflow: 'hidden',
           borderWidth: 1,

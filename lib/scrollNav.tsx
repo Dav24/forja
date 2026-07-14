@@ -19,11 +19,16 @@ export function useNavVisibility(): SharedValue<number> {
   return v;
 }
 
+// Geometría compartida de la pill (PillTabBar): alto aprox. y separación respecto
+// al borde inferior seguro. Único lugar donde viven estos números — no duplicar.
+export const PILL_HEIGHT = 58;
+export const PILL_BOTTOM_GAP = 10;
+
 // Espacio libre que debe dejar cualquier contenido/FAB por encima de la pill:
 // su offset inferior + su altura aprox. + un poco de aire.
 export function useNavClearance(): number {
   const insets = useSafeAreaInsets();
-  return Math.max(insets.bottom, 12) + 10 + 58 + 10;
+  return Math.max(insets.bottom, 12) + PILL_BOTTOM_GAP + PILL_HEIGHT + PILL_BOTTOM_GAP;
 }
 
 // Oculta la pill mientras la pantalla que la llama está enfocada (pantallas

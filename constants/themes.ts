@@ -28,6 +28,8 @@ const dark = {
   success: '#22C55E',
   warning: '#F59E0B',
   destructive: '#EF4444',
+  chipWarning: 'rgba(69,26,3,1)',
+  chipDanger: 'rgba(69,10,10,1)',
 };
 
 const light: typeof dark = {
@@ -54,6 +56,8 @@ const light: typeof dark = {
   success: '#15803D',
   warning: '#B45309',
   destructive: '#DC2626',
+  chipWarning: '#FEF3C7',
+  chipDanger: '#FEE2E2',
 };
 
 export type Theme = typeof dark;

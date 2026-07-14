@@ -11,6 +11,7 @@ import Animated, {
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/lib/theme';
+import { gradientsByTheme } from '@/constants/themes';
 
 interface StreakFlameProps {
   streak: number;
@@ -24,29 +25,40 @@ function flameScale(streak: number): number {
   return 1;
 }
 
-function Flame({ size, dead }: { size: number; dead: boolean }) {
+function Flame({
+  size,
+  dead,
+  flameColors,
+  deadColor,
+}: {
+  size: number;
+  dead: boolean;
+  flameColors: readonly [string, string, string];
+  deadColor: string;
+}) {
   return (
     <Svg width={size} height={size * 1.18} viewBox="0 0 34 40">
       <Defs>
         <SvgGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
-          <Stop offset="0" stopColor="#EA580C" />
-          <Stop offset="0.6" stopColor="#F97316" />
-          <Stop offset="1" stopColor="#FDE68A" />
+          <Stop offset="0" stopColor={flameColors[0]} />
+          <Stop offset="0.6" stopColor={flameColors[1]} />
+          <Stop offset="1" stopColor={flameColors[2]} />
         </SvgGradient>
       </Defs>
       <Path
         d="M17 2 Q24 12 27 20 Q30 28 25 33 Q21 38 17 38 Q13 38 9 33 Q4 28 7 20 Q10 12 17 2 Z"
-        fill={dead ? '#57534E' : 'url(#flameGrad)'}
+        fill={dead ? deadColor : 'url(#flameGrad)'}
       />
       {!dead && (
-        <Path d="M17 16 Q20 21 21 25 Q22 30 17 33 Q12 30 13 25 Q14 21 17 16 Z" fill="#FDE68A" />
+        <Path d="M17 16 Q20 21 21 25 Q22 30 17 33 Q12 30 13 25 Q14 21 17 16 Z" fill={flameColors[2]} />
       )}
     </Svg>
   );
 }
 
 export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
-  const { colors } = useTheme();
+  const { colors, resolved } = useTheme();
+  const gradients = gradientsByTheme[resolved];
   const { t } = useTranslation('home');
   const dead = streak === 0;
   const flicker = useSharedValue(1);
@@ -78,7 +90,7 @@ export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
     return (
       <View className="flex-row items-center gap-1.5 bg-surface border border-border rounded-full px-3 py-1.5">
         <Animated.View style={flickerStyle}>
-          <Flame size={14} dead={dead} />
+          <Flame size={14} dead={dead} flameColors={gradients.flame} deadColor={colors.textFaint} />
         </Animated.View>
         <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 14, color: dead ? colors.textMuted : colors.accent }}>
           {streak}
@@ -90,7 +102,7 @@ export function StreakFlame({ streak, compact = false }: StreakFlameProps) {
   return (
     <View className="bg-surface border border-border rounded-2xl px-4 py-3 items-center gap-0.5">
       <Animated.View style={flickerStyle}>
-        <Flame size={28} dead={dead} />
+        <Flame size={28} dead={dead} flameColors={gradients.flame} deadColor={colors.textFaint} />
       </Animated.View>
       <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 20, color: dead ? colors.textMuted : colors.accent }}>
         {streak}
