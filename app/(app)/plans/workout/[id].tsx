@@ -63,7 +63,7 @@ export default function WorkoutPlanDetailScreen() {
   const todayIndex = getTodayDayIndex();
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const exerciseSheetRef = useRef<BottomSheet>(null);
-  const [activeExercise, setActiveExercise] = useState<{ exercise: Exercise; dayNumber: number } | null>(null);
+  const [activeExercise, setActiveExercise] = useState<{ exercise: Exercise; dayNumber: number; exerciseIndex: number } | null>(null);
   useHideNavWhileFocused();
 
   const { data: plan, isLoading } = useQuery<WorkoutPlan>({
@@ -280,7 +280,7 @@ export default function WorkoutPlanDetailScreen() {
                       key={ei}
                       activeOpacity={0.7}
                       onPress={() => {
-                        setActiveExercise({ exercise: ex, dayNumber: day.day_number });
+                        setActiveExercise({ exercise: ex, dayNumber: day.day_number, exerciseIndex: ei });
                         exerciseSheetRef.current?.expand();
                       }}
                     >
@@ -348,6 +348,7 @@ export default function WorkoutPlanDetailScreen() {
         exercise={activeExercise?.exercise ?? null}
         workoutPlanId={plan.id}
         dayNumber={activeExercise?.dayNumber ?? 0}
+        exerciseIndex={activeExercise?.exerciseIndex ?? 0}
       />
     </SafeAreaView>
   );

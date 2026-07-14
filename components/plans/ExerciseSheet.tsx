@@ -25,6 +25,7 @@ interface ExerciseSheetProps {
   exercise: ScheduleExercise | null;
   workoutPlanId: string;
   dayNumber: number;
+  exerciseIndex: number;
 }
 
 type RegisterKind = 'kg' | 'bodyweight' | 'none';
@@ -59,7 +60,7 @@ function Sparkline({ points }: { points: number[] }) {
 }
 
 export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(function ExerciseSheet(
-  { exercise, workoutPlanId, dayNumber },
+  { exercise, workoutPlanId, dayNumber, exerciseIndex },
   ref,
 ) {
   const { colors } = useTheme();
@@ -82,7 +83,7 @@ export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(functio
   useEffect(() => {
     setValues([]);
     setSaved(false);
-  }, [dayNumber, exercise?.order]);
+  }, [dayNumber, exerciseIndex]);
 
   const rows = useMemo(() => {
     if (values.length === numSets) return values;
