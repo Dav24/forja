@@ -14,9 +14,21 @@
     "daysInForja": "Days in Forja"
   },
   "goal": {
-    "defineCta": "Set your goal"
+    "defineCta": "Set your goal",
+    "activeEyebrow": "Active goal",
+    "targetMeta": "{{value}} kg goal",
+    "progressCaption": "{{pct}}% of the way there"
+  },
+  "forgerTitle": {
+    "casual": "Forge apprentice",
+    "intermediate": "Forger",
+    "intensive": "Advanced forger",
+    "advanced": "Master of the anvil",
+    "elite": "Legend of the forge",
+    "premium": "Master Forger"
   },
   "upgrade": {
+    "eyebrow": "Take the next strike",
     "title": "Unlock Vulcano's full potential",
     "description": "Unlimited chat, unrestricted plans, and full body tracking.",
     "cta": "Become a Master"

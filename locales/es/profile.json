@@ -14,9 +14,21 @@
     "daysInForja": "Días en Forja"
   },
   "goal": {
-    "defineCta": "Define tu objetivo"
+    "defineCta": "Define tu objetivo",
+    "activeEyebrow": "Objetivo activo",
+    "targetMeta": "{{value}} kg meta",
+    "progressCaption": "{{pct}}% del camino recorrido"
+  },
+  "forgerTitle": {
+    "casual": "Aprendiz de la forja",
+    "intermediate": "Forjador",
+    "intensive": "Forjador avanzado",
+    "advanced": "Maestro del yunque",
+    "elite": "Leyenda de la fragua",
+    "premium": "Maestro Forjador"
   },
   "upgrade": {
+    "eyebrow": "Da el siguiente golpe",
     "title": "Desbloquea todo el potencial de Vulcano",
     "description": "Chat ilimitado, planes sin restricciones y seguimiento completo de tu cuerpo.",
     "cta": "Hazte Maestro"
