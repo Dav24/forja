@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
+import { useActiveMealPlan } from '@/hooks/useMealPlan';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { useTheme } from '@/lib/theme';
 import { useHideNavOnScroll } from '@/lib/scrollNav';
@@ -13,6 +14,9 @@ import { Badge } from '@/components/ui/Badge';
 import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useIsPremium } from '@/hooks/useSubscription';
 import { GeneratePlanSheet } from '@/components/plans/GeneratePlanSheet';
+import { WeekBars } from '@/components/plans/WeekBars';
+import { MacroBar } from '@/components/plans/MacroBar';
+import { typography } from '@/constants/typography';
 
 type WorkoutDay = {
   day_number: number;
@@ -21,6 +25,13 @@ type WorkoutDay = {
   focus: string;
   estimated_duration_minutes: number;
   exercises: { name: string; sets: number; reps: string }[];
+};
+
+type MealPlanSummary = {
+  id: string;
+  title: string;
+  daily_calories: number;
+  macros: { protein_g: number; carbs_g: number; fat_g: number };
 };
 
 function getTodayDayIndex() {
@@ -40,6 +51,9 @@ export default function PlansScreen() {
     description: string;
     schedule: WorkoutDay[];
   }>(activePlan ?? null, 'workout', { trigger: false });
+  // Vista previa sin disparar traducción (igual que el plan de entrenamiento arriba):
+  // los gramos/kcal son numéricos y el título se muestra tal cual se generó.
+  const { data: mealPlan } = useActiveMealPlan();
   const isPremium = useIsPremium();
   const sheetRef = useRef<BottomSheet>(null);
   const navScroll = useHideNavOnScroll();
@@ -58,6 +72,10 @@ export default function PlansScreen() {
     return jsDay === todayIndex;
   });
 
+  const mealSummary = mealPlan as MealPlanSummary | null | undefined;
+  const mealMacros = mealSummary?.macros;
+  const mealMacroTotal = mealMacros ? mealMacros.protein_g + mealMacros.carbs_g + mealMacros.fat_g : 0;
+
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
@@ -74,7 +92,7 @@ export default function PlansScreen() {
         {/* Header */}
         <StaggerIn index={0}>
         <View style={{ marginBottom: 24 }}>
-          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
+          <Text className="uppercase" style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text, letterSpacing: 1 }}>
             {t('hub.title')}
           </Text>
           <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 2 }}>
@@ -94,66 +112,35 @@ export default function PlansScreen() {
               style={{
                 backgroundColor: colors.surfaceElevated,
                 borderRadius: 16,
-                padding: 16,
+                padding: 17,
                 marginBottom: 16,
                 borderWidth: 1,
-                borderColor: colors.primary + '30',
+                borderColor: colors.primaryDim,
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary }} />
-                  <Text style={{ color: colors.primary, fontFamily: 'Inter-Medium', fontSize: 12 }}>{t('hub.activePlanBadge')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View
+                  style={{
+                    flexDirection: 'row', alignItems: 'center', gap: 5,
+                    backgroundColor: colors.chip, borderWidth: 1, borderColor: colors.primaryDim,
+                    borderRadius: 999, paddingHorizontal: 11, paddingVertical: 5,
+                  }}
+                >
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary }} />
+                  <Text style={{ color: colors.primaryText, fontFamily: 'Inter-Medium', fontSize: 11.5 }}>{t('hub.activePlanBadge')}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
-              <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, marginBottom: 4 }}>
+              <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 26, letterSpacing: 0.5, marginTop: 10 }}>
                 {localized?.title ?? (activePlan as { title: string }).title}
               </Text>
               {(localized?.description ?? (activePlan as { description?: string }).description) ? (
-                <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 13, lineHeight: 18 }} numberOfLines={2}>
+                <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12.5, lineHeight: 18, marginTop: 5 }} numberOfLines={2}>
                   {localized?.description ?? (activePlan as { description: string }).description}
                 </Text>
               ) : null}
 
-              {/* Mini calendario semanal */}
-              <View style={{ flexDirection: 'row', gap: 6, marginTop: 16 }}>
-                {schedule.map((day, i) => {
-                  const jsDay = day.day_number === 7 ? 0 : day.day_number;
-                  const isToday = jsDay === todayIndex;
-                  const isRest = day.is_rest;
-                  return (
-                    <View
-                      key={i}
-                      style={{
-                        flex: 1,
-                        alignItems: 'center',
-                        paddingVertical: 6,
-                        borderRadius: 8,
-                        backgroundColor: isToday
-                          ? colors.primary
-                          : isRest
-                          ? colors.surface
-                          : colors.primaryDim + '40',
-                      }}
-                    >
-                      <Text style={{
-                        fontFamily: 'Inter-Medium',
-                        fontSize: 10,
-                        color: isToday ? colors.background : isRest ? colors.textMuted : colors.primary,
-                      }}>
-                        {t(`common:daysShort.${jsDay}`)}
-                      </Text>
-                      <Ionicons
-                        name={isRest ? 'moon-outline' : 'barbell-outline'}
-                        size={12}
-                        color={isToday ? colors.background : isRest ? colors.textMuted : colors.primary}
-                        style={{ marginTop: 2 }}
-                      />
-                    </View>
-                  );
-                })}
-              </View>
+              <WeekBars schedule={schedule} todayJsDay={todayIndex} />
             </TouchableOpacity>
 
             {/* Entrenamiento de hoy */}
@@ -208,29 +195,30 @@ export default function PlansScreen() {
               </View>
             ) : null}
 
-            {/* Botón nuevo plan */}
+            {/* Botón nuevo plan — ghost, conserva el handler/sheet actual */}
             <TouchableOpacity
               onPress={() => sheetRef.current?.expand()}
               disabled={generating}
               activeOpacity={0.7}
               style={{
                 borderWidth: 1,
-                borderColor: colors.border,
-                borderRadius: 12,
-                paddingVertical: 14,
+                borderColor: colors.borderStrong,
+                borderRadius: 14,
+                paddingVertical: 12,
                 alignItems: 'center',
                 flexDirection: 'row',
                 justifyContent: 'center',
-                gap: 8,
+                gap: 7,
+                marginTop: 14,
                 opacity: generating ? 0.6 : 1,
               }}
             >
               {generating ? (
                 <ActivityIndicator color={colors.primary} size="small" />
               ) : (
-                <Ionicons name="refresh-outline" size={18} color={colors.textMuted} />
+                <Ionicons name="add" size={16} color={colors.textMuted} />
               )}
-              <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 14 }}>
+              <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Medium', fontSize: 13 }}>
                 {generating ? t('hub.generating') : t('hub.generateNew')}
               </Text>
             </TouchableOpacity>
@@ -242,7 +230,7 @@ export default function PlansScreen() {
               width: 80,
               height: 80,
               borderRadius: 40,
-              backgroundColor: colors.primaryDim + '40',
+              backgroundColor: colors.chip,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 20,
@@ -285,37 +273,81 @@ export default function PlansScreen() {
 
         {/* Acceso a planes alimenticios */}
         <StaggerIn index={2}>
-        <TouchableOpacity
-          onPress={() => router.push('/(app)/plans/meal')}
-          activeOpacity={0.8}
-          style={{
-            marginTop: 24,
-            backgroundColor: colors.surface,
-            borderRadius: 16,
-            padding: 16,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 12,
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}
-        >
-          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.accent + '20', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="nutrition-outline" size={22} color={colors.accent} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-              <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, flex: 1 }}>
-                {t('hub.mealPlansTitle')}
+        {mealSummary && mealMacroTotal > 0 ? (
+          <TouchableOpacity
+            onPress={() => router.push('/(app)/plans/meal')}
+            activeOpacity={0.8}
+            style={{
+              marginTop: 24,
+              backgroundColor: colors.surface,
+              borderRadius: 16,
+              padding: 17,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 11, letterSpacing: 2.2, textTransform: 'uppercase', color: colors.textMuted }}>
+                {t('hub.mealPlanEyebrow')}
               </Text>
-              {!isPremium && <Badge label={t('hub.premiumBadge')} variant="premium" />}
+              <Text style={{ color: colors.accentText, fontFamily: 'JetBrainsMono-Medium', fontSize: 12 }}>
+                {t('meal.dayCalories', { calories: mealSummary.daily_calories })}
+              </Text>
             </View>
-            <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
-              {t('hub.mealPlansSubtitle')}
+            <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14.5, marginTop: 8 }}>
+              {mealSummary.title}
             </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-        </TouchableOpacity>
+            <MacroBar
+              protein_g={mealMacros!.protein_g}
+              carbs_g={mealMacros!.carbs_g}
+              fat_g={mealMacros!.fat_g}
+              compact
+            />
+            <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
+              <Text style={{ color: colors.textMuted, fontFamily: 'JetBrainsMono-Medium', fontSize: 10.5 }}>
+                {t('hub.mealMacroProtein', { grams: mealMacros!.protein_g })}
+              </Text>
+              <Text style={{ color: colors.textMuted, fontFamily: 'JetBrainsMono-Medium', fontSize: 10.5 }}>
+                {t('hub.mealMacroCarbs', { grams: mealMacros!.carbs_g })}
+              </Text>
+              <Text style={{ color: colors.textMuted, fontFamily: 'JetBrainsMono-Medium', fontSize: 10.5 }}>
+                {t('hub.mealMacroFat', { grams: mealMacros!.fat_g })}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => router.push('/(app)/plans/meal')}
+            activeOpacity={0.8}
+            style={{
+              marginTop: 24,
+              backgroundColor: colors.surface,
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.chip, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="nutrition-outline" size={22} color={colors.accent} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                <Text className="uppercase" style={{ color: colors.text, fontFamily: 'BebasNeue-Regular', fontSize: 22, letterSpacing: 0.5, flex: 1 }}>
+                  {t('hub.mealPlansTitle')}
+                </Text>
+                {!isPremium && <Badge label={t('hub.premiumBadge')} variant="premium" />}
+              </View>
+              <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>
+                {t('hub.mealPlansSubtitle')}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+        )}
         </StaggerIn>
       </ScrollView>
 

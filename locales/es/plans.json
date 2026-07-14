@@ -16,6 +16,10 @@
     "generateMine": "Generar mi plan",
     "mealPlansTitle": "Planes Alimenticios",
     "mealPlansSubtitle": "Nutrición personalizada con IA",
+    "mealPlanEyebrow": "Plan alimenticio",
+    "mealMacroProtein": "{{grams}}g prot",
+    "mealMacroCarbs": "{{grams}}g carbs",
+    "mealMacroFat": "{{grams}}g grasa",
     "premiumBadge": "PREMIUM"
   },
   "workout": {
