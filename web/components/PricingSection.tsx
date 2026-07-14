@@ -62,7 +62,7 @@ export function PricingSection({
     }
   }
 
-  const price = billing === 'monthly' ? '$179' : '$1,299';
+  const price = billing === 'monthly' ? '$219' : '$1,579';
   const period = billing === 'monthly' ? '/mes' : '/año';
 
   return (
@@ -114,7 +114,7 @@ export function PricingSection({
               {price} <span className="text-sm font-normal text-muted">MXN{period}</span>
             </p>
             <p className="mb-5 h-4 text-xs text-muted">
-              {billing === 'yearly' ? 'Equivale a $108/mes' : ''}
+              {billing === 'yearly' ? 'Equivale a $132/mes' : ''}
             </p>
             <ul className="space-y-3">
               {MAESTRO.map((f) => (
