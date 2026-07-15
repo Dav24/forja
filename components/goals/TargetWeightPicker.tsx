@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/Input';
 import { Chip } from '@/components/ui/Chip';
 import { useTheme } from '@/lib/theme';
-import { addCalendarMonths, toISODateString, MIN_TARGET_DATE_DAYS_AHEAD } from '@/lib/weightGoalSafety';
+import { addCalendarMonths, toISODateString, parseISODateLocal, MIN_TARGET_DATE_DAYS_AHEAD } from '@/lib/weightGoalSafety';
 
 interface TargetWeightPickerProps {
   weightValue: string;
@@ -31,7 +31,7 @@ export function TargetWeightPicker({ weightValue, onChangeWeight, targetDate, on
   }
 
   const isCustomDate = !!targetDate && !PERIOD_OPTIONS.some((p) => targetDate === periodDate(p.months));
-  const customLabel = isCustomDate && targetDate ? new Date(targetDate).toLocaleDateString() : t('targetWeight.customDate');
+  const customLabel = isCustomDate && targetDate ? parseISODateLocal(targetDate).toLocaleDateString() : t('targetWeight.customDate');
 
   function handlePickerChange(event: DateTimePickerEvent, date?: Date) {
     if (Platform.OS === 'android') setShowPicker(false);
@@ -68,7 +68,7 @@ export function TargetWeightPicker({ weightValue, onChangeWeight, targetDate, on
       </View>
       {showPicker ? (
         <DateTimePicker
-          value={targetDate ? new Date(targetDate) : minimumDate}
+          value={targetDate ? parseISODateLocal(targetDate) : minimumDate}
           mode="date"
           display="default"
           minimumDate={minimumDate}

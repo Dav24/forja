@@ -33,8 +33,7 @@ export function checkWeightGoalSafety(input: WeightGoalCheckInput): WeightGoalCh
     return { valid: false, reasonKey: 'wrongDirection' };
   }
 
-  const [ty, tm, td] = targetDate.split('-').map(Number);
-  const target = new Date(ty, tm - 1, td);
+  const target = parseISODateLocal(targetDate);
   const daysUntil = Math.max(1, Math.ceil((target.getTime() - today.getTime()) / 86_400_000));
   const weeksUntil = Math.max(1, daysUntil / 7);
 
@@ -46,6 +45,11 @@ export function checkWeightGoalSafety(input: WeightGoalCheckInput): WeightGoalCh
   }
 
   return { valid: true };
+}
+
+export function parseISODateLocal(isoDate: string): Date {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }
 
 export function addCalendarMonths(date: Date, months: number): Date {
