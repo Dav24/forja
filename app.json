@@ -26,7 +26,8 @@
           "photosPermission": "Forja usa tus fotos para que elijas tu foto de perfil."
         }
       ],
-      "expo-video"
+      "expo-video",
+      "@react-native-community/datetimepicker"
     ],
     "ios": {
       "supportsTablet": false,

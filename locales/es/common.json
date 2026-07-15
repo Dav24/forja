@@ -17,5 +17,14 @@
     "plans": "Planes",
     "progress": "Progreso",
     "profile": "Perfil"
+  },
+  "targetWeight": {
+    "weightLabel": "Peso objetivo (kg)",
+    "weightPlaceholder": "Ej: 75",
+    "periodLabel": "¿Para cuándo?",
+    "oneMonth": "1 mes",
+    "threeMonths": "3 meses",
+    "sixMonths": "6 meses",
+    "customDate": "Fecha específica"
   }
 }
