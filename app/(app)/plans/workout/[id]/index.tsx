@@ -1,18 +1,16 @@
-import { useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import type BottomSheet from '@gorhom/bottom-sheet';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useTheme } from '@/lib/theme';
+import { typography } from '@/constants/typography';
 import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { StatCard } from '@/components/ui/StatCard';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
-import { ExerciseSheet } from '@/components/plans/ExerciseSheet';
 
 type Exercise = {
   order: number;
@@ -55,15 +53,12 @@ function getTodayDayIndex() {
   return new Date().getDay();
 }
 
-export default function WorkoutPlanDetailScreen() {
+export default function WorkoutPlanOverviewScreen() {
   const { t } = useTranslation('plans');
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const todayIndex = getTodayDayIndex();
-  const [expandedDay, setExpandedDay] = useState<number | null>(null);
-  const exerciseSheetRef = useRef<BottomSheet>(null);
-  const [activeExercise, setActiveExercise] = useState<{ exercise: Exercise; dayNumber: number; exerciseIndex: number } | null>(null);
   useHideNavWhileFocused();
 
   const { data: plan, isLoading } = useQuery<WorkoutPlan>({
@@ -193,11 +188,10 @@ export default function WorkoutPlanDetailScreen() {
           </View>
         ) : null}
 
-        {/* Schedule list */}
+        {/* Schedule list — overview, cada fila navega al detalle del día */}
         {schedule.map((day, index) => {
           const jsDay = day.day_number === 7 ? 0 : day.day_number;
           const isToday = jsDay === todayIndex;
-          const isExpanded = expandedDay === index;
           const dayLabel = t('workout.dayHeader', {
             number: day.day_number,
             focus: day.is_rest ? t('workout.restUpper') : (day.focus ?? '').toUpperCase(),
@@ -208,7 +202,7 @@ export default function WorkoutPlanDetailScreen() {
               key={index}
               activeOpacity={day.is_rest ? 1 : 0.8}
               onPress={() => {
-                if (!day.is_rest) setExpandedDay(isExpanded ? null : index);
+                if (!day.is_rest) router.push(`/(app)/plans/workout/${id}/day/${day.day_number}`);
               }}
               style={{
                 backgroundColor: isToday ? colors.primaryDim + '40' : colors.surface,
@@ -219,7 +213,6 @@ export default function WorkoutPlanDetailScreen() {
                 overflow: 'hidden',
               }}
             >
-              {/* Step 2: Day header — Bebas 19px */}
               <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 }}>
                 <View style={{
                   width: 40,
@@ -243,7 +236,7 @@ export default function WorkoutPlanDetailScreen() {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Text style={{
                       fontFamily: 'BebasNeue-Regular',
-                      fontSize: 19,
+                      fontSize: typography.sizes.h2,
                       color: day.is_rest ? colors.textMuted : colors.primary,
                     }}>
                       {dayLabel}
@@ -264,92 +257,13 @@ export default function WorkoutPlanDetailScreen() {
                   )}
                 </View>
                 {!day.is_rest && (
-                  <Ionicons
-                    name={isExpanded ? 'chevron-up' : 'chevron-down'}
-                    size={18}
-                    color={colors.textMuted}
-                  />
+                  <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
                 )}
               </View>
-
-              {/* Step 3: Expanded exercises — editorial pattern */}
-              {isExpanded && !day.is_rest && (
-                <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: 14, paddingBottom: 14 }}>
-                  {day.exercises.map((ex, ei) => (
-                    <TouchableOpacity
-                      key={ei}
-                      activeOpacity={0.7}
-                      onPress={() => {
-                        setActiveExercise({ exercise: ex, dayNumber: day.day_number, exerciseIndex: ei });
-                        exerciseSheetRef.current?.expand();
-                      }}
-                    >
-                      {/* Exercise row */}
-                      <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 10,
-                        paddingVertical: 8,
-                        borderBottomWidth: 1,
-                        borderBottomColor: colors.border,
-                      }}>
-                        {/* Order number — Bebas 16px stone */}
-                        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 16, color: colors.textFaint, minWidth: 22 }}>
-                          {String(ex.order ?? ei + 1).padStart(2, '0')}
-                        </Text>
-                        {/* Exercise name — Inter-Medium */}
-                        <Text style={{ flex: 1, color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14 }}>
-                          {ex.name}
-                        </Text>
-                        {/* Chips — JetBrainsMono-Medium, primaryBright */}
-                        <View style={{ flexDirection: 'row', gap: 4 }}>
-                          <View style={{ backgroundColor: colors.surfaceElevated, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
-                            <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.accent }}>
-                              {ex.sets}×{ex.reps}
-                            </Text>
-                          </View>
-                          {ex.rest_seconds ? (
-                            <View style={{ backgroundColor: colors.surfaceElevated, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
-                              <Text style={{ fontFamily: 'JetBrainsMono-Medium', fontSize: 11, color: colors.accent }}>
-                                {ex.rest_seconds}s
-                              </Text>
-                            </View>
-                          ) : null}
-                          <View style={{ width: 22, height: 22, borderRadius: 99, backgroundColor: colors.chip, alignItems: 'center', justifyContent: 'center' }}>
-                            <Ionicons name="play" size={10} color={colors.primary} style={{ marginLeft: 1 }} />
-                          </View>
-                        </View>
-                      </View>
-                      {/* Technique notes — Inter-Regular 12 italic textMuted */}
-                      {ex.technique_notes ? (
-                        <Text style={{
-                          fontFamily: 'Inter-Regular',
-                          fontSize: 12,
-                          fontStyle: 'italic',
-                          color: colors.textMuted,
-                          paddingTop: 4,
-                          paddingBottom: 2,
-                          paddingLeft: 32,
-                        }}>
-                          {ex.technique_notes}
-                        </Text>
-                      ) : null}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
             </TouchableOpacity>
           );
         })}
       </ScrollView>
-
-      <ExerciseSheet
-        ref={exerciseSheetRef}
-        exercise={activeExercise?.exercise ?? null}
-        workoutPlanId={plan.id}
-        dayNumber={activeExercise?.dayNumber ?? 0}
-        exerciseIndex={activeExercise?.exerciseIndex ?? 0}
-      />
     </SafeAreaView>
   );
 }
