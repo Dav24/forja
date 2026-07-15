@@ -1400,3 +1400,22 @@ solo-texto en la ficha). Ficha de ejercicio (`ExerciseSheet`): video real vía
 (`Stepper` con snap al incremento) y sparkline de progresión (`exercise_logs`,
 consultado por `exercise_slug` a través del tiempo — sobrevive a regenerar el plan).
 Spec: `docs/superpowers/specs/2026-07-14-redesign-fase-c-ejercicios-design.md`.
+
+## Fase D del rediseño — nutrición (swap, disgustos, onboarding)
+
+Alergias y disgustos alimenticios persistidos en `food_preferences` (gestionados desde
+Ajustes), reemplazando el formulario transitorio que el usuario tenía que re-teclear en
+cada generación — `generate-meal-plan` los lee directo de la tabla. Swap de una comida
+individual (`swap-meal`, acciones `preview`/`accept`): preview genera una propuesta con
+Sonnet sin persistir (máx. 3 intentos por sesión, sin costo de límite); accept persiste
+lo ya mostrado (sin nueva llamada a IA), valida el límite semanal (`meal_swaps`, 3/semana
+free, ilimitado premium) y resetea `translations` a `{}` en la misma escritura — el
+caché de traducciones no tiene forma de saber que cambió una comida, así que sin este
+reset quedaría desincronizado. Identidad de la comida: `day_number` se busca con
+`findIndex`, nunca por posición de array (mismo principio que `exerciseIndex` en Fase C).
+Onboarding paso 5 opcional (trayectoria competitiva + suplementación declarada) — el
+marcado de `onboarding_completed` se movió del paso 4 al paso 5 porque el `AuthGuard`
+(`app/_layout.tsx`) expulsa a `/(app)` en cuanto ese flag es `true` mientras la ruta
+activa sigue en `(auth)`. Ambos generadores de IA reciben la trayectoria/suplementos
+declarados con un guardrail de seguridad explícito: es solo contexto, nunca se
+recomienda ni dosifica. Spec: `docs/superpowers/specs/2026-07-14-redesign-fase-d-nutricion-design.md`.
