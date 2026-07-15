@@ -287,6 +287,7 @@ export default function TrainingScreen() {
                     setModality(m.id);
                     setSecondary((prev) => prev.filter((s) => s !== m.id));
                     setModalityOrientation(null);
+                    setModalityGoalNotes('');
                   }}
                 />
               ))}
