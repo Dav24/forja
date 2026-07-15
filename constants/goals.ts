@@ -1,14 +1,19 @@
+import type { ComponentProps } from 'react';
+import type { Ionicons } from '@expo/vector-icons';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
+
 export type GoalType =
   | 'weight_loss' | 'muscle_gain' | 'recomposition'
   | 'powerlifting' | 'sport_specific' | 'general_fitness';
 
-export const GOALS: { type: GoalType; icon: string; titleKey: string; descriptionKey: string }[] = [
-  { type: 'weight_loss',     icon: '🔥', titleKey: 'onboarding:goals.weight_loss.title',     descriptionKey: 'onboarding:goals.weight_loss.description' },
-  { type: 'muscle_gain',     icon: '💪', titleKey: 'onboarding:goals.muscle_gain.title',     descriptionKey: 'onboarding:goals.muscle_gain.description' },
-  { type: 'recomposition',   icon: '⚡', titleKey: 'onboarding:goals.recomposition.title',   descriptionKey: 'onboarding:goals.recomposition.description' },
-  { type: 'powerlifting',    icon: '🏋️', titleKey: 'onboarding:goals.powerlifting.title',    descriptionKey: 'onboarding:goals.powerlifting.description' },
-  { type: 'sport_specific',  icon: '🏃', titleKey: 'onboarding:goals.sport_specific.title',  descriptionKey: 'onboarding:goals.sport_specific.description' },
-  { type: 'general_fitness', icon: '✨', titleKey: 'onboarding:goals.general_fitness.title', descriptionKey: 'onboarding:goals.general_fitness.description' },
+export const GOALS: { type: GoalType; icon: string; iconName: IoniconsName; titleKey: string; descriptionKey: string }[] = [
+  { type: 'weight_loss',     icon: '🔥', iconName: 'flame-outline',       titleKey: 'onboarding:goals.weight_loss.title',     descriptionKey: 'onboarding:goals.weight_loss.description' },
+  { type: 'muscle_gain',     icon: '💪', iconName: 'trending-up-outline', titleKey: 'onboarding:goals.muscle_gain.title',     descriptionKey: 'onboarding:goals.muscle_gain.description' },
+  { type: 'recomposition',   icon: '⚡', iconName: 'sync-outline',        titleKey: 'onboarding:goals.recomposition.title',   descriptionKey: 'onboarding:goals.recomposition.description' },
+  { type: 'powerlifting',    icon: '🏋️', iconName: 'barbell-outline',     titleKey: 'onboarding:goals.powerlifting.title',    descriptionKey: 'onboarding:goals.powerlifting.description' },
+  { type: 'sport_specific',  icon: '🏃', iconName: 'trophy-outline',      titleKey: 'onboarding:goals.sport_specific.title',  descriptionKey: 'onboarding:goals.sport_specific.description' },
+  { type: 'general_fitness', icon: '✨', iconName: 'sparkles-outline',    titleKey: 'onboarding:goals.general_fitness.title', descriptionKey: 'onboarding:goals.general_fitness.description' },
 ];
 
 export type FitnessLevel = 'casual' | 'intermediate' | 'intensive' | 'advanced' | 'elite';
@@ -23,9 +28,9 @@ export const FITNESS_LEVELS: { value: FitnessLevel; labelKey: string; descriptio
 
 export type TrainingMode = 'flexible' | 'strict';
 
-export const MODES: { value: TrainingMode; labelKey: string; descriptionKey: string; icon: string }[] = [
-  { value: 'flexible', icon: '🌊', labelKey: 'onboarding:modes.flexible.label', descriptionKey: 'onboarding:modes.flexible.description' },
-  { value: 'strict',   icon: '🎯', labelKey: 'onboarding:modes.strict.label',  descriptionKey: 'onboarding:modes.strict.description' },
+export const MODES: { value: TrainingMode; labelKey: string; descriptionKey: string; icon: string; iconName: IoniconsName }[] = [
+  { value: 'flexible', icon: '🌊', iconName: 'shuffle-outline',     labelKey: 'onboarding:modes.flexible.label', descriptionKey: 'onboarding:modes.flexible.description' },
+  { value: 'strict',   icon: '🎯', iconName: 'lock-closed-outline', labelKey: 'onboarding:modes.strict.label',  descriptionKey: 'onboarding:modes.strict.description' },
 ];
 
 export type AthleticBackground = 'none' | 'amateur' | 'high_performance' | 'bodybuilding';
