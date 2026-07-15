@@ -3,11 +3,13 @@ import {
   View, Text, TextInput, TouchableOpacity,
   ScrollView, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { useTheme } from '@/lib/theme';
+import { typography } from '@/constants/typography';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
@@ -66,9 +68,15 @@ export default function Step2Body() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">{t('layout.stepOf', { current: 3, total: 4 })}</Text>
-          <Text className="text-text font-bold text-3xl">{t('step3.title')}</Text>
-          <Text className="text-text-muted text-base mt-2">{t('step3.subtitle')}</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.caption, color: colors.textMuted, marginBottom: 4 }}>
+            {t('layout.stepOf', { current: 3, total: 5 })}
+          </Text>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text }}>
+            {t('step3.title')}
+          </Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, marginTop: 8 }}>
+            {t('step3.subtitle')}
+          </Text>
         </View>
 
         {/* Peso y altura en fila */}
@@ -112,7 +120,9 @@ export default function Step2Body() {
 
         {/* Género */}
         <View className="mb-6">
-          <Text className="text-text text-sm font-medium mb-3">{t('step3.genderLabel')}</Text>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text, marginBottom: 12 }}>
+            {t('step3.genderLabel')}
+          </Text>
           <View className="flex-row flex-wrap gap-2">
             {GENDERS.map((g) => (
               <TouchableOpacity
@@ -120,7 +130,7 @@ export default function Step2Body() {
                 onPress={() => setGender(g.value)}
                 className={`px-4 h-10 rounded-full border items-center justify-center ${gender === g.value ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
               >
-                <Text className={`text-sm font-medium ${gender === g.value ? 'text-primary' : 'text-text'}`}>
+                <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: gender === g.value ? colors.primary : colors.text }}>
                   {t(g.labelKey)}
                 </Text>
               </TouchableOpacity>
@@ -130,7 +140,9 @@ export default function Step2Body() {
 
         {/* Nivel de actividad */}
         <View className="mb-6">
-          <Text className="text-text text-sm font-medium mb-3">{t('step3.activityLabel')}</Text>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text, marginBottom: 12 }}>
+            {t('step3.activityLabel')}
+          </Text>
           <View className="gap-2">
             {ACTIVITY_LEVELS.map((level) => {
               const isSelected = activityLevel === level.value;
@@ -141,14 +153,16 @@ export default function Step2Body() {
                   className={`p-3 rounded-xl border flex-row items-center gap-3 ${isSelected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
                 >
                   <View className="flex-1">
-                    <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-text'}`}>
+                    <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: isSelected ? colors.primary : colors.text }}>
                       {t(level.labelKey)}
                     </Text>
-                    <Text className="text-text-muted text-xs mt-0.5">{t(level.descriptionKey)}</Text>
+                    <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.caption, color: colors.textMuted, marginTop: 2 }}>
+                      {t(level.descriptionKey)}
+                    </Text>
                   </View>
                   {isSelected && (
                     <View className="w-5 h-5 rounded-full bg-primary items-center justify-center">
-                      <Text className="text-background text-xs font-bold">✓</Text>
+                      <Ionicons name="checkmark" size={12} color={colors.background} />
                     </View>
                   )}
                 </TouchableOpacity>
@@ -166,7 +180,9 @@ export default function Step2Body() {
           className="bg-primary rounded-xl h-14 items-center justify-center"
           onPress={handleContinue}
         >
-          <Text className="text-background font-bold text-base">{t('layout.continue')}</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: colors.background }}>
+            {t('layout.continue')}
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

@@ -9,6 +9,7 @@ import { useOnboardingStore } from '@/store/onboarding.store';
 import { useProfileStore } from '@/store/profile.store';
 import { SparkBurst } from '@/components/effects/SparkBurst';
 import { useTheme } from '@/lib/theme';
+import { typography } from '@/constants/typography';
 import { ATHLETIC_BACKGROUNDS, SUPPLEMENTS, type AthleticBackground, type SupplementCode } from '@/constants/goals';
 import { Input } from '@/components/ui/Input';
 
@@ -91,12 +92,20 @@ export default function Step5Athletic() {
         showsVerticalScrollIndicator={false}
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">{t('step5.eyebrow')}</Text>
-          <Text className="text-text font-bold text-3xl">{t('step5.title')}</Text>
-          <Text className="text-text-muted text-base mt-2">{t('step5.subtitle')}</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.caption, color: colors.textMuted, marginBottom: 4 }}>
+            {t('step5.eyebrow')}
+          </Text>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text }}>
+            {t('step5.title')}
+          </Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, marginTop: 8 }}>
+            {t('step5.subtitle')}
+          </Text>
         </View>
 
-        <Text className="text-text font-semibold text-base mb-3">{t('step5.backgroundQuestion')}</Text>
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text, marginBottom: 12 }}>
+          {t('step5.backgroundQuestion')}
+        </Text>
         <View className="gap-2 mb-8">
           {ATHLETIC_BACKGROUNDS.map((b) => {
             const isSelected = background === b.value;
@@ -106,13 +115,17 @@ export default function Step5Athletic() {
                 onPress={() => setBackground(b.value)}
                 className={`p-4 rounded-xl border ${isSelected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
               >
-                <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-text'}`}>{t(b.labelKey)}</Text>
+                <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: isSelected ? colors.primary : colors.text }}>
+                  {t(b.labelKey)}
+                </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <Text className="text-text font-semibold text-base mb-3">{t('step5.supplementsQuestion')}</Text>
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text, marginBottom: 12 }}>
+          {t('step5.supplementsQuestion')}
+        </Text>
         <View className="flex-row flex-wrap gap-2 mb-3">
           {SUPPLEMENTS.map((s) => {
             const isSelected = supplements.includes(s.value);
@@ -122,7 +135,9 @@ export default function Step5Athletic() {
                 onPress={() => toggleSupplement(s.value)}
                 className={`rounded-full px-4 py-2 border ${isSelected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
               >
-                <Text className={`text-sm ${isSelected ? 'text-primary' : 'text-text'}`}>{t(s.labelKey)}</Text>
+                <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: isSelected ? colors.primary : colors.text }}>
+                  {t(s.labelKey)}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -152,11 +167,15 @@ export default function Step5Athletic() {
           disabled={loading || celebrating}
         >
           {loading ? <ActivityIndicator color={colors.background} /> : (
-            <Text className="font-bold text-base text-background">{t('step5.finishButton')}</Text>
+            <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: colors.background }}>
+              {t('step5.finishButton')}
+            </Text>
           )}
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSkip} disabled={loading || celebrating} className="items-center py-2">
-          <Text className="text-text-muted text-sm font-medium">{t('step5.skipButton')}</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: colors.textMuted }}>
+            {t('step5.skipButton')}
+          </Text>
         </TouchableOpacity>
       </View>
 

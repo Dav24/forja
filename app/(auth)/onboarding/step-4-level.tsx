@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { useTheme } from '@/lib/theme';
+import { typography } from '@/constants/typography';
 import { FITNESS_LEVELS, MODES, type FitnessLevel, type TrainingMode } from '@/constants/goals';
 
 export default function Step3Level() {
@@ -82,13 +84,21 @@ export default function Step3Level() {
         showsVerticalScrollIndicator={false}
       >
         <View className="pt-6 pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">{t('layout.stepOf', { current: 4, total: 4 })}</Text>
-          <Text className="text-text font-bold text-3xl">{t('step4.title')}</Text>
-          <Text className="text-text-muted text-base mt-2">{t('step4.subtitle')}</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.caption, color: colors.textMuted, marginBottom: 4 }}>
+            {t('layout.stepOf', { current: 4, total: 5 })}
+          </Text>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text }}>
+            {t('step4.title')}
+          </Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, marginTop: 8 }}>
+            {t('step4.subtitle')}
+          </Text>
         </View>
 
         {/* Nivel de fitness */}
-        <Text className="text-text font-semibold text-base mb-3">{t('step4.levelQuestion')}</Text>
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text, marginBottom: 12 }}>
+          {t('step4.levelQuestion')}
+        </Text>
         <View className="gap-2 mb-8">
           {FITNESS_LEVELS.map((level) => {
             const isSelected = fitnessLevel === level.value;
@@ -99,14 +109,16 @@ export default function Step3Level() {
                 className={`p-4 rounded-xl border flex-row items-center gap-3 ${isSelected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
               >
                 <View className="flex-1">
-                  <Text className={`font-semibold text-sm ${isSelected ? 'text-primary' : 'text-text'}`}>
+                  <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: isSelected ? colors.primary : colors.text }}>
                     {t(level.labelKey)}
                   </Text>
-                  <Text className="text-text-muted text-xs mt-0.5">{t(level.descriptionKey)}</Text>
+                  <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.caption, color: colors.textMuted, marginTop: 2 }}>
+                    {t(level.descriptionKey)}
+                  </Text>
                 </View>
                 {isSelected && (
                   <View className="w-5 h-5 rounded-full bg-primary items-center justify-center">
-                    <Text className="text-background text-xs font-bold">✓</Text>
+                    <Ionicons name="checkmark" size={12} color={colors.background} />
                   </View>
                 )}
               </TouchableOpacity>
@@ -115,7 +127,9 @@ export default function Step3Level() {
         </View>
 
         {/* Modo */}
-        <Text className="text-text font-semibold text-base mb-3">{t('step4.modeQuestion')}</Text>
+        <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text, marginBottom: 12 }}>
+          {t('step4.modeQuestion')}
+        </Text>
         <View className="gap-3">
           {MODES.map((m) => {
             const isSelected = mode === m.value;
@@ -126,17 +140,19 @@ export default function Step3Level() {
                 className={`p-4 rounded-2xl border ${isSelected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
               >
                 <View className="flex-row items-center gap-3 mb-2">
-                  <Text className="text-2xl">{m.icon}</Text>
-                  <Text className={`font-bold text-base ${isSelected ? 'text-primary' : 'text-text'}`}>
+                  <Ionicons name={m.iconName} size={20} color={isSelected ? colors.primary : colors.text} />
+                  <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: isSelected ? colors.primary : colors.text }}>
                     {t(m.labelKey)}
                   </Text>
                   {isSelected && (
                     <View className="ml-auto w-5 h-5 rounded-full bg-primary items-center justify-center">
-                      <Text className="text-background text-xs font-bold">✓</Text>
+                      <Ionicons name="checkmark" size={12} color={colors.background} />
                     </View>
                   )}
                 </View>
-                <Text className="text-text-muted text-sm">{t(m.descriptionKey)}</Text>
+                <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.caption, color: colors.textMuted }}>
+                  {t(m.descriptionKey)}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -154,7 +170,7 @@ export default function Step3Level() {
         >
           {loading
             ? <ActivityIndicator color={colors.background} />
-            : <Text className={`font-bold text-base ${fitnessLevel && mode ? 'text-background' : 'text-text-muted'}`}>
+            : <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: fitnessLevel && mode ? colors.background : colors.textMuted }}>
                 {t('step4.finishButton')}
               </Text>
           }
