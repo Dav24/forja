@@ -8,6 +8,7 @@ const STEPS = [
   '/(auth)/onboarding/step-2-modality',
   '/(auth)/onboarding/step-3-body',
   '/(auth)/onboarding/step-4-level',
+  '/(auth)/onboarding/step-5-athletic',
 ];
 
 export default function OnboardingLayout() {

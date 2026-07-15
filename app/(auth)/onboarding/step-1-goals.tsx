@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useOnboardingStore } from '@/store/onboarding.store';
 import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
+import { useTheme } from '@/lib/theme';
+import { typography } from '@/constants/typography';
 import { GOALS, type GoalType } from '@/constants/goals';
 
 export default function Step1Goals() {
   const { t } = useTranslation('onboarding');
+  const { colors } = useTheme();
   const [selected, setSelected] = useState<GoalType | null>(null);
   const { setStep1 } = useOnboardingStore();
   const router = useRouter();
@@ -28,18 +32,24 @@ export default function Step1Goals() {
       >
         <View className="pt-6 items-center mb-6">
           <VulcanoAvatar size={72} />
-          <Text className="text-text mt-3 text-center" style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20 }}>
+          <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 20, color: colors.text, textAlign: 'center', marginTop: 12 }}>
             {t('step1.vulcanoTitle')}
           </Text>
-          <Text className="text-text-muted text-sm text-center mt-1" style={{ fontFamily: 'Inter-Regular' }}>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.bodySmall, color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>
             {t('step1.vulcanoSubtitle')}
           </Text>
         </View>
 
         <View className="pb-8">
-          <Text className="text-text-muted text-sm font-medium mb-1">{t('layout.stepOf', { current: 1, total: 4 })}</Text>
-          <Text className="text-text font-bold text-3xl">{t('step1.title')}</Text>
-          <Text className="text-text-muted text-base mt-2">{t('step1.subtitle')}</Text>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.caption, color: colors.textMuted, marginBottom: 4 }}>
+            {t('layout.stepOf', { current: 1, total: 5 })}
+          </Text>
+          <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text }}>
+            {t('step1.title')}
+          </Text>
+          <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, marginTop: 8 }}>
+            {t('step1.subtitle')}
+          </Text>
         </View>
 
         <View className="gap-3">
@@ -53,16 +63,24 @@ export default function Step1Goals() {
                 activeOpacity={0.7}
               >
                 <View className="flex-row items-center gap-4">
-                  <Text className="text-3xl">{goal.icon}</Text>
+                  <View style={{
+                    width: 44, height: 44, borderRadius: 22,
+                    backgroundColor: isSelected ? colors.primary : colors.surfaceElevated,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Ionicons name={goal.iconName} size={22} color={isSelected ? colors.background : colors.primary} />
+                  </View>
                   <View className="flex-1">
-                    <Text className={`font-semibold text-base ${isSelected ? 'text-primary' : 'text-text'}`}>
+                    <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: isSelected ? colors.primary : colors.text }}>
                       {t(goal.titleKey)}
                     </Text>
-                    <Text className="text-text-muted text-sm mt-0.5">{t(goal.descriptionKey)}</Text>
+                    <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.caption, color: colors.textMuted, marginTop: 2 }}>
+                      {t(goal.descriptionKey)}
+                    </Text>
                   </View>
                   {isSelected && (
                     <View className="w-6 h-6 rounded-full bg-primary items-center justify-center">
-                      <Text className="text-background font-bold text-xs">✓</Text>
+                      <Ionicons name="checkmark" size={14} color={colors.background} />
                     </View>
                   )}
                 </View>
@@ -82,7 +100,7 @@ export default function Step1Goals() {
           onPress={handleContinue}
           disabled={!selected}
         >
-          <Text className={`font-bold text-base ${selected ? 'text-background' : 'text-text-muted'}`}>
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: selected ? colors.background : colors.textMuted }}>
             {t('layout.continue')}
           </Text>
         </TouchableOpacity>
