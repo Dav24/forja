@@ -54,27 +54,36 @@ Deno.serve(async (req) => {
       return json(400, { error: 'invalid_request' });
     }
 
-    const { data: profileData } = await supabase.from('profiles').select('language').eq('id', user.id).maybeSingle();
-    const language: 'es' | 'en' = profileData?.language === 'en' ? 'en' : 'es';
-
     const admin = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
       auth: { persistSession: false },
     });
 
+    // Idioma real del contenido canónico del plan (NO el idioma de UI del perfil):
+    // el candidato de swap debe generarse/guardarse en el mismo idioma en que
+    // está persistida la columna `meals`, o se corrompe el contenido canónico.
+    let planSourceLanguage: 'es' | 'en' | null = null;
+
     const loadMealPlan = async () => {
       const { data, error } = await supabase
         .from('meal_plans')
-        .select('meals')
+        .select('meals, source_language')
         .eq('id', mealPlanId)
         .eq('user_id', user.id)
         .eq('is_active', true)
         .maybeSingle();
       if (error) throw error;
-      return data ? { meals: data.meals as Json } : null;
+      if (!data) return null;
+      planSourceLanguage = data.source_language === 'en' ? 'en' : 'es';
+      return { meals: data.meals as Json };
     };
 
     if (action === 'preview') {
       const attemptNumber = typeof body?.attempt_number === 'number' ? body.attempt_number : 1;
+      // Precarga el plan para conocer su source_language antes de generar el
+      // candidato; swapMealPreview volverá a cargarlo internamente (lectura
+      // idempotente), lo cual es aceptable y no altera el conteo de intentos.
+      await loadMealPlan();
+      const language: 'es' | 'en' = planSourceLanguage ?? 'es';
       const candidate = await swapMealPreview(
         {
           loadMealPlan,
