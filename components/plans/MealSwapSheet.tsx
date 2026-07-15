@@ -23,13 +23,15 @@ export const MealSwapSheet = forwardRef<BottomSheet, MealSwapSheetProps>(functio
   const { t } = useTranslation('plans');
   const [attempt, setAttempt] = useState(0);
   const [candidate, setCandidate] = useState<MealCandidate | null>(null);
-  const { mutateAsync: preview, isPending: previewing, error: previewError } = useSwapMealPreview();
-  const { mutateAsync: accept, isPending: accepting, error: acceptError } = useSwapMealAccept();
+  const { mutateAsync: preview, isPending: previewing, error: previewError, reset: resetPreview } = useSwapMealPreview();
+  const { mutateAsync: accept, isPending: accepting, error: acceptError, reset: resetAccept } = useSwapMealAccept();
 
   useEffect(() => {
     setAttempt(0);
     setCandidate(null);
-  }, [dayNumber, mealIndex]);
+    resetPreview();
+    resetAccept();
+  }, [dayNumber, mealIndex, resetPreview, resetAccept]);
 
   async function requestPreview() {
     const nextAttempt = attempt + 1;
