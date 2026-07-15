@@ -9,18 +9,29 @@ import { VulcanoAvatar } from '@/components/chat/VulcanoAvatar';
 import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
 import { GOALS, type GoalType } from '@/constants/goals';
+import { TargetWeightPicker } from '@/components/goals/TargetWeightPicker';
 
 export default function Step1Goals() {
   const { t } = useTranslation('onboarding');
   const { colors } = useTheme();
   const [selected, setSelected] = useState<GoalType | null>(null);
+  const [targetWeightInput, setTargetWeightInput] = useState('');
+  const [targetDate, setTargetDate] = useState<string | null>(null);
+  const showsWeightTarget = selected === 'weight_loss' || selected === 'muscle_gain';
   const { setStep1 } = useOnboardingStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
   function handleContinue() {
     if (!selected) return;
-    setStep1({ goalType: selected });
+    const parsedTarget = showsWeightTarget && targetWeightInput.trim()
+      ? Number(targetWeightInput.trim().replace(',', '.'))
+      : null;
+    setStep1({
+      goalType: selected,
+      targetWeightKg: parsedTarget !== null && Number.isFinite(parsedTarget) ? parsedTarget : null,
+      targetDate: showsWeightTarget ? targetDate : null,
+    });
     router.push('/(auth)/onboarding/step-2-modality');
   }
 
@@ -88,6 +99,17 @@ export default function Step1Goals() {
             );
           })}
         </View>
+
+        {showsWeightTarget && (
+          <View className="mt-6">
+            <TargetWeightPicker
+              weightValue={targetWeightInput}
+              onChangeWeight={setTargetWeightInput}
+              targetDate={targetDate}
+              onChangeTargetDate={setTargetDate}
+            />
+          </View>
+        )}
       </ScrollView>
 
       {/* Botón fijo al fondo */}
