@@ -1419,3 +1419,24 @@ marcado de `onboarding_completed` se movió del paso 4 al paso 5 porque el `Auth
 activa sigue en `(auth)`. Ambos generadores de IA reciben la trayectoria/suplementos
 declarados con un guardrail de seguridad explícito: es solo contexto, nunca se
 recomienda ni dosifica. Spec: `docs/superpowers/specs/2026-07-14-redesign-fase-d-nutricion-design.md`.
+
+## Pulido: restyle auth/onboarding + vista de entrenamiento + integridad de exercise_logs
+
+`app/(auth)/` (login, registro, recuperar contraseña, 5 pasos de onboarding) migró de
+emojis/Tailwind genérico al sistema de diseño de las Fases A-D: `Ionicons` en vez de
+emojis (`GOALS`/`MODES`/`MODALITIES` ganaron `iconName` sin tocar el campo `icon` legado,
+que sigue usando `settings/training.tsx`), y la escala de `constants/typography.ts` en
+headlines/labels/tarjetas de selección. La barra de progreso del onboarding ahora
+incluye el paso 5 (diferido de Fase D cerrado).
+
+`app/(app)/plans/workout/[id].tsx` se dividió en `[id]/index.tsx` (overview de 7 días,
+sin acordeón, tipografía elevada) y `[id]/day/[dayNumber].tsx` (detalle nuevo: número de
+día gigante en Bebas, focus como statement, ejercicios con `StaggerIn` — fiel a la spec
+v7 original). `exercise_logs` ganó `log_date` (migración `0013`) + índice único
+`(user_id, workout_plan_id, day_number, exercise_order, set_number, log_date)` + policy
+`update` (faltaba desde la migración `0011`) — `useLogExerciseSets` pasó de `insert` a
+`upsert`: reabrir el mismo ejercicio el mismo día calendario sobreescribe en vez de
+duplicar, y semanas distintas (mismo `day_number`, `log_date` distinto) preservan el
+historial de progresión intacto. `ExerciseSheet` muestra una confirmación antes de
+guardar en un día que no es el actual (`isToday`, calculado en la pantalla de detalle).
+Spec: `docs/superpowers/specs/2026-07-15-auth-workout-polish-design.md`.
