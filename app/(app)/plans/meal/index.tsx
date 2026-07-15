@@ -16,8 +16,6 @@ import { MealPlanCard, type Meal } from '@/components/plans/MealPlanCard';
 import { PaywallBanner } from '@/components/premium/PaywallBanner';
 import { Badge } from '@/components/ui/Badge';
 import {
-  ALLERGY_NONE,
-  ALLERGY_OPTIONS,
   AVAILABILITY_OPTIONS,
   DIET_OPTIONS,
   type MealOption,
@@ -77,28 +75,16 @@ export default function MealPlansScreen() {
     'meal',
   );
 
-  const [selectedAllergies, setSelectedAllergies] = useState<string[]>([ALLERGY_NONE]);
   const [selectedDiet, setSelectedDiet] = useState<string[]>([DIET_OPTIONS[0].value]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([AVAILABILITY_OPTIONS[1].value]);
   const [selectedDay, setSelectedDay] = useState(0);
   useHideNavWhileFocused();
 
-  function toggleAllergy(val: string) {
-    if (val === ALLERGY_NONE) { setSelectedAllergies([ALLERGY_NONE]); return; }
-    setSelectedAllergies(prev => {
-      const without = prev.filter(v => v !== ALLERGY_NONE);
-      const next = without.includes(val) ? without.filter(v => v !== val) : [...without, val];
-      return next.length === 0 ? [ALLERGY_NONE] : next;
-    });
-  }
-
   async function handleGenerate() {
-    // Valores canónicos en español — contrato con la EF generate-meal-plan (ver constants/mealOptions.ts)
-    const allergies = selectedAllergies.filter(v => v !== ALLERGY_NONE).join(', ') || 'ninguna';
     const diet_type = (selectedDiet[0] ?? DIET_OPTIONS[0].value).toLowerCase();
     const food_availability = (selectedAvailability[0] ?? AVAILABILITY_OPTIONS[1].value).toLowerCase();
     try {
-      await generatePlan({ allergies, diet_type, food_availability });
+      await generatePlan({ diet_type, food_availability });
       setSelectedDay(0);
     } catch (err: unknown) {
       const e = err as Record<string, unknown>;
@@ -287,12 +273,6 @@ export default function MealPlansScreen() {
 
             {/* Form */}
             <View style={{ gap: 20, marginBottom: 24 }}>
-              <View>
-                <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14, marginBottom: 10 }}>
-                  {t('meal.form.allergiesLabel')}
-                </Text>
-                <ChipGroup options={ALLERGY_OPTIONS} selected={selectedAllergies} onSelect={toggleAllergy} multi />
-              </View>
               <View>
                 <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14, marginBottom: 10 }}>
                   {t('meal.form.dietLabel')}

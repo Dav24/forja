@@ -61,16 +61,8 @@
     "emptyTitle": "Your meal plan",
     "emptySubtitle": "AI-generated from your goal, body, and preferences.",
     "form": {
-      "allergiesLabel": "Allergies or intolerances",
       "dietLabel": "Diet type",
       "availabilityLabel": "Food availability",
-      "allergies": {
-        "none": "None",
-        "gluten": "Gluten",
-        "lactose": "Lactose",
-        "nuts": "Tree nuts",
-        "shellfish": "Shellfish"
-      },
       "diet": {
         "omnivore": "Omnivore",
         "vegetarian": "Vegetarian",

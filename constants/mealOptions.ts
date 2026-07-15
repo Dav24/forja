@@ -7,16 +7,6 @@ export interface MealOption {
   labelKey: string;
 }
 
-export const ALLERGY_NONE = 'Ninguna';
-
-export const ALLERGY_OPTIONS: MealOption[] = [
-  { value: ALLERGY_NONE, labelKey: 'plans:meal.form.allergies.none' },
-  { value: 'Gluten', labelKey: 'plans:meal.form.allergies.gluten' },
-  { value: 'Lactosa', labelKey: 'plans:meal.form.allergies.lactose' },
-  { value: 'Frutos secos', labelKey: 'plans:meal.form.allergies.nuts' },
-  { value: 'Mariscos', labelKey: 'plans:meal.form.allergies.shellfish' },
-];
-
 export const DIET_OPTIONS: MealOption[] = [
   { value: 'Omnívoro', labelKey: 'plans:meal.form.diet.omnivore' },
   { value: 'Vegetariano', labelKey: 'plans:meal.form.diet.vegetarian' },

@@ -61,16 +61,8 @@
     "emptyTitle": "Tu plan alimenticio",
     "emptySubtitle": "Generado con IA según tu objetivo, cuerpo y preferencias.",
     "form": {
-      "allergiesLabel": "Alergias o intolerancias",
       "dietLabel": "Tipo de dieta",
       "availabilityLabel": "Disponibilidad de alimentos",
-      "allergies": {
-        "none": "Ninguna",
-        "gluten": "Gluten",
-        "lactose": "Lactosa",
-        "nuts": "Frutos secos",
-        "shellfish": "Mariscos"
-      },
       "diet": {
         "omnivore": "Omnívoro",
         "vegetarian": "Vegetariano",

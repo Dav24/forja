@@ -30,7 +30,6 @@ export function useGenerateMealPlan() {
 
   return useMutation({
     mutationFn: async (params: {
-      allergies: string;
       diet_type: string;
       food_availability: string;
     }) => {

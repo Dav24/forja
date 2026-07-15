@@ -17,7 +17,8 @@ function buildMealPlanPrompt(userData: {
   age: number | null;
   gender: string | null;
   activity_level: string | null;
-  allergies: string;
+  allergies: string[];
+  dislikes: string[];
   diet_type: string;
   food_availability: string;
   language: 'es' | 'en';
@@ -47,7 +48,8 @@ ${userData.height_cm ? `- Estatura: ${userData.height_cm} cm` : ''}
 ${userData.age ? `- Edad: ${userData.age} años` : ''}
 ${userData.gender ? `- Género: ${userData.gender}` : ''}
 ${userData.activity_level ? `- Nivel de actividad: ${userData.activity_level}` : ''}
-- Alergias/intolerancias: ${userData.allergies || 'ninguna'}
+- Alergias/intolerancias (NUNCA sugerir): ${userData.allergies.join(', ') || 'ninguna'}
+- Disgustos declarados (evitar si es posible, no es riesgo de seguridad): ${userData.dislikes.join(', ') || 'ninguno'}
 - Tipo de dieta: ${userData.diet_type}
 - Disponibilidad de alimentos: ${availabilityMap[userData.food_availability] ?? userData.food_availability}
 
@@ -92,7 +94,7 @@ Genera exactamente 7 días distintos con variedad. Cada día debe tener exactame
     userData.language === 'en'
       ? 'Breakfast, Mid-morning snack, Lunch, Afternoon snack, Dinner'
       : 'Desayuno, Media mañana, Almuerzo, Merienda y Cena'
-  }. Las calorías de las comidas deben sumar aproximadamente el total diario. Respeta las alergias e intolerancias indicadas.`;
+  }. Las calorías de las comidas deben sumar aproximadamente el total diario. Respeta ESTRICTAMENTE las alergias indicadas — es una regla de seguridad, no una preferencia. Evita los disgustos declarados salvo que sea imposible por las demás restricciones.`;
 }
 
 Deno.serve(async (req) => {
@@ -177,21 +179,23 @@ Deno.serve(async (req) => {
     const VALID_DIETS = ['omnívoro', 'vegetariano', 'vegano', 'sin gluten', 'keto'];
     const VALID_AVAILABILITY = ['básica', 'media', 'amplia'];
 
-    const { allergies: rawAllergies = 'ninguna', diet_type: rawDiet = 'omnívoro', food_availability: rawAvailability = 'media' } = body;
+    const { diet_type: rawDiet = 'omnívoro', food_availability: rawAvailability = 'media' } = body;
 
-    // Sanitizar
-    const allergies = String(rawAllergies).slice(0, 200).replace(/[^\w\s,áéíóúñü]/gi, '');
     const diet_type = VALID_DIETS.includes(String(rawDiet).toLowerCase()) ? String(rawDiet).toLowerCase() : 'omnívoro';
     const food_availability = VALID_AVAILABILITY.includes(String(rawAvailability).toLowerCase()) ? String(rawAvailability).toLowerCase() : 'media';
 
-    const [goalResult, bodyResult, profileResult] = await Promise.all([
+    const [goalResult, bodyResult, profileResult, foodPrefResult] = await Promise.all([
       supabase.from('goals').select('type, fitness_level')
         .eq('user_id', user.id).eq('is_active', true)
         .order('created_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('body_data').select('weight_kg, height_cm, age, gender, activity_level')
         .eq('user_id', user.id).order('recorded_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
+      supabase.from('food_preferences').select('item, kind').eq('user_id', user.id),
     ]);
+
+    const allergyItems = (foodPrefResult.data ?? []).filter((r) => r.kind === 'allergy').map((r) => r.item);
+    const dislikeItems = (foodPrefResult.data ?? []).filter((r) => r.kind === 'dislike').map((r) => r.item);
 
     const language: 'es' | 'en' = profileResult.data?.language === 'en' ? 'en' : 'es';
 
@@ -224,7 +228,8 @@ Deno.serve(async (req) => {
       age: bodyResult.data?.age ?? null,
       gender: bodyResult.data?.gender ?? null,
       activity_level: bodyResult.data?.activity_level ?? null,
-      allergies,
+      allergies: allergyItems,
+      dislikes: dislikeItems,
       diet_type,
       food_availability,
       language,
