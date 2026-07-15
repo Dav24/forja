@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/Input';
@@ -34,9 +34,10 @@ export function TargetWeightPicker({ weightValue, onChangeWeight, targetDate, on
   const customLabel = isCustomDate && targetDate ? new Date(targetDate).toLocaleDateString() : t('targetWeight.customDate');
 
   function handlePickerChange(event: DateTimePickerEvent, date?: Date) {
-    setShowPicker(false);
+    if (Platform.OS === 'android') setShowPicker(false);
     if (event.type === 'set' && date) {
       onChangeTargetDate(toISODateString(date));
+      if (Platform.OS === 'ios') setShowPicker(false);
     }
   }
 
