@@ -1,18 +1,13 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/lib/theme';
+import { typography } from '@/constants/typography';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 export default function ForgotPasswordScreen() {
   const { t } = useTranslation('auth');
@@ -42,17 +37,16 @@ export default function ForgotPasswordScreen() {
   if (sent) {
     return (
       <View className="flex-1 bg-background justify-center px-5">
-        <Text className="text-primary text-5xl mb-4">✓</Text>
-        <Text className="text-text font-bold text-2xl mb-2">{t('forgotPassword.sent.title')}</Text>
-        <Text className="text-text-muted text-base mb-8">
+        <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: colors.primaryDim, alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+          <Ionicons name="checkmark-circle" size={32} color={colors.primary} />
+        </View>
+        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text, marginBottom: 8 }}>
+          {t('forgotPassword.sent.title')}
+        </Text>
+        <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, marginBottom: 32 }}>
           {t('forgotPassword.sent.body', { email })}
         </Text>
-        <TouchableOpacity
-          className="bg-surface border border-border rounded-xl h-14 items-center justify-center"
-          onPress={() => router.back()}
-        >
-          <Text className="text-text font-semibold text-base">{t('forgotPassword.sent.backToLogin')}</Text>
-        </TouchableOpacity>
+        <Button label={t('forgotPassword.sent.backToLogin')} variant="secondary" onPress={() => router.back()} />
       </View>
     );
   }
@@ -63,40 +57,31 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View className="flex-1 justify-center px-5">
-        <TouchableOpacity className="mb-8 self-start" onPress={() => router.back()}>
-          <Text className="text-accent text-base">{t('forgotPassword.back')}</Text>
+        <TouchableOpacity className="mb-8 self-start flex-row items-center gap-1.5" onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={18} color={colors.accent} />
+          <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: colors.accent }}>
+            {t('forgotPassword.back')}
+          </Text>
         </TouchableOpacity>
 
-        <Text className="text-text font-bold text-3xl mb-2">{t('forgotPassword.title')}</Text>
-        <Text className="text-text-muted text-base mb-8">
+        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text, marginBottom: 8 }}>
+          {t('forgotPassword.title')}
+        </Text>
+        <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, marginBottom: 32 }}>
           {t('forgotPassword.body')}
         </Text>
 
         <View className="gap-4">
-          <View>
-            <Text className="text-text text-sm font-medium mb-2">{t('forgotPassword.emailLabel')}</Text>
-            <TextInput
-              className="bg-surface border border-border rounded-xl px-4 h-14 text-text text-base"
-              placeholder={t('forgotPassword.emailPlaceholder')}
-              placeholderTextColor={colors.textMuted}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-            />
-          </View>
-
-          <TouchableOpacity
-            className="bg-primary rounded-xl h-14 items-center justify-center mt-2"
-            onPress={handleReset}
-            disabled={loading}
-          >
-            {loading
-              ? <ActivityIndicator color={colors.background} />
-              : <Text className="text-background font-bold text-base">{t('forgotPassword.submit')}</Text>
-            }
-          </TouchableOpacity>
+          <Input
+            label={t('forgotPassword.emailLabel')}
+            placeholder={t('forgotPassword.emailPlaceholder')}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoComplete="email"
+          />
+          <Button label={t('forgotPassword.submit')} loading={loading} onPress={handleReset} className="mt-2" />
         </View>
       </View>
     </KeyboardAvoidingView>

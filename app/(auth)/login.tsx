@@ -15,9 +15,12 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ForjaWordmark } from '@/components/brand/ForjaWordmark';
+import { useTheme } from '@/lib/theme';
+import { typography } from '@/constants/typography';
 
 export default function LoginScreen() {
   const { t } = useTranslation('auth');
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -66,7 +69,9 @@ export default function LoginScreen() {
             <Animated.View entering={FadeIn.duration(700)} className="items-center mb-2">
               <ForjaWordmark size="lg" />
             </Animated.View>
-            <Text className="text-text-muted text-base text-center mt-2" style={{ fontFamily: 'Inter-Regular' }}>{t('tagline')}</Text>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, textAlign: 'center', marginTop: 8 }}>
+              {t('tagline')}
+            </Text>
           </View>
 
           <View className="gap-4">
@@ -90,7 +95,9 @@ export default function LoginScreen() {
 
             <Link href="/(auth)/forgot-password" asChild>
               <TouchableOpacity className="self-end">
-                <Text className="text-accent text-sm">{t('login.forgotPassword')}</Text>
+                <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: colors.accent }}>
+                  {t('login.forgotPassword')}
+                </Text>
               </TouchableOpacity>
             </Link>
 
@@ -98,10 +105,14 @@ export default function LoginScreen() {
           </View>
 
           <View className="flex-row justify-center mt-8">
-            <Text className="text-text-muted text-sm">{t('login.noAccount')}</Text>
+            <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.bodySmall, color: colors.textMuted }}>
+              {t('login.noAccount')}
+            </Text>
             <Link href="/(auth)/register" asChild>
               <TouchableOpacity>
-                <Text className="text-primary text-sm font-semibold">{t('login.createAccount')}</Text>
+                <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: colors.primary, marginLeft: 4 }}>
+                  {t('login.createAccount')}
+                </Text>
               </TouchableOpacity>
             </Link>
           </View>
