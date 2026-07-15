@@ -19,7 +19,7 @@ export default function Step3Level() {
   const [loading, setLoading] = useState(false);
 
   const { user } = useAuthStore();
-  const { goalType, targetWeightKg, modality, secondaryModalities, sportType, weightKg, heightCm, age, gender, activityLevel, setGoalId } = useOnboardingStore();
+  const { goalType, targetWeightKg, targetDate, modality, secondaryModalities, sportType, modalityOrientation, modalityGoalNotes, secondaryGoalNotes, weightKg, heightCm, age, gender, activityLevel, setGoalId } = useOnboardingStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -52,11 +52,15 @@ export default function Step3Level() {
         user_id: user.id,
         type: goalType,
         target_weight_kg: targetWeightKg ?? null,
+        target_date: targetDate ?? null,
         fitness_level: fitnessLevel,
         mode,
         modality,
         secondary_modalities: secondaryModalities,
         sport_type: sportType,
+        modality_orientation: modalityOrientation ?? null,
+        modality_goal_notes: modalityGoalNotes ?? null,
+        secondary_goal_notes: secondaryGoalNotes ?? null,
       }).select('id').single();
       if (goalError || !newGoal) throw goalError ?? new Error('goal insert sin id');
 
