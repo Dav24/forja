@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useOnboardingStore } from '@/store/onboarding.store';
+import { checkWeightGoalSafety } from '@/lib/weightGoalSafety';
 import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
 
@@ -37,7 +38,7 @@ export default function Step2Body() {
   const [age, setAge] = useState('');
   const [gender, setGender] = useState<Gender | null>(null);
   const [activityLevel, setActivityLevel] = useState<ActivityLevel | null>(null);
-  const { setStep2 } = useOnboardingStore();
+  const { setStep2, targetWeightKg, targetDate, goalType } = useOnboardingStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -52,6 +53,29 @@ export default function Step2Body() {
     if (isNaN(w) || w < 20 || w > 300) { Alert.alert(t('step3.errors.invalidWeight.title'), t('step3.errors.invalidWeight.body')); return; }
     if (isNaN(h) || h < 100 || h > 250) { Alert.alert(t('step3.errors.invalidHeight.title'), t('step3.errors.invalidHeight.body')); return; }
     if (isNaN(a) || a < 12 || a > 100) { Alert.alert(t('step3.errors.invalidAge.title'), t('step3.errors.invalidAge.body')); return; }
+
+    if (targetWeightKg != null && targetDate && (goalType === 'weight_loss' || goalType === 'muscle_gain')) {
+      const check = checkWeightGoalSafety({
+        goalType,
+        currentWeightKg: w,
+        targetWeightKg,
+        targetDate,
+      });
+      if (!check.valid) {
+        if (check.reasonKey === 'wrongDirection') {
+          Alert.alert(t('step3.errors.wrongDirectionGoal.title'), t('step3.errors.wrongDirectionGoal.body'));
+        } else {
+          Alert.alert(
+            t('step3.errors.unsafeGoalRate.title'),
+            t('step3.errors.unsafeGoalRate.body', {
+              rate: check.rateKgPerWeek?.toFixed(2),
+              maxRate: check.maxSafeRateKgPerWeek?.toFixed(2),
+            }),
+          );
+        }
+        return;
+      }
+    }
 
     setStep2({ weightKg: w, heightCm: h, age: a, gender, activityLevel });
     router.push('/(auth)/onboarding/step-4-level');

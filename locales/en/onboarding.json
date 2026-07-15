@@ -46,7 +46,15 @@
       "missingFields": { "title": "Required fields", "body": "Complete all fields to continue." },
       "invalidWeight": { "title": "Invalid weight", "body": "Enter a weight between 20 and 300 kg." },
       "invalidHeight": { "title": "Invalid height", "body": "Enter a height between 100 and 250 cm." },
-      "invalidAge": { "title": "Invalid age", "body": "Enter an age between 12 and 100 years." }
+      "invalidAge": { "title": "Invalid age", "body": "Enter an age between 12 and 100 years." },
+      "wrongDirectionGoal": {
+        "title": "Your target and your goal don't match",
+        "body": "The target weight you set goes against your goal's direction. Go back and adjust it."
+      },
+      "unsafeGoalRate": {
+        "title": "Unrealistic target",
+        "body": "That target implies a rate of {{rate}}kg per week — more than what's recommended ({{maxRate}}kg/week max). Go back and adjust your target weight or timeframe."
+      }
     }
   },
   "step4": {

@@ -46,7 +46,15 @@
       "missingFields": { "title": "Campos requeridos", "body": "Completa todos los campos para continuar." },
       "invalidWeight": { "title": "Peso inválido", "body": "Ingresa un peso entre 20 y 300 kg." },
       "invalidHeight": { "title": "Altura inválida", "body": "Ingresa una altura entre 100 y 250 cm." },
-      "invalidAge": { "title": "Edad inválida", "body": "Ingresa una edad entre 12 y 100 años." }
+      "invalidAge": { "title": "Edad inválida", "body": "Ingresa una edad entre 12 y 100 años." },
+      "wrongDirectionGoal": {
+        "title": "Tu meta y tu objetivo no coinciden",
+        "body": "El peso objetivo que pusiste va en sentido contrario a tu objetivo. Vuelve al paso anterior y ajústalo."
+      },
+      "unsafeGoalRate": {
+        "title": "Meta poco realista",
+        "body": "Esa meta implicaría un ritmo de {{rate}}kg por semana — más de lo recomendado ({{maxRate}}kg/semana máx). Vuelve al paso anterior y ajusta tu meta de peso o el plazo."
+      }
     }
   },
   "step4": {
