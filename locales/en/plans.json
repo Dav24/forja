@@ -92,6 +92,7 @@
     "title": "Swap meal",
     "propose": "Propose another option",
     "previewError": "Couldn't generate a proposal. Try again.",
+    "acceptError": "Couldn't apply the change. Try again.",
     "accept": "Accept",
     "another": "Another option",
     "attemptsExhausted": "Pick one of the previous options or cancel.",

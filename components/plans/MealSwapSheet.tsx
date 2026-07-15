@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +24,12 @@ export const MealSwapSheet = forwardRef<BottomSheet, MealSwapSheetProps>(functio
   const [attempt, setAttempt] = useState(0);
   const [candidate, setCandidate] = useState<MealCandidate | null>(null);
   const { mutateAsync: preview, isPending: previewing, error: previewError } = useSwapMealPreview();
-  const { mutateAsync: accept, isPending: accepting } = useSwapMealAccept();
+  const { mutateAsync: accept, isPending: accepting, error: acceptError } = useSwapMealAccept();
+
+  useEffect(() => {
+    setAttempt(0);
+    setCandidate(null);
+  }, [dayNumber, mealIndex]);
 
   async function requestPreview() {
     const nextAttempt = attempt + 1;
@@ -35,10 +40,14 @@ export const MealSwapSheet = forwardRef<BottomSheet, MealSwapSheetProps>(functio
 
   async function handleAccept() {
     if (!candidate) return;
-    await accept({ mealPlanId, dayNumber, mealIndex, candidate });
-    setAttempt(0);
-    setCandidate(null);
-    onDone();
+    try {
+      await accept({ mealPlanId, dayNumber, mealIndex, candidate });
+      setAttempt(0);
+      setCandidate(null);
+      onDone();
+    } catch {
+      // error surfaced via acceptError below
+    }
   }
 
   function handleCancel() {
@@ -74,6 +83,12 @@ export const MealSwapSheet = forwardRef<BottomSheet, MealSwapSheetProps>(functio
         {previewError ? (
           <Text style={{ color: colors.destructive, fontFamily: 'Inter-Regular', fontSize: 12.5, marginTop: 12 }}>
             {t('mealSwap.previewError')}
+          </Text>
+        ) : null}
+
+        {acceptError ? (
+          <Text style={{ color: colors.destructive, fontFamily: 'Inter-Regular', fontSize: 12.5, marginTop: 12 }}>
+            {t('mealSwap.acceptError')}
           </Text>
         ) : null}
 

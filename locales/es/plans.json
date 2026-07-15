@@ -92,6 +92,7 @@
     "title": "Cambiar comida",
     "propose": "Proponer otra opción",
     "previewError": "No se pudo generar una propuesta. Intenta de nuevo.",
+    "acceptError": "No se pudo aplicar el cambio. Intenta de nuevo.",
     "accept": "Aceptar",
     "another": "Otra opción",
     "attemptsExhausted": "Elige una de las opciones anteriores o cancela.",
