@@ -334,7 +334,10 @@ export type Database = {
           id: string
           is_active: boolean
           modality: string | null
+          modality_goal_notes: string | null
+          modality_orientation: string | null
           mode: string
+          secondary_goal_notes: string | null
           secondary_modalities: string[]
           sport_type: string | null
           target_date: string | null
@@ -349,7 +352,10 @@ export type Database = {
           id?: string
           is_active?: boolean
           modality?: string | null
+          modality_goal_notes?: string | null
+          modality_orientation?: string | null
           mode?: string
+          secondary_goal_notes?: string | null
           secondary_modalities?: string[]
           sport_type?: string | null
           target_date?: string | null
@@ -364,7 +370,10 @@ export type Database = {
           id?: string
           is_active?: boolean
           modality?: string | null
+          modality_goal_notes?: string | null
+          modality_orientation?: string | null
           mode?: string
+          secondary_goal_notes?: string | null
           secondary_modalities?: string[]
           sport_type?: string | null
           target_date?: string | null
