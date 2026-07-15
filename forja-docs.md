@@ -1440,3 +1440,20 @@ duplicar, y semanas distintas (mismo `day_number`, `log_date` distinto) preserva
 historial de progresión intacto. `ExerciseSheet` muestra una confirmación antes de
 guardar en un día que no es el actual (`isToday`, calculado en la pantalla de detalle).
 Spec: `docs/superpowers/specs/2026-07-15-auth-workout-polish-design.md`.
+
+## Objetivos concretos por disciplina
+
+Árbol de "rama de orientación" + texto libre por disciplina principal (36 ramas namespaced
+`<modality>_<branch>` en `constants/modalityGoals.ts`, 4 por cada una de las 9 modalidades)
+para que Vulcano reciba una meta concreta en vez de solo el tipo de objetivo genérico.
+Revive `goals.target_weight_kg`/`target_date` — existían desde el schema inicial y ya los
+consumía `GoalProgress.tsx`/`profile.tsx`/`app/(app)/index.tsx`, pero ningún flujo los
+escribía. Nueva 9ª modalidad `first_steps` ("Primeros pasos") para principiantes absolutos,
+con guardrail de empatía en los 3 generadores de IA. Validación de seguridad
+(`lib/weightGoalSafety.ts`): metas de peso limitadas a un ritmo máximo (1%/semana pérdida,
+0.5%/semana ganancia) más coherencia de dirección — se valida en el paso 3 del onboarding
+(donde por fin se conoce el peso actual, ya que el objetivo se captura en el paso 1) y en
+Ajustes (`settings/training.tsx`, donde el peso actual ya está disponible desde el primer
+render). Dos componentes compartidos nuevos (`TargetWeightPicker`, `ModalityOrientationPicker`)
+evitan duplicar la UI entre onboarding y Ajustes. Spec:
+`docs/superpowers/specs/2026-07-15-objetivos-por-disciplina-design.md`.
