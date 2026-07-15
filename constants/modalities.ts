@@ -11,7 +11,8 @@ export type ModalityId =
   | 'swimming'
   | 'home_calisthenics'
   | 'mobility'
-  | 'ball_sports';
+  | 'ball_sports'
+  | 'first_steps';
 
 export interface Modality {
   id: ModalityId;
@@ -87,5 +88,13 @@ export const MODALITIES: Modality[] = [
     iconName: 'football-outline',
     descriptionKey: 'onboarding:modalities.ball_sports.description',
     equipmentPresets: ['onboarding:modalities.ball_sports.presets.0'],
+  },
+  {
+    id: 'first_steps',
+    labelKey: 'onboarding:modalities.first_steps.label',
+    icon: '🌱',
+    iconName: 'leaf-outline',
+    descriptionKey: 'onboarding:modalities.first_steps.description',
+    equipmentPresets: ['onboarding:modalities.first_steps.presets.0'],
   },
 ];
