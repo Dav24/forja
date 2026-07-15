@@ -16,8 +16,50 @@ const MODALITY_LABELS: Record<string, string> = {
   home_calisthenics: 'entrenamiento en casa / calistenia',
   mobility: 'yoga / pilates / movilidad',
   ball_sports: 'preparación física para deporte con balón',
+  first_steps: 'primeros pasos / sin experiencia previa',
 };
 const VALID_MODALITIES = new Set(Object.keys(MODALITY_LABELS));
+
+const MODALITY_GOAL_BRANCH_LABELS: Record<string, string> = {
+  gym_strength_hypertrophy: 'hipertrofia / estética',
+  gym_strength_max_strength: 'fuerza máxima (PRs)',
+  gym_strength_competition_prep: 'prep. competencia (powerlifting/bodybuilding)',
+  gym_strength_maintenance: 'mantenimiento',
+  functional_hyrox_prep: 'prep. Hyrox / competencia funcional',
+  functional_wod_times: 'mejorar tiempos de WOD',
+  functional_general_conditioning: 'acondicionamiento general',
+  functional_variety_only: 'solo variedad',
+  endurance_first_5k: 'primeros 5K',
+  endurance_short_distance_time: 'bajar tiempo en 5K/10K',
+  endurance_half_full_marathon: 'medio maratón / maratón',
+  endurance_general_cardio: 'cardio general',
+  cycling_start_long_distance: 'empezar distancias largas',
+  cycling_speed_power: 'mejorar velocidad / potencia',
+  cycling_competition_gran_fondo: 'prep. competencia / gran fondo',
+  cycling_general_cardio: 'cardio general',
+  swimming_nonstop: 'nadar sin parar',
+  swimming_technique: 'corregir técnica',
+  swimming_distance_time: 'bajar tiempo en distancia',
+  swimming_competition_triathlon: 'prep. competencia / triatlón',
+  home_calisthenics_basics: 'lo básico (dominadas/lagartijas)',
+  home_calisthenics_advanced_skills: 'habilidades avanzadas (muscle-up/planche/front lever)',
+  home_calisthenics_weight_loss_no_equipment: 'perder peso sin equipo',
+  home_calisthenics_stay_active: 'mantenerse activo',
+  mobility_general_flexibility: 'flexibilidad general',
+  mobility_injury_rehab: 'rehabilitación de lesión',
+  mobility_pain_tension: 'reducir dolor/tensión específica',
+  mobility_complement: 'complemento de otro entreno',
+  ball_sports_performance: 'mejorar rendimiento en su deporte',
+  ball_sports_season_prep: 'prep. física para temporada/torneo',
+  ball_sports_fun_fitness: 'diversión / mantenerse en forma',
+  ball_sports_injury_recovery: 'recuperación de lesión',
+  first_steps_never_trained: 'nunca ha entrenado / va con calma',
+  first_steps_event_date: 'tiene una fecha/evento en mente',
+  first_steps_energy_health: 'quiere más energía y salud',
+  first_steps_just_move: 'aún no sabe, solo quiere moverse',
+};
+
+const FIRST_STEPS_EMPATHY_GUARDRAIL = 'El usuario está en modalidad "Primeros pasos" — es su punto de partida en fitness o puede tener expectativas poco realistas. Corrige expectativas poco realistas CON EMPATÍA, prioriza adherencia y formación de hábito sobre intensidad, y encuadra esto como el inicio de un cambio de estilo de vida, no una rutina relámpago.';
 
 function buildPlanPrompt(userData: {
   goal_type: string;
@@ -40,6 +82,11 @@ function buildPlanPrompt(userData: {
   athleticBackground: string | null;
   supplements: string[];
   supplementsOther: string | null;
+  targetWeightKg: number | null;
+  targetDate: string | null;
+  modalityOrientation: string | null;
+  modalityGoalNotes: string | null;
+  secondaryGoalNotes: string | null;
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -70,6 +117,16 @@ function buildPlanPrompt(userData: {
   const supplementsLine = supplementsList.length > 0 || userData.supplementsOther
     ? `- Suplementación declarada (SOLO contexto): ${[...supplementsList, userData.supplementsOther].filter(Boolean).join(', ')}\nREGLA DE SEGURIDAD: el dato de suplementación es únicamente contexto (p.ej. no dupliques una recomendación de proteína si el usuario ya toma un shake). Bajo NINGUNA circunstancia recomiendes, apruebes, sugieras dosis, o valides el uso de sustancias o suplementos.\n`
     : '';
+  const weightGoalLine = userData.targetWeightKg != null && userData.targetDate
+    ? `- Meta de peso: ${userData.goal_type === 'weight_loss' ? 'bajar' : 'subir'} a ${userData.targetWeightKg}kg para ${userData.targetDate}\n`
+    : '';
+  const orientationLine = userData.modalityOrientation
+    ? `- Objetivo específico en su disciplina principal (${MODALITY_GOAL_BRANCH_LABELS[userData.modalityOrientation] ?? userData.modalityOrientation}): ${userData.modalityGoalNotes ?? 'sin notas adicionales'}\n`
+    : '';
+  const secondaryNotesLine = userData.secondaryGoalNotes
+    ? `- Disciplinas secundarias — notas del usuario: ${userData.secondaryGoalNotes}\n`
+    : '';
+  const firstStepsLine = userData.modality === 'first_steps' ? `${FIRST_STEPS_EMPATHY_GUARDRAIL}\n` : '';
 
   return `Eres un entrenador personal de élite. Genera un plan de entrenamiento semanal COMPLETO y DETALLADO para el siguiente perfil de usuario. Responde ÚNICAMENTE con un objeto JSON válido, sin markdown, sin explicaciones, solo el JSON.
 
@@ -88,7 +145,7 @@ ${userData.age ? `- Edad: ${userData.age} años` : ''}
 ${userData.gender ? `- Género: ${userData.gender}` : ''}
 ${userData.activity_level ? `- Nivel de actividad diaria: ${userData.activity_level}` : ''}
 ${userData.injuries ? `- Lesiones o limitaciones: ${userData.injuries}` : ''}
-${backgroundLine}${supplementsLine}
+${backgroundLine}${supplementsLine}${weightGoalLine}${orientationLine}${secondaryNotesLine}${firstStepsLine}
 ${userData.language === 'en'
   ? 'LANGUAGE: Write ALL content values (title, description, focus, day_name, technique_notes, weekly_schedule_summary, progression_notes, exercise names) in ENGLISH. day_name must be the English weekday name (Monday...Sunday). Keep every JSON key exactly as specified.'
   : 'IDIOMA: Escribe TODOS los valores de contenido en español. day_name en español (Lunes...Domingo). Mantén las claves JSON exactamente como se especifican.'}
@@ -236,7 +293,7 @@ Deno.serve(async (req) => {
     const [goalResult, bodyResult, profileResult] = await Promise.all([
       supabase
         .from('goals')
-        .select('type, fitness_level, mode, sport_type, athletic_background')
+        .select('type, fitness_level, mode, sport_type, athletic_background, target_weight_kg, target_date, modality_orientation, modality_goal_notes, secondary_goal_notes')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -310,6 +367,11 @@ Deno.serve(async (req) => {
       athleticBackground: goal.athletic_background ?? null,
       supplements: (profileResult.data?.supplements as string[] | null) ?? [],
       supplementsOther: profileResult.data?.supplements_other ?? null,
+      targetWeightKg: goal.target_weight_kg != null ? Number(goal.target_weight_kg) : null,
+      targetDate: goal.target_date ?? null,
+      modalityOrientation: goal.modality_orientation ?? null,
+      modalityGoalNotes: goal.modality_goal_notes ?? null,
+      secondaryGoalNotes: goal.secondary_goal_notes ?? null,
     });
 
     // Llamar a Sonnet para generar el plan
