@@ -16,7 +16,7 @@ export interface Meal {
   ingredients: string[];
 }
 
-export function MealPlanCard({ meal }: { meal: Meal }) {
+export function MealPlanCard({ meal, onPressSwap }: { meal: Meal; onPressSwap?: () => void }) {
   const { colors } = useTheme();
   const { t } = useTranslation('plans');
   const [expanded, setExpanded] = useState(false);
@@ -54,12 +54,14 @@ export function MealPlanCard({ meal }: { meal: Meal }) {
             </Text>
           </View>
         </View>
-        <Ionicons
-          name={expanded ? 'chevron-up' : 'chevron-down'}
-          size={16}
-          color={colors.textMuted}
-          style={{ marginLeft: 8, marginTop: 2 }}
-        />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 8, marginTop: 2, gap: 10 }}>
+          {onPressSwap ? (
+            <TouchableOpacity onPress={onPressSwap} hitSlop={8}>
+              <Ionicons name="swap-horizontal" size={18} color={colors.textMuted} />
+            </TouchableOpacity>
+          ) : null}
+          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+        </View>
       </View>
 
       <View className="mt-2.5">

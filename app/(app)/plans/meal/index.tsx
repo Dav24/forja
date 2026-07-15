@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { useTheme } from '@/lib/theme';
 import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
@@ -13,6 +14,8 @@ import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { FREE_LIMITS } from '@/lib/limits';
 import { MacroBar } from '@/components/plans/MacroBar';
 import { MealPlanCard, type Meal } from '@/components/plans/MealPlanCard';
+import { MealSwapSheet } from '@/components/plans/MealSwapSheet';
+import { useSwapsUsedThisWeek } from '@/hooks/useMealSwap';
 import { PaywallBanner } from '@/components/premium/PaywallBanner';
 import { Badge } from '@/components/ui/Badge';
 import {
@@ -78,6 +81,10 @@ export default function MealPlansScreen() {
   const [selectedDiet, setSelectedDiet] = useState<string[]>([DIET_OPTIONS[0].value]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([AVAILABILITY_OPTIONS[1].value]);
   const [selectedDay, setSelectedDay] = useState(0);
+  const swapSheetRef = useRef<BottomSheet>(null);
+  const [activeSwap, setActiveSwap] = useState<{ dayNumber: number; mealIndex: number } | null>(null);
+  const { data: swapsUsed } = useSwapsUsedThisWeek();
+  const swapLimitReached = !isPremium && (swapsUsed ?? 0) >= FREE_LIMITS.MEAL_SWAPS_PER_WEEK;
   useHideNavWhileFocused();
 
   async function handleGenerate() {
@@ -220,7 +227,14 @@ export default function MealPlansScreen() {
                   </Text>
                 </View>
                 {currentDay.meals.map((meal, i) => (
-                  <MealPlanCard key={i} meal={meal} />
+                  <MealPlanCard
+                    key={i}
+                    meal={meal}
+                    onPressSwap={swapLimitReached ? undefined : () => {
+                      setActiveSwap({ dayNumber: currentDay.day_number, mealIndex: i });
+                      swapSheetRef.current?.expand();
+                    }}
+                  />
                 ))}
               </>
             )}
@@ -311,6 +325,19 @@ export default function MealPlansScreen() {
           </>
         )}
       </ScrollView>
+
+      {activePlan ? (
+        <MealSwapSheet
+          ref={swapSheetRef}
+          mealPlanId={activePlan.id}
+          dayNumber={activeSwap?.dayNumber ?? 0}
+          mealIndex={activeSwap?.mealIndex ?? 0}
+          onDone={() => {
+            swapSheetRef.current?.close();
+            setActiveSwap(null);
+          }}
+        />
+      ) : null}
       </Animated.View>
     </SafeAreaView>
   );

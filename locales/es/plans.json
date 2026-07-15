@@ -88,6 +88,15 @@
       "fat": "Grasa"
     }
   },
+  "mealSwap": {
+    "title": "Cambiar comida",
+    "propose": "Proponer otra opción",
+    "previewError": "No se pudo generar una propuesta. Intenta de nuevo.",
+    "accept": "Aceptar",
+    "another": "Otra opción",
+    "attemptsExhausted": "Elige una de las opciones anteriores o cancela.",
+    "cancel": "Cancelar"
+  },
   "generateSheet": {
     "title": "Forjar tu plan",
     "subtitle": "Dime cómo entrenas y lo armo a tu medida.",

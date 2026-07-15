@@ -88,6 +88,15 @@
       "fat": "Fat"
     }
   },
+  "mealSwap": {
+    "title": "Swap meal",
+    "propose": "Propose another option",
+    "previewError": "Couldn't generate a proposal. Try again.",
+    "accept": "Accept",
+    "another": "Another option",
+    "attemptsExhausted": "Pick one of the previous options or cancel.",
+    "cancel": "Cancel"
+  },
   "generateSheet": {
     "title": "Forge your plan",
     "subtitle": "Tell me how you train and I'll build it to fit you.",
