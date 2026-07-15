@@ -26,5 +26,10 @@
     "threeMonths": "3 meses",
     "sixMonths": "6 meses",
     "customDate": "Fecha específica"
+  },
+  "modalityGoal": {
+    "label": "¿Qué buscas en esta disciplina?",
+    "notesPlaceholder": "Cuéntale a Vulcano tu meta con tus palabras (marca actual, a qué le apuntas, fecha...)",
+    "editableHint": "Podrás ajustar esto después en Ajustes → Mi entrenamiento."
   }
 }

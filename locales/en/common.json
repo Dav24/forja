@@ -26,5 +26,10 @@
     "threeMonths": "3 months",
     "sixMonths": "6 months",
     "customDate": "Specific date"
+  },
+  "modalityGoal": {
+    "label": "What are you after in this discipline?",
+    "notesPlaceholder": "Tell Vulcano your goal in your own words (current mark, what you're aiming for, a date...)",
+    "editableHint": "You can adjust this later in Settings → My training."
   }
 }
