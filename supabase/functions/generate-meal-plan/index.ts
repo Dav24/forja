@@ -22,6 +22,9 @@ function buildMealPlanPrompt(userData: {
   diet_type: string;
   food_availability: string;
   language: 'es' | 'en';
+  athleticBackground: string | null;
+  supplements: string[];
+  supplementsOther: string | null;
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -38,6 +41,19 @@ function buildMealPlanPrompt(userData: {
     'amplia': 'acceso a ingredientes especializados (proteínas variadas, superfoods, productos importados)',
   };
 
+  const backgroundMap: Record<string, string> = {
+    amateur: 'competidor amateur',
+    high_performance: 'competidor de alto rendimiento',
+    bodybuilding: 'fisicoculturismo competitivo',
+  };
+  const backgroundLine = userData.athleticBackground && userData.athleticBackground !== 'none'
+    ? `- Trayectoria competitiva declarada: ${backgroundMap[userData.athleticBackground] ?? userData.athleticBackground} — ajusta el timing/cantidad de comidas si es relevante.\n`
+    : '';
+  const supplementsList = userData.supplements.filter((s) => s !== 'none');
+  const supplementsLine = supplementsList.length > 0 || userData.supplementsOther
+    ? `- Suplementación declarada (SOLO contexto): ${[...supplementsList, userData.supplementsOther].filter(Boolean).join(', ')}\nREGLA DE SEGURIDAD: el dato de suplementación es únicamente contexto (p.ej. no dupliques una recomendación de proteína si el usuario ya toma un shake). Bajo NINGUNA circunstancia recomiendes, apruebes, sugieras dosis, o valides el uso de sustancias o suplementos.\n`
+    : '';
+
   return `Eres un nutriólogo deportivo de élite. Genera un plan alimenticio semanal COMPLETO y DETALLADO de 7 días para el siguiente perfil. Responde ÚNICAMENTE con un objeto JSON válido, sin markdown, sin explicaciones.
 
 PERFIL DEL USUARIO:
@@ -52,7 +68,7 @@ ${userData.activity_level ? `- Nivel de actividad: ${userData.activity_level}` :
 - Disgustos declarados (evitar si es posible, no es riesgo de seguridad): ${userData.dislikes.join(', ') || 'ninguno'}
 - Tipo de dieta: ${userData.diet_type}
 - Disponibilidad de alimentos: ${availabilityMap[userData.food_availability] ?? userData.food_availability}
-
+${backgroundLine}${supplementsLine}
 IMPORTANTE: Los planes no sustituyen la valoración de un nutriólogo. No promuevas restricciones extremas ni conductas que pongan en riesgo la salud.
 
 ${userData.language === 'en'
@@ -185,12 +201,12 @@ Deno.serve(async (req) => {
     const food_availability = VALID_AVAILABILITY.includes(String(rawAvailability).toLowerCase()) ? String(rawAvailability).toLowerCase() : 'media';
 
     const [goalResult, bodyResult, profileResult, foodPrefResult] = await Promise.all([
-      supabase.from('goals').select('type, fitness_level')
+      supabase.from('goals').select('type, fitness_level, athletic_background')
         .eq('user_id', user.id).eq('is_active', true)
         .order('created_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('body_data').select('weight_kg, height_cm, age, gender, activity_level')
         .eq('user_id', user.id).order('recorded_at', { ascending: false }).limit(1).maybeSingle(),
-      supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
+      supabase.from('profiles').select('language, supplements, supplements_other').eq('id', user.id).maybeSingle(),
       supabase.from('food_preferences').select('item, kind').eq('user_id', user.id),
     ]);
 
@@ -233,6 +249,9 @@ Deno.serve(async (req) => {
       diet_type,
       food_availability,
       language,
+      athleticBackground: goalResult.data.athletic_background ?? null,
+      supplements: (profileResult.data?.supplements as string[] | null) ?? [],
+      supplementsOther: profileResult.data?.supplements_other ?? null,
     });
 
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {

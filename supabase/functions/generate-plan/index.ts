@@ -37,6 +37,9 @@ function buildPlanPrompt(userData: {
   secondary_modalities: string[];
   language: 'es' | 'en';
   catalogBlock: string;
+  athleticBackground: string | null;
+  supplements: string[];
+  supplementsOther: string | null;
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -55,6 +58,19 @@ function buildPlanPrompt(userData: {
     elite: 'élite/competidor',
   };
 
+  const backgroundMap: Record<string, string> = {
+    amateur: 'competidor amateur',
+    high_performance: 'competidor de alto rendimiento',
+    bodybuilding: 'fisicoculturismo competitivo',
+  };
+  const backgroundLine = userData.athleticBackground && userData.athleticBackground !== 'none'
+    ? `- Trayectoria competitiva declarada: ${backgroundMap[userData.athleticBackground] ?? userData.athleticBackground} — ajusta el volumen/periodización si es relevante (p.ej. fisicoculturismo puede justificar mayor volumen de aislamiento).\n`
+    : '';
+  const supplementsList = userData.supplements.filter((s) => s !== 'none');
+  const supplementsLine = supplementsList.length > 0 || userData.supplementsOther
+    ? `- Suplementación declarada (SOLO contexto): ${[...supplementsList, userData.supplementsOther].filter(Boolean).join(', ')}\nREGLA DE SEGURIDAD: el dato de suplementación es únicamente contexto (p.ej. no dupliques una recomendación de proteína si el usuario ya toma un shake). Bajo NINGUNA circunstancia recomiendes, apruebes, sugieras dosis, o valides el uso de sustancias o suplementos.\n`
+    : '';
+
   return `Eres un entrenador personal de élite. Genera un plan de entrenamiento semanal COMPLETO y DETALLADO para el siguiente perfil de usuario. Responde ÚNICAMENTE con un objeto JSON válido, sin markdown, sin explicaciones, solo el JSON.
 
 PERFIL DEL USUARIO:
@@ -72,7 +88,7 @@ ${userData.age ? `- Edad: ${userData.age} años` : ''}
 ${userData.gender ? `- Género: ${userData.gender}` : ''}
 ${userData.activity_level ? `- Nivel de actividad diaria: ${userData.activity_level}` : ''}
 ${userData.injuries ? `- Lesiones o limitaciones: ${userData.injuries}` : ''}
-
+${backgroundLine}${supplementsLine}
 ${userData.language === 'en'
   ? 'LANGUAGE: Write ALL content values (title, description, focus, day_name, technique_notes, weekly_schedule_summary, progression_notes, exercise names) in ENGLISH. day_name must be the English weekday name (Monday...Sunday). Keep every JSON key exactly as specified.'
   : 'IDIOMA: Escribe TODOS los valores de contenido en español. day_name en español (Lunes...Domingo). Mantén las claves JSON exactamente como se especifican.'}
@@ -220,7 +236,7 @@ Deno.serve(async (req) => {
     const [goalResult, bodyResult, profileResult] = await Promise.all([
       supabase
         .from('goals')
-        .select('type, fitness_level, mode, sport_type')
+        .select('type, fitness_level, mode, sport_type, athletic_background')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -233,7 +249,7 @@ Deno.serve(async (req) => {
         .order('recorded_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
+      supabase.from('profiles').select('language, supplements, supplements_other').eq('id', user.id).maybeSingle(),
     ]);
 
     const goal = goalResult.data;
@@ -291,6 +307,9 @@ Deno.serve(async (req) => {
       secondary_modalities: safeSecondary,
       language,
       catalogBlock,
+      athleticBackground: goal.athletic_background ?? null,
+      supplements: (profileResult.data?.supplements as string[] | null) ?? [],
+      supplementsOther: profileResult.data?.supplements_other ?? null,
     });
 
     // Llamar a Sonnet para generar el plan
