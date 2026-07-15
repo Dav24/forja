@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
-import { useActiveGoal } from '@/hooks/useProfile';
+import { useActiveGoal, useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useLatestBodyData } from '@/hooks/useBodyTracking';
-import { GOALS, FITNESS_LEVELS, MODES, type GoalType, type FitnessLevel, type TrainingMode } from '@/constants/goals';
+import { GOALS, FITNESS_LEVELS, MODES, ATHLETIC_BACKGROUNDS, SUPPLEMENTS, type GoalType, type FitnessLevel, type TrainingMode, type AthleticBackground, type SupplementCode } from '@/constants/goals';
 import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -50,6 +50,8 @@ export default function TrainingScreen() {
   const { user } = useAuthStore();
   const { data: goal } = useActiveGoal();
   const { data: latestBody } = useLatestBodyData();
+  const { data: profile } = useProfile();
+  const updateProfile = useUpdateProfile();
   const queryClient = useQueryClient();
 
   const [goalType, setGoalType] = useState<GoalType | null>(null);
@@ -58,6 +60,9 @@ export default function TrainingScreen() {
   const [modality, setModality] = useState<ModalityId | null>(null);
   const [secondary, setSecondary] = useState<ModalityId[]>([]);
   const [sportType, setSportType] = useState('');
+  const [background, setBackground] = useState<AthleticBackground | null>(null);
+  const [supplements, setSupplements] = useState<SupplementCode[]>([]);
+  const [supplementsOther, setSupplementsOther] = useState('');
   const [heightCm, setHeightCm] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState<Gender | null>(null);
@@ -66,7 +71,7 @@ export default function TrainingScreen() {
 
   // Precargar valores actuales una sola vez
   useEffect(() => {
-    if (loaded || goal === undefined || latestBody === undefined) return;
+    if (loaded || goal === undefined || latestBody === undefined || profile === undefined) return;
     if (goal) {
       setGoalType(goal.type as GoalType);
       setLevel(goal.fitness_level as FitnessLevel);
@@ -74,6 +79,11 @@ export default function TrainingScreen() {
       setModality((goal.modality as ModalityId) ?? null);
       setSecondary((goal.secondary_modalities as ModalityId[]) ?? []);
       setSportType(goal.sport_type ?? '');
+      setBackground((goal.athletic_background as AthleticBackground) ?? null);
+    }
+    if (profile) {
+      setSupplements((profile.supplements as SupplementCode[]) ?? []);
+      setSupplementsOther(profile.supplements_other ?? '');
     }
     if (latestBody) {
       if (latestBody.height_cm) setHeightCm(String(latestBody.height_cm));
@@ -81,7 +91,7 @@ export default function TrainingScreen() {
       if (latestBody.gender) setGender(latestBody.gender as Gender);
     }
     setLoaded(true);
-  }, [goal, latestBody, loaded]);
+  }, [goal, latestBody, profile, loaded]);
 
   const needsSport = modality === 'ball_sports' || secondary.includes('ball_sports');
   const valid = !!goalType && !!level && !!mode && !!modality;
@@ -91,6 +101,14 @@ export default function TrainingScreen() {
       if (prev.includes(id)) return prev.filter((s) => s !== id);
       if (prev.length >= 2) return prev;
       return [...prev, id];
+    });
+  }
+
+  function toggleSupplement(value: SupplementCode) {
+    setSupplements((prev) => {
+      if (value === 'none') return prev.includes('none') ? [] : ['none'];
+      const without = prev.filter((s) => s !== 'none');
+      return without.includes(value) ? without.filter((s) => s !== value) : [...without, value];
     });
   }
 
@@ -126,6 +144,7 @@ export default function TrainingScreen() {
         modality,
         secondary_modalities: secondary,
         sport_type: needsSport && sportType.trim() ? sportType.trim() : null,
+        athletic_background: background,
       });
       if (goalErr) {
         // Best-effort: reactivar el goal anterior para no dejar al usuario sin goal activo
@@ -148,6 +167,15 @@ export default function TrainingScreen() {
         const { error: bodyErr } = await supabase.from('body_data').insert({ user_id: user.id, ...bodyPatch });
         if (bodyErr) throw bodyErr;
       }
+
+      // 4. Suplementación: UPDATE del perfil
+      const supplementsOtherTrimmed = supplementsOther.trim().slice(0, 200).replace(/[^\w\s,áéíóúñü.]/gi, '');
+      await new Promise<void>((resolve, reject) => {
+        updateProfile.mutate(
+          { supplements, supplements_other: supplementsOtherTrimmed || null },
+          { onSuccess: () => resolve(), onError: (e) => reject(e) },
+        );
+      });
 
       queryClient.invalidateQueries({ queryKey: ['goal'] });
       queryClient.invalidateQueries({ queryKey: ['body_data'] });
@@ -237,6 +265,23 @@ export default function TrainingScreen() {
             ))}
           </View>
         </View>
+
+        <SectionTitle>{t('training.athleticBackground')}</SectionTitle>
+        <View className="flex-row flex-wrap gap-2">
+          {ATHLETIC_BACKGROUNDS.map((b) => (
+            <Chip key={b.value} selected={background === b.value} label={t(b.labelKey)} onPress={() => setBackground(b.value)} />
+          ))}
+        </View>
+
+        <SectionTitle>{t('training.supplements')}</SectionTitle>
+        <View className="flex-row flex-wrap gap-2 mb-2">
+          {SUPPLEMENTS.map((s) => (
+            <Chip key={s.value} selected={supplements.includes(s.value)} label={t(s.labelKey)} onPress={() => toggleSupplement(s.value)} />
+          ))}
+        </View>
+        {!supplements.includes('none') ? (
+          <Input placeholder={t('training.supplementsOtherPlaceholder')} value={supplementsOther} onChangeText={setSupplementsOther} />
+        ) : null}
 
         <View className="mt-8 gap-2">
           <Button label={t('training.save')} loading={saving} disabled={!valid} onPress={handleSave} />

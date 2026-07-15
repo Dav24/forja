@@ -51,6 +51,8 @@ export function useUpdateProfile() {
       avatar_url?: string;
       notif_reminders?: boolean;
       notif_updates?: boolean;
+      supplements?: string[];
+      supplements_other?: string | null;
     }) => {
       const { error } = await supabase
         .from('profiles')
