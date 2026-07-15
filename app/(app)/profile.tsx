@@ -271,9 +271,14 @@ export default function ProfileScreen() {
                     const m = MODALITIES.find((mod) => mod.id === id);
                     if (!m) return null;
                     return (
-                      <View key={id} className="bg-primary-dim rounded-full px-3 py-1">
+                      <View
+                        key={id}
+                        className="bg-primary-dim rounded-full px-3 py-1"
+                        style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+                      >
+                        <Ionicons name={m.iconName} size={12} color={colors.primary} />
                         <Text style={{ fontFamily: 'Inter-Medium', fontSize: 12, color: colors.primary }}>
-                          {m.icon} {t(m.labelKey)}
+                          {t(m.labelKey)}
                         </Text>
                       </View>
                     );

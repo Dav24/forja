@@ -68,6 +68,7 @@
     "emptyTitle": "Your meal plan",
     "emptySubtitle": "AI-generated from your goal, body, and preferences.",
     "form": {
+      "groupTitle": "Preferences",
       "dietLabel": "Diet type",
       "availabilityLabel": "Food availability",
       "diet": {

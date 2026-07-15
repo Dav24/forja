@@ -81,6 +81,9 @@
   },
   "training": {
     "title": "My training",
+    "groupProfileTitle": "Training profile",
+    "groupDisciplineTitle": "Discipline",
+    "groupBackgroundTitle": "Background & supplements",
     "goal": "Goal",
     "level": "Level",
     "mode": "Mode",

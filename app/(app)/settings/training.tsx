@@ -13,6 +13,10 @@ import { GOALS, FITNESS_LEVELS, MODES, ATHLETIC_BACKGROUNDS, SUPPLEMENTS, type G
 import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Chip } from '@/components/ui/Chip';
+import { StaggerIn } from '@/components/ui/StaggerIn';
+import { FieldLabel } from '@/components/ui/FieldLabel';
+import { GroupCard } from '@/components/ui/GroupCard';
 import { useTheme } from '@/lib/theme';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
@@ -22,27 +26,6 @@ const GENDERS: { value: Gender; labelKey: string }[] = [
   { value: 'other', labelKey: 'training.genderOther' },
   { value: 'prefer_not_to_say', labelKey: 'training.genderPreferNotToSay' },
 ];
-
-function Chip({ selected, label, onPress }: { selected: boolean; label: string; onPress: () => void }) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      className={`rounded-full px-4 py-2 border ${selected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
-    >
-      <Text className={`text-sm ${selected ? 'text-primary' : 'text-text'}`}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-function SectionTitle({ children }: { children: string }) {
-  const { colors } = useTheme();
-  return (
-    <Text className="mb-3 mt-6" style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text }}>
-      {children}
-    </Text>
-  );
-}
 
 export default function TrainingScreen() {
   const { t } = useTranslation('settings');
@@ -205,85 +188,101 @@ export default function TrainingScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-        <SectionTitle>{t('training.goal')}</SectionTitle>
-        <View className="flex-row flex-wrap gap-2">
-          {GOALS.map((g) => (
-            <Chip key={g.type} selected={goalType === g.type} label={`${g.icon} ${t(g.titleKey)}`} onPress={() => setGoalType(g.type)} />
-          ))}
-        </View>
+        <StaggerIn index={0}>
+          <GroupCard title={t('training.groupProfileTitle')} iconName="flame-outline">
+            <FieldLabel first>{t('training.goal')}</FieldLabel>
+            <View className="flex-row flex-wrap gap-2">
+              {GOALS.map((g) => (
+                <Chip key={g.type} selected={goalType === g.type} iconName={g.iconName} label={t(g.titleKey)} onPress={() => setGoalType(g.type)} />
+              ))}
+            </View>
 
-        <SectionTitle>{t('training.level')}</SectionTitle>
-        <View className="flex-row flex-wrap gap-2">
-          {FITNESS_LEVELS.map((l) => (
-            <Chip key={l.value} selected={level === l.value} label={t(l.labelKey)} onPress={() => setLevel(l.value)} />
-          ))}
-        </View>
+            <FieldLabel>{t('training.level')}</FieldLabel>
+            <View className="flex-row flex-wrap gap-2">
+              {FITNESS_LEVELS.map((l) => (
+                <Chip key={l.value} selected={level === l.value} label={t(l.labelKey)} onPress={() => setLevel(l.value)} />
+              ))}
+            </View>
 
-        <SectionTitle>{t('training.mode')}</SectionTitle>
-        <View className="flex-row flex-wrap gap-2">
-          {MODES.map((m) => (
-            <Chip key={m.value} selected={mode === m.value} label={`${m.icon} ${t(m.labelKey)}`} onPress={() => setMode(m.value)} />
-          ))}
-        </View>
+            <FieldLabel>{t('training.mode')}</FieldLabel>
+            <View className="flex-row flex-wrap gap-2">
+              {MODES.map((m) => (
+                <Chip key={m.value} selected={mode === m.value} iconName={m.iconName} label={t(m.labelKey)} onPress={() => setMode(m.value)} />
+              ))}
+            </View>
+          </GroupCard>
+        </StaggerIn>
 
-        <SectionTitle>{t('training.primaryModality')}</SectionTitle>
-        <View className="flex-row flex-wrap gap-2">
-          {MODALITIES.map((m) => (
-            <Chip
-              key={m.id}
-              selected={modality === m.id}
-              label={`${m.icon} ${t(m.labelKey)}`}
-              onPress={() => {
-                setModality(m.id);
-                setSecondary((prev) => prev.filter((s) => s !== m.id));
-              }}
-            />
-          ))}
-        </View>
+        <StaggerIn index={1}>
+          <GroupCard title={t('training.groupDisciplineTitle')} iconName="barbell-outline">
+            <FieldLabel first>{t('training.primaryModality')}</FieldLabel>
+            <View className="flex-row flex-wrap gap-2">
+              {MODALITIES.map((m) => (
+                <Chip
+                  key={m.id}
+                  selected={modality === m.id}
+                  iconName={m.iconName}
+                  label={t(m.labelKey)}
+                  onPress={() => {
+                    setModality(m.id);
+                    setSecondary((prev) => prev.filter((s) => s !== m.id));
+                  }}
+                />
+              ))}
+            </View>
 
-        <SectionTitle>{t('training.secondaryModalities')}</SectionTitle>
-        <View className="flex-row flex-wrap gap-2">
-          {MODALITIES.filter((m) => m.id !== modality).map((m) => (
-            <Chip key={m.id} selected={secondary.includes(m.id)} label={`${m.icon} ${t(m.labelKey)}`} onPress={() => toggleSecondary(m.id)} />
-          ))}
-        </View>
+            <FieldLabel>{t('training.secondaryModalities')}</FieldLabel>
+            <View className="flex-row flex-wrap gap-2">
+              {MODALITIES.filter((m) => m.id !== modality).map((m) => (
+                <Chip key={m.id} selected={secondary.includes(m.id)} iconName={m.iconName} label={t(m.labelKey)} onPress={() => toggleSecondary(m.id)} />
+              ))}
+            </View>
 
-        {needsSport ? (
-          <View className="mt-4">
-            <Text className="mb-2" style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>{t('training.whatSport')}</Text>
-            <Input placeholder={t('training.sportPlaceholder')} value={sportType} onChangeText={setSportType} />
-          </View>
-        ) : null}
+            {needsSport ? (
+              <View className="mt-4">
+                <Text className="mb-2" style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>{t('training.whatSport')}</Text>
+                <Input placeholder={t('training.sportPlaceholder')} value={sportType} onChangeText={setSportType} />
+              </View>
+            ) : null}
+          </GroupCard>
+        </StaggerIn>
 
-        <SectionTitle>{t('training.basicData')}</SectionTitle>
-        <View className="gap-3">
-          <Input label={t('training.heightLabel')} placeholder={t('training.heightPlaceholder')} value={heightCm} onChangeText={setHeightCm} keyboardType="numeric" />
-          <Input label={t('training.ageLabel')} placeholder={t('training.agePlaceholder')} value={age} onChangeText={setAge} keyboardType="numeric" />
-          <View className="flex-row flex-wrap gap-2">
-            {GENDERS.map((g) => (
-              <Chip key={g.value} selected={gender === g.value} label={t(g.labelKey)} onPress={() => setGender(g.value)} />
-            ))}
-          </View>
-        </View>
+        <StaggerIn index={2}>
+          <GroupCard title={t('training.basicData')} iconName="body-outline">
+            <View className="gap-3">
+              <Input label={t('training.heightLabel')} placeholder={t('training.heightPlaceholder')} value={heightCm} onChangeText={setHeightCm} keyboardType="numeric" />
+              <Input label={t('training.ageLabel')} placeholder={t('training.agePlaceholder')} value={age} onChangeText={setAge} keyboardType="numeric" />
+            </View>
+            <View className="flex-row flex-wrap gap-2 mt-4">
+              {GENDERS.map((g) => (
+                <Chip key={g.value} selected={gender === g.value} label={t(g.labelKey)} onPress={() => setGender(g.value)} />
+              ))}
+            </View>
+          </GroupCard>
+        </StaggerIn>
 
-        <SectionTitle>{t('training.athleticBackground')}</SectionTitle>
-        <View className="flex-row flex-wrap gap-2">
-          {ATHLETIC_BACKGROUNDS.map((b) => (
-            <Chip key={b.value} selected={background === b.value} label={t(b.labelKey)} onPress={() => setBackground(b.value)} />
-          ))}
-        </View>
+        <StaggerIn index={3}>
+          <GroupCard title={t('training.groupBackgroundTitle')} iconName="trophy-outline">
+            <FieldLabel first>{t('training.athleticBackground')}</FieldLabel>
+            <View className="flex-row flex-wrap gap-2">
+              {ATHLETIC_BACKGROUNDS.map((b) => (
+                <Chip key={b.value} selected={background === b.value} label={t(b.labelKey)} onPress={() => setBackground(b.value)} />
+              ))}
+            </View>
 
-        <SectionTitle>{t('training.supplements')}</SectionTitle>
-        <View className="flex-row flex-wrap gap-2 mb-2">
-          {SUPPLEMENTS.map((s) => (
-            <Chip key={s.value} selected={supplements.includes(s.value)} label={t(s.labelKey)} onPress={() => toggleSupplement(s.value)} />
-          ))}
-        </View>
-        {!supplements.includes('none') ? (
-          <Input placeholder={t('training.supplementsOtherPlaceholder')} value={supplementsOther} onChangeText={setSupplementsOther} />
-        ) : null}
+            <FieldLabel>{t('training.supplements')}</FieldLabel>
+            <View className="flex-row flex-wrap gap-2 mb-2">
+              {SUPPLEMENTS.map((s) => (
+                <Chip key={s.value} selected={supplements.includes(s.value)} label={t(s.labelKey)} onPress={() => toggleSupplement(s.value)} />
+              ))}
+            </View>
+            {!supplements.includes('none') ? (
+              <Input placeholder={t('training.supplementsOtherPlaceholder')} value={supplementsOther} onChangeText={setSupplementsOther} />
+            ) : null}
+          </GroupCard>
+        </StaggerIn>
 
-        <View className="mt-8 gap-2">
+        <View className="mt-2 gap-2">
           <Button label={t('training.save')} loading={saving} disabled={!valid} onPress={handleSave} />
           <Text className="text-center" style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
             {t('training.saveHint')}

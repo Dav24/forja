@@ -1,12 +1,16 @@
 import { forwardRef, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '@/components/ui/Sheet';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
+import { FieldLabel } from '@/components/ui/FieldLabel';
 import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { useActiveGoal } from '@/hooks/useProfile';
+import { useTheme } from '@/lib/theme';
 import type { GeneratePlanParams } from '@/hooks/useWorkoutPlan';
 
 interface Props {
@@ -16,23 +20,12 @@ interface Props {
 const DAYS = [3, 4, 5, 6];
 const MINUTES = [30, 45, 60, 90];
 
-function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`rounded-full px-4 py-2 border ${on ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
-      activeOpacity={0.7}
-    >
-      <Text className={`text-sm ${on ? 'text-primary' : 'text-text'}`}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
 export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function GeneratePlanSheet(
   { onGenerate },
   ref,
 ) {
   const { t } = useTranslation('plans');
+  const { colors } = useTheme();
   const { data: goal } = useActiveGoal();
   const [modality, setModality] = useState<ModalityId | null>(null);
   const [days, setDays] = useState(4);
@@ -66,43 +59,55 @@ export const GeneratePlanSheet = forwardRef<BottomSheet, Props>(function Generat
 
   return (
     <Sheet ref={ref} snapPoints={['85%']} scrollable>
-      <Text className="text-text font-bold text-2xl mb-1">{t('generateSheet.title')}</Text>
-      <Text className="text-text-muted text-sm mb-5">{t('generateSheet.subtitle')}</Text>
+      <View className="flex-row items-center gap-3 mb-5">
+        <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryDim, alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name="hammer-outline" size={20} color={colors.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text className="text-text font-bold text-2xl">{t('generateSheet.title')}</Text>
+          <Text className="text-text-muted text-sm mt-0.5">{t('generateSheet.subtitle')}</Text>
+        </View>
+      </View>
 
-      <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.discipline')}</Text>
-      <View className="flex-row flex-wrap gap-2 mb-5">
+      <FieldLabel first>{t('generateSheet.discipline')}</FieldLabel>
+      <View className="flex-row flex-wrap gap-2 mb-1">
         {MODALITIES.map((m) => (
-          <Chip key={m.id} label={`${m.icon} ${t(m.labelKey)}`} on={modality === m.id} onPress={() => selectModality(m.id)} />
+          <Chip key={m.id} label={t(m.labelKey)} iconName={m.iconName} selected={modality === m.id} onPress={() => selectModality(m.id)} />
         ))}
       </View>
 
-      <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.daysPerWeek')}</Text>
-      <View className="flex-row gap-2 mb-5">
-        {DAYS.map((d) => (
-          <Chip key={d} label={`${d}`} on={days === d} onPress={() => setDays(d)} />
-        ))}
-      </View>
-
-      <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.minutesPerSession')}</Text>
-      <View className="flex-row gap-2 mb-5">
-        {MINUTES.map((m) => (
-          <Chip key={m} label={`${m}`} on={minutes === m} onPress={() => setMinutes(m)} />
-        ))}
+      <View className="flex-row gap-4 mt-1">
+        <View style={{ flex: 1 }}>
+          <FieldLabel>{t('generateSheet.daysPerWeek')}</FieldLabel>
+          <View className="flex-row flex-wrap gap-2">
+            {DAYS.map((d) => (
+              <Chip key={d} label={`${d}`} selected={days === d} onPress={() => setDays(d)} />
+            ))}
+          </View>
+        </View>
+        <View style={{ flex: 1 }}>
+          <FieldLabel>{t('generateSheet.minutesPerSession')}</FieldLabel>
+          <View className="flex-row flex-wrap gap-2">
+            {MINUTES.map((m) => (
+              <Chip key={m} label={`${m}`} selected={minutes === m} onPress={() => setMinutes(m)} />
+            ))}
+          </View>
+        </View>
       </View>
 
       {modality && (
         <>
-          <Text className="text-text font-semibold text-base mb-2">{t('generateSheet.equipment')}</Text>
+          <FieldLabel>{t('generateSheet.equipment')}</FieldLabel>
           <View className="flex-row flex-wrap gap-2 mb-3">
             {presets.map((p) => (
               <Chip
                 key={p}
                 label={t(p)}
-                on={!showCustom && (equipment ?? presets[0]) === p}
+                selected={!showCustom && (equipment ?? presets[0]) === p}
                 onPress={() => { setEquipment(p); setShowCustom(false); }}
               />
             ))}
-            <Chip label={t('generateSheet.other')} on={showCustom} onPress={() => setShowCustom(true)} />
+            <Chip label={t('generateSheet.other')} selected={showCustom} onPress={() => setShowCustom(true)} />
           </View>
           {showCustom && (
             <Input

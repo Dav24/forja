@@ -15,7 +15,9 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { StaggerIn } from '@/components/ui/StaggerIn';
 import { ForjaWordmark } from '@/components/brand/ForjaWordmark';
+import { HeroGlow } from '@/components/brand/HeroGlow';
 import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
 
@@ -91,46 +93,64 @@ export default function RegisterScreen() {
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View className="flex-1 justify-center px-5 py-12">
-          <View className="mb-10">
-            <Animated.View entering={FadeIn.duration(700)} className="items-center mb-2">
+          <View style={{ alignItems: 'center', marginBottom: 32 }}>
+            <HeroGlow />
+            <Animated.View entering={FadeIn.duration(700)}>
               <ForjaWordmark size="lg" />
             </Animated.View>
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.body, color: colors.textMuted, textAlign: 'center', marginTop: 8 }}>
               {t('tagline')}
             </Text>
-            <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text, marginTop: 24 }}>
-              {t('register.title')}
-            </Text>
           </View>
 
-          <View className="gap-4">
-            <Input
-              label={t('register.nameLabel')}
-              placeholder={t('register.namePlaceholder')}
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="words"
-              autoComplete="name"
-            />
-            <Input
-              label={t('register.emailLabel')}
-              placeholder={t('register.emailPlaceholder')}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-            />
-            <Input
-              label={t('register.passwordLabel')}
-              placeholder={t('register.passwordPlaceholder')}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete="new-password"
-            />
-            <Button label={t('register.submit')} loading={loading} onPress={handleRegister} className="mt-2" />
-          </View>
+          <StaggerIn index={0}>
+            <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text, marginBottom: 20 }}>
+              {t('register.title')}
+            </Text>
+          </StaggerIn>
+
+          <StaggerIn index={1}>
+            <View
+              style={{
+                backgroundColor: colors.surfaceElevated,
+                borderRadius: 24,
+                borderWidth: 1,
+                borderColor: colors.border,
+                padding: 20,
+                gap: 16,
+              }}
+            >
+              <Input
+                leftIcon="person-outline"
+                label={t('register.nameLabel')}
+                placeholder={t('register.namePlaceholder')}
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+                autoComplete="name"
+              />
+              <Input
+                leftIcon="mail-outline"
+                label={t('register.emailLabel')}
+                placeholder={t('register.emailPlaceholder')}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoComplete="email"
+              />
+              <Input
+                leftIcon="lock-closed-outline"
+                label={t('register.passwordLabel')}
+                placeholder={t('register.passwordPlaceholder')}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="new-password"
+              />
+              <Button label={t('register.submit')} loading={loading} onPress={handleRegister} className="mt-2" />
+            </View>
+          </StaggerIn>
 
           <View className="flex-row justify-center mt-8">
             <Text style={{ fontFamily: 'Inter-Regular', fontSize: typography.sizes.bodySmall, color: colors.textMuted }}>

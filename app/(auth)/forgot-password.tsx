@@ -71,8 +71,18 @@ export default function ForgotPasswordScreen() {
           {t('forgotPassword.body')}
         </Text>
 
-        <View className="gap-4">
+        <View
+          style={{
+            backgroundColor: colors.surfaceElevated,
+            borderRadius: 24,
+            borderWidth: 1,
+            borderColor: colors.border,
+            padding: 20,
+            gap: 16,
+          }}
+        >
           <Input
+            leftIcon="mail-outline"
             label={t('forgotPassword.emailLabel')}
             placeholder={t('forgotPassword.emailPlaceholder')}
             value={email}

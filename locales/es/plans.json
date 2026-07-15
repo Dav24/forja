@@ -68,6 +68,7 @@
     "emptyTitle": "Tu plan alimenticio",
     "emptySubtitle": "Generado con IA según tu objetivo, cuerpo y preferencias.",
     "form": {
+      "groupTitle": "Preferencias",
       "dietLabel": "Tipo de dieta",
       "availabilityLabel": "Disponibilidad de alimentos",
       "diet": {

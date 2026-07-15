@@ -63,12 +63,18 @@ const light: typeof dark = {
 export type Theme = typeof dark;
 export const themes: Record<ThemeName, Theme> = { dark, light };
 
-export const gradientsByTheme: Record<ThemeName, { ember: readonly [string, string]; flame: readonly [string, string, string] }> = {
-  dark: { ember: ['#FBBF24', '#FF6B1A'], flame: ['#EA580C', '#F97316', '#FDE68A'] },
-  light: { ember: ['#D97706', '#EA580C'], flame: ['#C2410C', '#EA580C', '#FBBF24'] },
+export const gradientsByTheme: Record<ThemeName, { ember: readonly [string, string]; flame: readonly [string, string, string]; amber: readonly [string, string] }> = {
+  dark: { ember: ['#FBBF24', '#FF6B1A'], flame: ['#EA580C', '#F97316', '#FDE68A'], amber: ['#FDE68A', '#FBBF24'] },
+  light: { ember: ['#D97706', '#EA580C'], flame: ['#C2410C', '#EA580C', '#FBBF24'], amber: ['#D97706', '#92610A'] },
 };
 
 export const fireShadowByTheme: Record<ThemeName, object> = {
   dark: { shadowColor: '#F97316', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 22, elevation: 8 },
   light: { shadowColor: '#EA580C', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.30, shadowRadius: 20, elevation: 6 },
+};
+
+// Variante ámbar del fire shadow — nutrición usa ámbar como color de familia (entrenamiento usa naranja)
+export const amberShadowByTheme: Record<ThemeName, object> = {
+  dark: { shadowColor: '#FBBF24', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 7 },
+  light: { shadowColor: '#D97706', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.28, shadowRadius: 18, elevation: 6 },
 };

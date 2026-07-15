@@ -2,11 +2,13 @@ import { useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useTheme } from '@/lib/theme';
+import { gradientsByTheme, amberShadowByTheme } from '@/constants/themes';
 import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
 import { useIsPremium } from '@/hooks/useSubscription';
@@ -18,6 +20,9 @@ import { MealSwapSheet } from '@/components/plans/MealSwapSheet';
 import { useSwapsUsedThisWeek } from '@/hooks/useMealSwap';
 import { PaywallBanner } from '@/components/premium/PaywallBanner';
 import { Badge } from '@/components/ui/Badge';
+import { Chip } from '@/components/ui/Chip';
+import { FieldLabel } from '@/components/ui/FieldLabel';
+import { GroupCard } from '@/components/ui/GroupCard';
 import {
   AVAILABILITY_OPTIONS,
   DIET_OPTIONS,
@@ -35,41 +40,31 @@ type MealPlanData = {
 type LocalizedMealContent = { title: string; meals: MealPlanData };
 
 function ChipGroup({
-  options, selected, onSelect, multi = false,
+  options, selected, onSelect,
 }: {
-  options: MealOption[]; selected: string[]; onSelect: (val: string) => void; multi?: boolean;
+  options: MealOption[]; selected: string[]; onSelect: (val: string) => void;
 }) {
   const { t } = useTranslation('plans');
-  const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-      {options.map((opt) => {
-        const isSelected = selected.includes(opt.value);
-        return (
-          <TouchableOpacity
-            key={opt.value}
-            onPress={() => onSelect(opt.value)}
-            activeOpacity={0.7}
-            style={{
-              paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20,
-              borderWidth: 1,
-              borderColor: isSelected ? colors.primary : colors.border,
-              backgroundColor: isSelected ? colors.primaryDim : colors.surface,
-            }}
-          >
-            <Text style={{ fontFamily: 'Inter-Medium', fontSize: 13, color: isSelected ? colors.primary : colors.textMuted }}>
-              {t(opt.labelKey)}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
+      {options.map((opt) => (
+        <Chip
+          key={opt.value}
+          label={t(opt.labelKey)}
+          selected={selected.includes(opt.value)}
+          onPress={() => onSelect(opt.value)}
+          tint="accent"
+        />
+      ))}
     </View>
   );
 }
 
 export default function MealPlansScreen() {
   const { t } = useTranslation('plans');
-  const { colors } = useTheme();
+  const { colors, resolved } = useTheme();
+  const amberGradient = gradientsByTheme[resolved].amber;
+  const amberShadow = amberShadowByTheme[resolved];
   const { data: activePlan, isLoading } = useActiveMealPlan();
   const { mutateAsync: generatePlan, isPending: generating } = useGenerateMealPlan();
   const isPremium = useIsPremium();
@@ -197,21 +192,13 @@ export default function MealPlansScreen() {
               style={{ marginBottom: 16 }} contentContainerStyle={{ gap: 8 }}
             >
               {days.map((day, i) => (
-                <TouchableOpacity
-                  key={i} onPress={() => setSelectedDay(i)} activeOpacity={0.7}
-                  style={{
-                    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1,
-                    borderColor: selectedDay === i ? colors.primary : colors.border,
-                    backgroundColor: selectedDay === i ? colors.primaryDim : colors.surface,
-                  }}
-                >
-                  <Text style={{
-                    fontFamily: 'Inter-Medium', fontSize: 13,
-                    color: selectedDay === i ? colors.primary : colors.textMuted,
-                  }}>
-                    {day.day_name}
-                  </Text>
-                </TouchableOpacity>
+                <Chip
+                  key={i}
+                  label={day.day_name}
+                  selected={selectedDay === i}
+                  onPress={() => setSelectedDay(i)}
+                  tint="accent"
+                />
               ))}
             </ScrollView>
 
@@ -286,35 +273,34 @@ export default function MealPlansScreen() {
             </View>
 
             {/* Form */}
-            <View style={{ gap: 20, marginBottom: 24 }}>
-              <View>
-                <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14, marginBottom: 10 }}>
-                  {t('meal.form.dietLabel')}
-                </Text>
-                <ChipGroup options={DIET_OPTIONS} selected={selectedDiet} onSelect={(v) => setSelectedDiet([v])} />
-              </View>
-              <View>
-                <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14, marginBottom: 10 }}>
-                  {t('meal.form.availabilityLabel')}
-                </Text>
-                <ChipGroup options={AVAILABILITY_OPTIONS} selected={selectedAvailability} onSelect={(v) => setSelectedAvailability([v])} />
-              </View>
-            </View>
+            <GroupCard title={t('meal.form.groupTitle')} iconName="options-outline" tint="accent">
+              <FieldLabel first>{t('meal.form.dietLabel')}</FieldLabel>
+              <ChipGroup options={DIET_OPTIONS} selected={selectedDiet} onSelect={(v) => setSelectedDiet([v])} />
+
+              <FieldLabel>{t('meal.form.availabilityLabel')}</FieldLabel>
+              <ChipGroup options={AVAILABILITY_OPTIONS} selected={selectedAvailability} onSelect={(v) => setSelectedAvailability([v])} />
+            </GroupCard>
 
             <TouchableOpacity
               onPress={handleGenerate} disabled={generating} activeOpacity={0.8}
-              style={{
-                backgroundColor: colors.accent, borderRadius: 16, paddingVertical: 16,
-                alignItems: 'center', flexDirection: 'row', justifyContent: 'center',
-                gap: 8, opacity: generating ? 0.7 : 1,
-              }}
+              style={[{ borderRadius: 16, opacity: generating ? 0.7 : 1 }, generating ? undefined : amberShadow]}
             >
-              {generating
-                ? <ActivityIndicator color={colors.background} size="small" />
-                : <Ionicons name="sparkles-outline" size={20} color={colors.background} />}
-              <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 16 }}>
-                {generating ? t('meal.generatingMine') : t('meal.generateMine')}
-              </Text>
+              <LinearGradient
+                colors={amberGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  borderRadius: 16, paddingVertical: 16,
+                  alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8,
+                }}
+              >
+                {generating
+                  ? <ActivityIndicator color={colors.background} size="small" />
+                  : <Ionicons name="sparkles-outline" size={20} color={colors.background} />}
+                <Text style={{ color: colors.background, fontFamily: 'Inter-Bold', fontSize: 16 }}>
+                  {generating ? t('meal.generatingMine') : t('meal.generateMine')}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             {!isPremium && (
