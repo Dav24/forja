@@ -31,6 +31,13 @@
     "statWeeks": "Weeks",
     "progression": "PROGRESSION",
     "dayHeader": "DAY {{number}} · {{focus}}",
+    "dayNumber": "DAY {{number}}",
+    "logConfirm": {
+      "title": "Log for a different day?",
+      "body": "You're saving sets for a day other than today. Confirm?",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
     "restUpper": "REST",
     "todayBadge": "TODAY",
     "exercisesMeta": "{{n}} exercises · ~{{minutes}}min",

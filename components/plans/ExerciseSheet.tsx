@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Image, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, View } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useTranslation } from 'react-i18next';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -26,6 +26,7 @@ interface ExerciseSheetProps {
   workoutPlanId: string;
   dayNumber: number;
   exerciseIndex: number;
+  isToday: boolean;
 }
 
 type RegisterKind = 'kg' | 'bodyweight' | 'none';
@@ -60,7 +61,7 @@ function Sparkline({ points }: { points: number[] }) {
 }
 
 export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(function ExerciseSheet(
-  { exercise, workoutPlanId, dayNumber, exerciseIndex },
+  { exercise, workoutPlanId, dayNumber, exerciseIndex, isToday },
   ref,
 ) {
   const { colors } = useTheme();
@@ -107,7 +108,7 @@ export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(functio
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  async function handleSave() {
+  async function performSave() {
     await logSets({
       workoutPlanId,
       dayNumber,
@@ -122,6 +123,21 @@ export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(functio
       })),
     });
     setSaved(true);
+  }
+
+  function handleSave() {
+    if (!isToday) {
+      Alert.alert(
+        t('workout.logConfirm.title'),
+        t('workout.logConfirm.body'),
+        [
+          { text: t('workout.logConfirm.cancel'), style: 'cancel' },
+          { text: t('workout.logConfirm.confirm'), onPress: () => { void performSave(); } },
+        ],
+      );
+      return;
+    }
+    void performSave();
   }
 
   return (

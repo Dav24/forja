@@ -31,6 +31,13 @@
     "statWeeks": "Semanas",
     "progression": "PROGRESIÓN",
     "dayHeader": "DÍA {{number}} · {{focus}}",
+    "dayNumber": "DÍA {{number}}",
+    "logConfirm": {
+      "title": "¿Registrar en otro día?",
+      "body": "Estás guardando series para un día distinto al de hoy. ¿Confirmas?",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    },
     "restUpper": "DESCANSO",
     "todayBadge": "HOY",
     "exercisesMeta": "{{n}} ejercicios · ~{{minutes}}min",
