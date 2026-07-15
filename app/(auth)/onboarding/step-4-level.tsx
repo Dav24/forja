@@ -6,8 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useOnboardingStore } from '@/store/onboarding.store';
-import { useProfileStore } from '@/store/profile.store';
-import { SparkBurst } from '@/components/effects/SparkBurst';
 import { useTheme } from '@/lib/theme';
 import { FITNESS_LEVELS, MODES, type FitnessLevel, type TrainingMode } from '@/constants/goals';
 
@@ -17,11 +15,9 @@ export default function Step3Level() {
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
   const [mode, setMode] = useState<TrainingMode | null>(null);
   const [loading, setLoading] = useState(false);
-  const [celebrating, setCelebrating] = useState(false);
 
   const { user } = useAuthStore();
-  const { goalType, targetWeightKg, modality, secondaryModalities, sportType, weightKg, heightCm, age, gender, activityLevel } = useOnboardingStore();
-  const { setOnboardingCompleted } = useProfileStore();
+  const { goalType, targetWeightKg, modality, secondaryModalities, sportType, weightKg, heightCm, age, gender, activityLevel, setGoalId } = useOnboardingStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -48,8 +44,9 @@ export default function Step3Level() {
       });
       if (bodyError) throw bodyError;
 
-      // Guardar goal
-      const { error: goalError } = await supabase.from('goals').insert({
+      // Guardar goal — se captura el id: el paso 5 (opcional) lo usa para
+      // agregar athletic_background sin crear un segundo goal duplicado.
+      const { data: newGoal, error: goalError } = await supabase.from('goals').insert({
         user_id: user.id,
         type: goalType,
         target_weight_kg: targetWeightKg ?? null,
@@ -58,21 +55,16 @@ export default function Step3Level() {
         modality,
         secondary_modalities: secondaryModalities,
         sport_type: sportType,
-      });
-      if (goalError) throw goalError;
+      }).select('id').single();
+      if (goalError || !newGoal) throw goalError ?? new Error('goal insert sin id');
 
-      // Marcar onboarding como completado
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ onboarding_completed: true })
-        .eq('id', user.id);
-      if (profileError) throw profileError;
-
-      // Disparar celebración; la navegación ocurre en onDone para evitar
-      // que el AuthGuard redirija antes de que termine la animación.
-      setCelebrating(true);
+      setGoalId(newGoal.id);
+      // onboarding_completed se marca en el paso 5 (opcional) — si se marca
+      // aquí, el AuthGuard expulsa a /(app) antes de que el paso 5 renderice
+      // (ver app/_layout.tsx:113, redirige tan pronto onboardingCompleted=true
+      // y la ruta activa sigue en el grupo (auth)).
+      router.push('/(auth)/onboarding/step-5-athletic');
     } catch (err: unknown) {
-      // Los errores de Supabase (PostgrestError) traen message pero no extienden Error
       const message =
         typeof err === 'object' && err !== null && 'message' in err
           ? String((err as { message: unknown }).message)
@@ -158,7 +150,7 @@ export default function Step3Level() {
         <TouchableOpacity
           className={`rounded-xl h-14 items-center justify-center ${fitnessLevel && mode ? 'bg-primary' : 'bg-surface'}`}
           onPress={handleFinish}
-          disabled={loading || celebrating || !fitnessLevel || !mode}
+          disabled={loading || !fitnessLevel || !mode}
         >
           {loading
             ? <ActivityIndicator color={colors.background} />
@@ -168,14 +160,6 @@ export default function Step3Level() {
           }
         </TouchableOpacity>
       </View>
-
-      <SparkBurst
-        trigger={celebrating}
-        onDone={() => {
-          setOnboardingCompleted(true);
-          router.replace('/(app)');
-        }}
-      />
     </View>
   );
 }

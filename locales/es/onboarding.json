@@ -61,6 +61,35 @@
       "unknown": "Error desconocido"
     }
   },
+  "step5": {
+    "eyebrow": "Último paso (opcional)",
+    "title": "Contexto extra para tu coach",
+    "subtitle": "Esto es solo contexto para tu coach — nunca te recomendaremos ni indicaremos dosis de sustancias.",
+    "backgroundQuestion": "¿Tienes trayectoria competitiva?",
+    "background": {
+      "none": "Nunca he competido",
+      "amateur": "Amateur",
+      "highPerformance": "Alto rendimiento",
+      "bodybuilding": "Fisicoculturismo"
+    },
+    "supplementsQuestion": "¿Tomas algún suplemento?",
+    "supplements": {
+      "creatine": "Creatina",
+      "protein": "Proteína",
+      "caffeine": "Cafeína/pre-entreno",
+      "multivitamin": "Multivitamínico",
+      "omega3": "Omega-3",
+      "none": "Ninguno"
+    },
+    "otherPlaceholder": "Otro (opcional)",
+    "safetyNote": "Esto es solo contexto para tu coach — nunca te recomendaremos ni indicaremos dosis de sustancias.",
+    "finishButton": "Forjar mi plan 🔥",
+    "skipButton": "Omitir",
+    "errors": {
+      "saveFailed": { "title": "Error al guardar" },
+      "unknown": "Error desconocido"
+    }
+  },
   "goals": {
     "weight_loss": {
       "title": "Bajar de peso",

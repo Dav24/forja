@@ -27,3 +27,23 @@ export const MODES: { value: TrainingMode; labelKey: string; descriptionKey: str
   { value: 'flexible', icon: '🌊', labelKey: 'onboarding:modes.flexible.label', descriptionKey: 'onboarding:modes.flexible.description' },
   { value: 'strict',   icon: '🎯', labelKey: 'onboarding:modes.strict.label',  descriptionKey: 'onboarding:modes.strict.description' },
 ];
+
+export type AthleticBackground = 'none' | 'amateur' | 'high_performance' | 'bodybuilding';
+
+export const ATHLETIC_BACKGROUNDS: { value: AthleticBackground; labelKey: string }[] = [
+  { value: 'none',             labelKey: 'onboarding:step5.background.none' },
+  { value: 'amateur',          labelKey: 'onboarding:step5.background.amateur' },
+  { value: 'high_performance', labelKey: 'onboarding:step5.background.highPerformance' },
+  { value: 'bodybuilding',     labelKey: 'onboarding:step5.background.bodybuilding' },
+];
+
+export type SupplementCode = 'creatine' | 'protein' | 'caffeine_preworkout' | 'multivitamin' | 'omega3' | 'none';
+
+export const SUPPLEMENTS: { value: SupplementCode; labelKey: string }[] = [
+  { value: 'creatine',            labelKey: 'onboarding:step5.supplements.creatine' },
+  { value: 'protein',             labelKey: 'onboarding:step5.supplements.protein' },
+  { value: 'caffeine_preworkout', labelKey: 'onboarding:step5.supplements.caffeine' },
+  { value: 'multivitamin',        labelKey: 'onboarding:step5.supplements.multivitamin' },
+  { value: 'omega3',              labelKey: 'onboarding:step5.supplements.omega3' },
+  { value: 'none',                labelKey: 'onboarding:step5.supplements.none' },
+];

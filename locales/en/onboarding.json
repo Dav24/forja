@@ -61,6 +61,35 @@
       "unknown": "Unknown error"
     }
   },
+  "step5": {
+    "eyebrow": "Last step (optional)",
+    "title": "Extra context for your coach",
+    "subtitle": "This is just context for your coach — we'll never recommend or dose substances.",
+    "backgroundQuestion": "Do you have a competitive background?",
+    "background": {
+      "none": "Never competed",
+      "amateur": "Amateur",
+      "highPerformance": "High performance",
+      "bodybuilding": "Bodybuilding"
+    },
+    "supplementsQuestion": "Do you take any supplements?",
+    "supplements": {
+      "creatine": "Creatine",
+      "protein": "Protein",
+      "caffeine": "Caffeine/pre-workout",
+      "multivitamin": "Multivitamin",
+      "omega3": "Omega-3",
+      "none": "None"
+    },
+    "otherPlaceholder": "Other (optional)",
+    "safetyNote": "This is just context for your coach — we'll never recommend or dose substances.",
+    "finishButton": "Forge my plan 🔥",
+    "skipButton": "Skip",
+    "errors": {
+      "saveFailed": { "title": "Save failed" },
+      "unknown": "Unknown error"
+    }
+  },
   "goals": {
     "weight_loss": {
       "title": "Lose weight",

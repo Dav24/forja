@@ -24,11 +24,14 @@ interface OnboardingState {
   // Step 4 — nivel
   fitnessLevel: FitnessLevel | null;
   mode: Mode;
+  // Step 4 → 5 — id del goal recién insertado, para que el paso 5 lo actualice
+  goalId: string | null;
   // Actions
   setStep1: (data: { goalType: GoalType; targetWeightKg?: number | null }) => void;
   setStep2Modality: (data: { modality: ModalityId; secondaryModalities: ModalityId[]; sportType?: string | null }) => void;
   setStep2: (data: { weightKg: number; heightCm: number; age: number; gender: Gender; activityLevel: ActivityLevel }) => void;
   setStep3: (data: { fitnessLevel: FitnessLevel; mode: Mode }) => void;
+  setGoalId: (goalId: string) => void;
   reset: () => void;
 }
 
@@ -45,6 +48,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   activityLevel: null,
   fitnessLevel: null,
   mode: 'flexible',
+  goalId: null,
   setStep1: (data) => set({ goalType: data.goalType, targetWeightKg: data.targetWeightKg ?? null }),
   setStep2Modality: (data) =>
     set({
@@ -54,10 +58,11 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
     }),
   setStep2: (data) => set(data),
   setStep3: (data) => set(data),
+  setGoalId: (goalId) => set({ goalId }),
   reset: () => set({
     goalType: null, targetWeightKg: null,
     modality: null, secondaryModalities: [], sportType: null,
     weightKg: null, heightCm: null, age: null, gender: null, activityLevel: null,
-    fitnessLevel: null, mode: 'flexible',
+    fitnessLevel: null, mode: 'flexible', goalId: null,
   }),
 }));
