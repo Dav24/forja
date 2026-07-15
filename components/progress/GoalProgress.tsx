@@ -7,6 +7,7 @@ import { useActiveGoal } from '@/hooks/useProfile';
 import { useLatestBodyData, useFirstBodyData } from '@/hooks/useBodyTracking';
 import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
+import { parseISODateLocal } from '@/lib/weightGoalSafety';
 
 export function GoalProgress() {
   const { colors } = useTheme();
@@ -48,7 +49,7 @@ export function GoalProgress() {
   }
 
   const daysLeft = goal.target_date
-    ? Math.max(0, Math.ceil((new Date(goal.target_date).getTime() - Date.now()) / 86_400_000))
+    ? Math.max(0, Math.ceil((parseISODateLocal(goal.target_date).getTime() - Date.now()) / 86_400_000))
     : null;
 
   return (

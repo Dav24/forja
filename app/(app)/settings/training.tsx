@@ -120,9 +120,10 @@ export default function TrainingScreen() {
     }
 
     const showsWeightTarget = goalType === 'weight_loss' || goalType === 'muscle_gain';
-    const targetWeightNum = showsWeightTarget && targetWeightInput.trim()
+    const parsedTargetWeight = showsWeightTarget && targetWeightInput.trim()
       ? Number(targetWeightInput.trim().replace(',', '.'))
       : null;
+    const targetWeightNum = parsedTargetWeight !== null && Number.isFinite(parsedTargetWeight) ? parsedTargetWeight : null;
     if (showsWeightTarget && targetWeightNum != null && targetDate) {
       if (latestBody?.weight_kg == null) {
         Alert.alert(t('training.noBodyDataTitle'), t('training.noBodyDataBody'));
