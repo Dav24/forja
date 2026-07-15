@@ -12,6 +12,7 @@
     "groupAccount": "Cuenta",
     "rowAccount": "Cuenta",
     "rowTraining": "Mi entrenamiento",
+    "rowFoodPreferences": "Alergias y disgustos",
     "groupPreferences": "Preferencias",
     "rowNotifications": "Notificaciones",
     "rowLanguage": "Idioma",
@@ -104,6 +105,15 @@
     "savedBody": "Los cambios aplican a tu próximo plan generado.",
     "saveErrorTitle": "Error al guardar",
     "unknownError": "Error desconocido"
+  },
+  "foodPreferences": {
+    "title": "Alergias y disgustos",
+    "subtitle": "Se usan para generar y ajustar tus planes alimenticios — nunca se sugiere algo de tu lista de alergias.",
+    "allergiesTitle": "Alergias e intolerancias",
+    "dislikesTitle": "No me gusta",
+    "empty": "Ninguno agregado",
+    "addPlaceholder": "Ej: gluten, camarones...",
+    "add": "Agregar"
   },
   "notifications": {
     "title": "Notificaciones",

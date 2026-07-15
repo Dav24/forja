@@ -12,6 +12,7 @@
     "groupAccount": "Account",
     "rowAccount": "Account",
     "rowTraining": "My training",
+    "rowFoodPreferences": "Allergies & dislikes",
     "groupPreferences": "Preferences",
     "rowNotifications": "Notifications",
     "rowLanguage": "Language",
@@ -104,6 +105,15 @@
     "savedBody": "Changes apply to your next generated plan.",
     "saveErrorTitle": "Error saving",
     "unknownError": "Unknown error"
+  },
+  "foodPreferences": {
+    "title": "Allergies & dislikes",
+    "subtitle": "Used to generate and adjust your meal plans — anything on your allergy list is never suggested.",
+    "allergiesTitle": "Allergies & intolerances",
+    "dislikesTitle": "Dislikes",
+    "empty": "None added",
+    "addPlaceholder": "E.g: gluten, shrimp...",
+    "add": "Add"
   },
   "notifications": {
     "title": "Notifications",

@@ -36,6 +36,7 @@ export default function SettingsScreen() {
         <SettingsGroup title={t('hub.groupAccount')}>
           <SettingsRow icon="person-outline" label={t('hub.rowAccount')} onPress={() => router.push('/(app)/settings/account' as never)} />
           <SettingsRow icon="barbell-outline" label={t('hub.rowTraining')} onPress={() => router.push('/(app)/settings/training' as never)} />
+          <SettingsRow icon="nutrition-outline" label={t('hub.rowFoodPreferences')} onPress={() => router.push('/(app)/settings/food-preferences' as never)} />
         </SettingsGroup>
 
         <SettingsGroup title={t('hub.groupPreferences')}>
