@@ -242,6 +242,7 @@ export type Database = {
           exercise_slug: string | null
           id: string
           kg: number | null
+          log_date: string
           recorded_at: string
           reps: number | null
           set_number: number
@@ -255,6 +256,7 @@ export type Database = {
           exercise_slug?: string | null
           id?: string
           kg?: number | null
+          log_date?: string
           recorded_at?: string
           reps?: number | null
           set_number: number
@@ -268,6 +270,7 @@ export type Database = {
           exercise_slug?: string | null
           id?: string
           kg?: number | null
+          log_date?: string
           recorded_at?: string
           reps?: number | null
           set_number?: number
