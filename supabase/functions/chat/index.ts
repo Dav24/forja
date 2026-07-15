@@ -12,7 +12,49 @@ const MODALITY_LABELS: Record<string, string> = {
   home_calisthenics: 'entrenamiento en casa / calistenia',
   mobility: 'yoga / pilates / movilidad',
   ball_sports: 'preparación física para deporte con balón',
+  first_steps: 'primeros pasos / sin experiencia previa',
 };
+
+const MODALITY_GOAL_BRANCH_LABELS: Record<string, string> = {
+  gym_strength_hypertrophy: 'hipertrofia / estética',
+  gym_strength_max_strength: 'fuerza máxima (PRs)',
+  gym_strength_competition_prep: 'prep. competencia (powerlifting/bodybuilding)',
+  gym_strength_maintenance: 'mantenimiento',
+  functional_hyrox_prep: 'prep. Hyrox / competencia funcional',
+  functional_wod_times: 'mejorar tiempos de WOD',
+  functional_general_conditioning: 'acondicionamiento general',
+  functional_variety_only: 'solo variedad',
+  endurance_first_5k: 'primeros 5K',
+  endurance_short_distance_time: 'bajar tiempo en 5K/10K',
+  endurance_half_full_marathon: 'medio maratón / maratón',
+  endurance_general_cardio: 'cardio general',
+  cycling_start_long_distance: 'empezar distancias largas',
+  cycling_speed_power: 'mejorar velocidad / potencia',
+  cycling_competition_gran_fondo: 'prep. competencia / gran fondo',
+  cycling_general_cardio: 'cardio general',
+  swimming_nonstop: 'nadar sin parar',
+  swimming_technique: 'corregir técnica',
+  swimming_distance_time: 'bajar tiempo en distancia',
+  swimming_competition_triathlon: 'prep. competencia / triatlón',
+  home_calisthenics_basics: 'lo básico (dominadas/lagartijas)',
+  home_calisthenics_advanced_skills: 'habilidades avanzadas (muscle-up/planche/front lever)',
+  home_calisthenics_weight_loss_no_equipment: 'perder peso sin equipo',
+  home_calisthenics_stay_active: 'mantenerse activo',
+  mobility_general_flexibility: 'flexibilidad general',
+  mobility_injury_rehab: 'rehabilitación de lesión',
+  mobility_pain_tension: 'reducir dolor/tensión específica',
+  mobility_complement: 'complemento de otro entreno',
+  ball_sports_performance: 'mejorar rendimiento en su deporte',
+  ball_sports_season_prep: 'prep. física para temporada/torneo',
+  ball_sports_fun_fitness: 'diversión / mantenerse en forma',
+  ball_sports_injury_recovery: 'recuperación de lesión',
+  first_steps_never_trained: 'nunca ha entrenado / va con calma',
+  first_steps_event_date: 'tiene una fecha/evento en mente',
+  first_steps_energy_health: 'quiere más energía y salud',
+  first_steps_just_move: 'aún no sabe, solo quiere moverse',
+};
+
+const FIRST_STEPS_EMPATHY_GUARDRAIL = 'El usuario está en modalidad "Primeros pasos" — es su punto de partida en fitness o puede tener expectativas poco realistas. Corrige expectativas poco realistas CON EMPATÍA, prioriza adherencia y formación de hábito sobre intensidad, y encuadra esto como el inicio de un cambio de estilo de vida, no una rutina relámpago.';
 
 const TONE_BY_LEVEL: Record<string, string> = {
   casual: 'TONO: paciente y celebratorio. El usuario está empezando — celebra cada pequeño logro, explica los porqués, nunca uses jerga sin explicarla.',
@@ -113,7 +155,7 @@ Deno.serve(async (req) => {
     const [subResult, countResult, goalResult, planResult, profileResult] = await Promise.all([
       supabase.from('subscriptions').select('status, plan').eq('user_id', user.id).maybeSingle(),
       supabase.rpc('get_daily_message_count', { p_user_id: user.id }),
-      supabase.from('goals').select('type, fitness_level, modality, secondary_modalities, sport_type').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
+      supabase.from('goals').select('type, fitness_level, modality, secondary_modalities, sport_type, target_weight_kg, target_date, modality_orientation, modality_goal_notes, secondary_goal_notes').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
       supabase.from('workout_plans').select('title, schedule').eq('user_id', user.id).eq('is_active', true).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
     ]);
@@ -151,12 +193,27 @@ Deno.serve(async (req) => {
       modality?: string | null;
       secondary_modalities?: string[];
       sport_type?: string | null;
+      target_weight_kg?: number | string | null;
+      target_date?: string | null;
+      modality_orientation?: string | null;
+      modality_goal_notes?: string | null;
+      secondary_goal_notes?: string | null;
     } | null;
     const modalityLine = goalData?.modality
       ? `Disciplina principal del usuario: ${MODALITY_LABELS[goalData.modality] ?? goalData.modality}${
           goalData.secondary_modalities?.length ? ` (también hace: ${goalData.secondary_modalities.map((s) => MODALITY_LABELS[s] ?? s).join(', ')})` : ''
         }${goalData.sport_type ? ` — deporte: ${goalData.sport_type}` : ''}. Habla en el lenguaje de su disciplina.`
       : '';
+    const goalDetailLine = [
+      goalData?.target_weight_kg != null && goalData?.target_date
+        ? `Meta de peso: ${goalData.target_weight_kg}kg para ${goalData.target_date}.`
+        : '',
+      goalData?.modality_orientation
+        ? `Objetivo específico en su disciplina: ${MODALITY_GOAL_BRANCH_LABELS[goalData.modality_orientation] ?? goalData.modality_orientation}${goalData.modality_goal_notes ? ` — ${goalData.modality_goal_notes}` : ''}.`
+        : '',
+      goalData?.secondary_goal_notes ? `Notas de disciplinas secundarias: ${goalData.secondary_goal_notes}.` : '',
+      goalData?.modality === 'first_steps' ? FIRST_STEPS_EMPATHY_GUARDRAIL : '',
+    ].filter(Boolean).join(' ');
 
     // El plan activo es la fuente de verdad: sin esto Vulcano inventa rutinas
     // que contradicen lo que generó la pestaña Planes.
@@ -176,6 +233,7 @@ Este plan es la fuente de verdad. Responde dudas sobre él, motiva su cumplimien
     const userContextBlock = `━━━ CONTEXTO DEL USUARIO ━━━
 ${TONE_BY_LEVEL[fitnessLevel] ?? TONE_BY_LEVEL.intermediate}
 ${modalityLine}
+${goalDetailLine}
 
 ${planBlock}`;
 
