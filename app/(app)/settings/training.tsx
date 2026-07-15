@@ -18,6 +18,9 @@ import { StaggerIn } from '@/components/ui/StaggerIn';
 import { FieldLabel } from '@/components/ui/FieldLabel';
 import { GroupCard } from '@/components/ui/GroupCard';
 import { useTheme } from '@/lib/theme';
+import { TargetWeightPicker } from '@/components/goals/TargetWeightPicker';
+import { ModalityOrientationPicker } from '@/components/goals/ModalityOrientationPicker';
+import { checkWeightGoalSafety, type GoalTypeForWeight } from '@/lib/weightGoalSafety';
 
 type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 const GENDERS: { value: Gender; labelKey: string }[] = [
@@ -43,6 +46,11 @@ export default function TrainingScreen() {
   const [modality, setModality] = useState<ModalityId | null>(null);
   const [secondary, setSecondary] = useState<ModalityId[]>([]);
   const [sportType, setSportType] = useState('');
+  const [targetWeightInput, setTargetWeightInput] = useState('');
+  const [targetDate, setTargetDate] = useState<string | null>(null);
+  const [modalityOrientation, setModalityOrientation] = useState<string | null>(null);
+  const [modalityGoalNotes, setModalityGoalNotes] = useState('');
+  const [secondaryGoalNotes, setSecondaryGoalNotes] = useState('');
   const [background, setBackground] = useState<AthleticBackground | null>(null);
   const [supplements, setSupplements] = useState<SupplementCode[]>([]);
   const [supplementsOther, setSupplementsOther] = useState('');
@@ -63,6 +71,11 @@ export default function TrainingScreen() {
       setSecondary((goal.secondary_modalities as ModalityId[]) ?? []);
       setSportType(goal.sport_type ?? '');
       setBackground((goal.athletic_background as AthleticBackground) ?? null);
+      setTargetWeightInput(goal.target_weight_kg != null ? String(goal.target_weight_kg) : '');
+      setTargetDate(goal.target_date ?? null);
+      setModalityOrientation(goal.modality_orientation ?? null);
+      setModalityGoalNotes(goal.modality_goal_notes ?? '');
+      setSecondaryGoalNotes(goal.secondary_goal_notes ?? '');
     }
     if (profile) {
       setSupplements((profile.supplements as SupplementCode[]) ?? []);
@@ -106,6 +119,37 @@ export default function TrainingScreen() {
       return;
     }
 
+    const showsWeightTarget = goalType === 'weight_loss' || goalType === 'muscle_gain';
+    const targetWeightNum = showsWeightTarget && targetWeightInput.trim()
+      ? Number(targetWeightInput.trim().replace(',', '.'))
+      : null;
+    if (showsWeightTarget && targetWeightNum != null && targetDate) {
+      if (latestBody?.weight_kg == null) {
+        Alert.alert(t('training.noBodyDataTitle'), t('training.noBodyDataBody'));
+        return;
+      }
+      const check = checkWeightGoalSafety({
+        goalType: goalType as GoalTypeForWeight,
+        currentWeightKg: Number(latestBody.weight_kg),
+        targetWeightKg: targetWeightNum,
+        targetDate,
+      });
+      if (!check.valid) {
+        if (check.reasonKey === 'wrongDirection') {
+          Alert.alert(t('training.wrongDirectionGoalTitle'), t('training.wrongDirectionGoalBody'));
+        } else {
+          Alert.alert(
+            t('training.unsafeGoalRateTitle'),
+            t('training.unsafeGoalRateBody', {
+              rate: check.rateKgPerWeek?.toFixed(2),
+              maxRate: check.maxSafeRateKgPerWeek?.toFixed(2),
+            }),
+          );
+        }
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       // 1. Desactivar goal(s) activo(s) — conserva historial
@@ -117,17 +161,21 @@ export default function TrainingScreen() {
       if (deactErr) throw deactErr;
 
       // 2. Insertar goal nuevo activo (conserva target del anterior si existía)
+      function sanitize(v: string) { return v.trim().slice(0, 200).replace(/[^\w\s,áéíóúñü.]/gi, ''); }
       const { error: goalErr } = await supabase.from('goals').insert({
         user_id: user.id,
         type: goalType,
-        target_weight_kg: goal?.target_weight_kg ?? null,
-        target_date: goal?.target_date ?? null,
+        target_weight_kg: targetWeightNum,
+        target_date: showsWeightTarget ? targetDate : null,
         fitness_level: level,
         mode,
         modality,
         secondary_modalities: secondary,
         sport_type: needsSport && sportType.trim() ? sportType.trim() : null,
         athletic_background: background,
+        modality_orientation: modalityOrientation,
+        modality_goal_notes: modalityGoalNotes.trim() ? sanitize(modalityGoalNotes) : null,
+        secondary_goal_notes: secondary.length > 0 && secondaryGoalNotes.trim() ? sanitize(secondaryGoalNotes) : null,
       });
       if (goalErr) {
         // Best-effort: reactivar el goal anterior para no dejar al usuario sin goal activo
@@ -210,6 +258,18 @@ export default function TrainingScreen() {
                 <Chip key={m.value} selected={mode === m.value} iconName={m.iconName} label={t(m.labelKey)} onPress={() => setMode(m.value)} />
               ))}
             </View>
+
+            {(goalType === 'weight_loss' || goalType === 'muscle_gain') && (
+              <>
+                <FieldLabel>{t('training.targetWeightSectionLabel')}</FieldLabel>
+                <TargetWeightPicker
+                  weightValue={targetWeightInput}
+                  onChangeWeight={setTargetWeightInput}
+                  targetDate={targetDate}
+                  onChangeTargetDate={setTargetDate}
+                />
+              </>
+            )}
           </GroupCard>
         </StaggerIn>
 
@@ -226,6 +286,7 @@ export default function TrainingScreen() {
                   onPress={() => {
                     setModality(m.id);
                     setSecondary((prev) => prev.filter((s) => s !== m.id));
+                    setModalityOrientation(null);
                   }}
                 />
               ))}
@@ -244,6 +305,27 @@ export default function TrainingScreen() {
                 <Input placeholder={t('training.sportPlaceholder')} value={sportType} onChangeText={setSportType} />
               </View>
             ) : null}
+
+            {modality && (
+              <View className="mt-4">
+                <ModalityOrientationPicker
+                  modality={modality}
+                  orientation={modalityOrientation}
+                  onChangeOrientation={setModalityOrientation}
+                  notes={modalityGoalNotes}
+                  onChangeNotes={setModalityGoalNotes}
+                />
+              </View>
+            )}
+            {secondary.length > 0 && (
+              <View className="mt-4">
+                <Input
+                  placeholder={t('training.secondaryNotesPlaceholder')}
+                  value={secondaryGoalNotes}
+                  onChangeText={setSecondaryGoalNotes}
+                />
+              </View>
+            )}
           </GroupCard>
         </StaggerIn>
 
