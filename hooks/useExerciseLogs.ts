@@ -7,6 +7,7 @@ export interface LogSetsInput {
   dayNumber: number;
   exerciseOrder: number;
   exerciseSlug: string | null;
+  logDate: string; // 'YYYY-MM-DD', fecha calendario LOCAL de hoy (no la del día del plan)
   sets: { setNumber: number; kg?: number; reps?: number; bodyweightLastreKg?: number }[];
 }
 
@@ -16,6 +17,7 @@ export function useLogExerciseSets() {
 
   return useMutation({
     mutationFn: async (input: LogSetsInput) => {
+      const recordedAt = new Date().toISOString();
       const rows = input.sets.map((s) => ({
         user_id: user!.id,
         workout_plan_id: input.workoutPlanId,
@@ -26,8 +28,12 @@ export function useLogExerciseSets() {
         kg: s.kg ?? null,
         reps: s.reps ?? null,
         bodyweight_lastre_kg: s.bodyweightLastreKg ?? null,
+        log_date: input.logDate,
+        recorded_at: recordedAt,
       }));
-      const { error } = await supabase.from('exercise_logs').insert(rows);
+      const { error } = await supabase
+        .from('exercise_logs')
+        .upsert(rows, { onConflict: 'user_id,workout_plan_id,day_number,exercise_order,set_number,log_date' });
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {

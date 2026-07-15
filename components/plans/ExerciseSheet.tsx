@@ -99,12 +99,21 @@ export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(functio
     .map((p) => (kind === 'kg' ? p.kg : kind === 'bodyweight' ? p.reps : null))
     .filter((v): v is number => v != null);
 
+  function todayLogDate(): string {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   async function handleSave() {
     await logSets({
       workoutPlanId,
       dayNumber,
       exerciseOrder: exercise!.order,
       exerciseSlug: slug,
+      logDate: todayLogDate(),
       sets: rows.map((r, i) => ({
         setNumber: i + 1,
         kg: kind === 'kg' ? r.kg : undefined,
