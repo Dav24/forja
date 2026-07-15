@@ -14,6 +14,7 @@
     "subtitle": "Your main discipline defines your plan.",
     "secondaryTitle": "Do you combine it with anything else?",
     "secondarySubtitle": "Optional — up to 2 secondary disciplines.",
+    "secondaryNotesPlaceholder": "Anything Vulcano should know about your secondary disciplines? (optional)",
     "sportLabel": "Which sport?",
     "sportPlaceholder": "Soccer, basketball, tennis..."
   },

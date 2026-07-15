@@ -9,6 +9,7 @@ import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
 import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { Input } from '@/components/ui/Input';
+import { ModalityOrientationPicker } from '@/components/goals/ModalityOrientationPicker';
 
 export default function Step2Modality() {
   const { t } = useTranslation('onboarding');
@@ -16,6 +17,9 @@ export default function Step2Modality() {
   const [principal, setPrincipal] = useState<ModalityId | null>(null);
   const [secondary, setSecondary] = useState<ModalityId[]>([]);
   const [sportType, setSportType] = useState('');
+  const [orientation, setOrientation] = useState<string | null>(null);
+  const [notes, setNotes] = useState('');
+  const [secondaryNotes, setSecondaryNotes] = useState('');
   const { setStep2Modality } = useOnboardingStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -25,6 +29,8 @@ export default function Step2Modality() {
   function selectPrincipal(id: ModalityId) {
     setPrincipal(id);
     setSecondary((prev) => prev.filter((s) => s !== id));
+    setOrientation(null);
+    setNotes('');
   }
 
   function toggleSecondary(id: ModalityId) {
@@ -35,12 +41,19 @@ export default function Step2Modality() {
     });
   }
 
+  function sanitize(v: string) {
+    return v.trim().slice(0, 200).replace(/[^\w\s,áéíóúñü.]/gi, '');
+  }
+
   function handleContinue() {
     if (!principal) return;
     setStep2Modality({
       modality: principal,
       secondaryModalities: secondary,
       sportType: needsSport && sportType.trim() ? sportType.trim() : null,
+      modalityOrientation: orientation,
+      modalityGoalNotes: notes.trim() ? sanitize(notes) : null,
+      secondaryGoalNotes: secondary.length > 0 && secondaryNotes.trim() ? sanitize(secondaryNotes) : null,
     });
     router.push('/(auth)/onboarding/step-3-body');
   }
@@ -101,6 +114,19 @@ export default function Step2Modality() {
         </View>
 
         {principal && (
+          <View className="mt-6">
+            <ModalityOrientationPicker
+              modality={principal}
+              orientation={orientation}
+              onChangeOrientation={setOrientation}
+              notes={notes}
+              onChangeNotes={setNotes}
+              showEditableHint
+            />
+          </View>
+        )}
+
+        {principal && (
           <View className="mt-8">
             <Text style={{ fontFamily: 'SpaceGrotesk-Bold', fontSize: 16, color: colors.text }}>
               {t('step2.secondaryTitle')}
@@ -126,6 +152,15 @@ export default function Step2Modality() {
                 );
               })}
             </View>
+            {secondary.length > 0 && (
+              <View className="mt-4">
+                <Input
+                  placeholder={t('step2.secondaryNotesPlaceholder')}
+                  value={secondaryNotes}
+                  onChangeText={setSecondaryNotes}
+                />
+              </View>
+            )}
           </View>
         )}
 
