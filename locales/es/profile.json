@@ -4,6 +4,7 @@
   "memberSince": "Forjador desde {{date}}",
   "premiumBadge": "MAESTRO FORJADOR",
   "freeBadge": "APRENDIZ",
+  "creditsBadge": "{{count}} CRÉDITOS",
   "avatar": {
     "permissionDenied": "Permiso denegado. Actívalo en los ajustes del teléfono.",
     "openSettings": "Abrir ajustes del teléfono"

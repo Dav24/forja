@@ -12,6 +12,7 @@ import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useStreak } from '@/hooks/useStreak';
 import { useLatestBodyData, useFirstBodyData } from '@/hooks/useBodyTracking';
 import { useIsPremium, useSubscription } from '@/hooks/useSubscription';
+import { useCreditBalance } from '@/hooks/useCreditBalance';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
 import { StaggerIn } from '@/components/ui/StaggerIn';
@@ -41,6 +42,7 @@ export default function ProfileScreen() {
   const { pickAndUpload, uploading, error: avatarError, permissionDenied } = useAvatarUpload();
   const isPremium = useIsPremium();
   const { data: subscription } = useSubscription();
+  const { data: creditBalance } = useCreditBalance();
   const navScroll = useHideNavOnScroll();
 
   const gradients = gradientsByTheme[resolved];
@@ -182,6 +184,9 @@ export default function ProfileScreen() {
                 {user?.email}
               </Text>
               {isPremium ? <Badge label={t('premiumBadge')} variant="premium" /> : <Badge label={t('freeBadge')} variant="muted" />}
+              {!isPremium && creditBalance ? (
+                <Badge label={t('creditsBadge', { count: creditBalance })} variant="muted" />
+              ) : null}
               {memberSinceLabel ? (
                 <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
                   {memberSinceLabel}

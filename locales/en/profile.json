@@ -4,6 +4,7 @@
   "memberSince": "Forging since {{date}}",
   "premiumBadge": "MASTER FORGER",
   "freeBadge": "APPRENTICE",
+  "creditsBadge": "{{count}} CREDITS",
   "avatar": {
     "permissionDenied": "Permission denied. Enable it in your phone settings.",
     "openSettings": "Open phone settings"
