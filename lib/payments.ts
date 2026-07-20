@@ -12,3 +12,7 @@ export function buildPaymentURL(uid: string, billing: Billing, promoCode = ''): 
 export function buildPortalURL(uid: string): string {
   return `${PAYMENTS_URL}/portal?uid=${uid}`;
 }
+
+export function buildCreditPackURL(uid: string): string {
+  return `${PAYMENTS_URL}/credits/?uid=${uid}`;
+}
