@@ -1,4 +1,5 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { decideCreditGate } from './credits.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
 const FREE_MEAL_PLAN_LIFETIME_LIMIT = 1;
@@ -180,6 +181,12 @@ Deno.serve(async (req) => {
   }
 
   let jobId: string | null = null;
+  let creditUsed = false;
+  let userId: string | null = null;
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
 
   try {
     const authHeader = req.headers.get('Authorization');
@@ -201,6 +208,7 @@ Deno.serve(async (req) => {
         status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
+    userId = user.id;
 
     const [subResult, totalPlansResult, activeJobResult] = await Promise.all([
       supabase.from('subscriptions').select('status, plan').eq('user_id', user.id).maybeSingle(),
@@ -225,6 +233,7 @@ Deno.serve(async (req) => {
     const isPremium = subResult.data?.status === 'active' && subResult.data?.plan !== 'free';
     const totalPlans = totalPlansResult.count ?? 0;
 
+    let quotaExceeded = false;
     if (isPremium) {
       const monthStart = new Date();
       monthStart.setDate(1);
@@ -240,9 +249,19 @@ Deno.serve(async (req) => {
           { status: 429, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
         );
       }
-    } else if (totalPlans >= FREE_MEAL_PLAN_LIFETIME_LIMIT) {
+    } else {
+      quotaExceeded = totalPlans >= FREE_MEAL_PLAN_LIFETIME_LIMIT;
+    }
+
+    let creditBalance = 0;
+    if (quotaExceeded) {
+      const { data: balanceData } = await supabase.rpc('get_credit_balance', { p_user_id: user.id });
+      creditBalance = balanceData ?? 0;
+    }
+    const creditGate = decideCreditGate({ isPremium, quotaExceeded, creditBalance });
+    if (creditGate === 'blocked') {
       return new Response(
-        JSON.stringify({ error: 'meal_plan_limit_reached', count: totalPlans }),
+        JSON.stringify({ error: 'no_credits_remaining', count: totalPlans, credit_balance: creditBalance }),
         { status: 429, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
       );
     }
@@ -293,6 +312,25 @@ Deno.serve(async (req) => {
 
     jobId = job.id;
 
+    if (creditGate === 'needs_credit') {
+      const { data: remaining, error: consumeErr } = await serviceClient.rpc('consume_credit', {
+        p_user_id: user.id,
+        p_action: 'generate_meal_plan',
+        p_related_job_id: job.id,
+      });
+      if (consumeErr || remaining == null || remaining < 0) {
+        await supabase
+          .from('async_jobs')
+          .update({ status: 'failed', error: 'no_credits_remaining', completed_at: new Date().toISOString() })
+          .eq('id', job.id);
+        return new Response(
+          JSON.stringify({ error: 'no_credits_remaining', job_id: job.id }),
+          { status: 429, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+        );
+      }
+      creditUsed = true;
+    }
+
     const prompt = buildMealPlanPrompt({
       goal_type: goalResult.data.type,
       fitness_level: goalResult.data.fitness_level,
@@ -337,6 +375,9 @@ Deno.serve(async (req) => {
       await supabase.from('async_jobs')
         .update({ status: 'failed', error: `Anthropic error: ${anthropicRes.status}`, completed_at: new Date().toISOString() })
         .eq('id', job.id);
+      if (creditUsed) {
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+      }
       return new Response(
         JSON.stringify({ error: 'ai_error', job_id: job.id }),
         { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
@@ -359,6 +400,9 @@ Deno.serve(async (req) => {
       await supabase.from('async_jobs')
         .update({ status: 'failed', error: 'Invalid JSON from AI', completed_at: new Date().toISOString() })
         .eq('id', job.id);
+      if (creditUsed) {
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+      }
       return new Response(
         JSON.stringify({ error: 'invalid_ai_response', job_id: job.id }),
         { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
@@ -389,6 +433,9 @@ Deno.serve(async (req) => {
       await supabase.from('async_jobs')
         .update({ status: 'failed', error: 'DB insert failed', completed_at: new Date().toISOString() })
         .eq('id', job.id);
+      if (creditUsed) {
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+      }
       return new Response(
         JSON.stringify({ error: 'db_error', job_id: job.id }),
         { status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
@@ -406,15 +453,16 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error('generate-meal-plan error:', err);
     if (jobId) {
-      const cleanupClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      );
-      await cleanupClient
+      await serviceClient
         .from('async_jobs')
         .update({ status: 'failed', error: 'unexpected_error', completed_at: new Date().toISOString() })
         .eq('id', jobId)
-        .catch(() => {}); // no propagar error del cleanup
+        .then(() => {}, () => {}); // no propagar error del cleanup
+      if (creditUsed && userId) {
+        await serviceClient
+          .rpc('grant_credit', { p_user_id: userId, p_amount: 1, p_type: 'refund', p_related_job_id: jobId })
+          .then(() => {}, () => {});
+      }
     }
     return new Response(
       JSON.stringify({ error: 'internal_error' }),
