@@ -208,7 +208,7 @@ Base commit: 15ac0a7
 ## Tasks
 - [x] Task 1: Migración 0015 credit_ledger + RLS + RPCs
 - [x] Task 2: generate-plan/credits.ts
-- [ ] Task 3: generate-meal-plan/credits.ts
+- [x] Task 3: generate-meal-plan/credits.ts
 - [ ] Task 4: Wiring generate-plan/index.ts
 - [ ] Task 5: Wiring generate-meal-plan/index.ts
 - [ ] Task 6: stripe-webhook/packs.ts
@@ -226,3 +226,4 @@ Base commit: 15ac0a7
 Task 1: complete (commit 929dfd5 en worktree-creditos-consumibles — cherry-pick de 0ccdf13 que el implementador dejó por error en master; master restaurado a 15ac0a7 con git reset --hard. RPCs verificadas por psql real: grant 3→balance 3→consume 2,1,0→consume falla devuelve -1 sin insertar fila; ON CONFLICT dedup confirmado; pg_policies solo 1 SELECT, sin INSERT/UPDATE/DELETE; types regenerados)
 Task 1: FINAL — approved 0 issues tras 3 rondas de fix (commits 929dfd5..6f3ba37). Ronda 1: corrigió types/database.types.ts corrupto (log de CLI colado) + cerró el hueco de que las 3 RPCs eran invocables sin restricción (cualquier usuario podía mintear créditos vía grant_credit). Ronda 2: el guard de auth.uid() del refund en grant_credit era él mismo explotable (un usuario podía fabricar su propio async_jobs con status='failed' y reembolsarse infinito) — cerrado ligando el refund a un job real/fallido/propio/no-duplicado. Ronda 3 (decisión del usuario tras discusión): abandonar guards de auth.uid() en consume_credit/grant_credit por ser fundamentalmente insuficientes (el usuario comparte el mismo JWT que la Edge Function reenvía, no hay forma de distinguirlos a nivel RPC) — reemplazados por REVOKE EXECUTE ... FROM PUBLIC, authenticated (boundary de permisos de Postgres, no lógica de aplicación). get_credit_balance se queda callable por authenticated con su propio guard de auth.uid() (el badge del cliente RN la necesita). Plan actualizado en consecuencia: Tasks 4 y 5 ahora especifican un serviceClient hoisted para TODAS las llamadas a consume_credit/grant_credit. Verificación final incluyó queries directas a information_schema.routine_privileges y has_function_privilege() contra el stack local corriendo, no solo lectura estática del diff.
 Task 2: complete (commit 18dbc2c, review approved 0 issues, TDD RED->GREEN verificado)
+Task 3: complete (commit 37d378b, review approved 0 issues)
