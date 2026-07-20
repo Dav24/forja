@@ -570,10 +570,17 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     console.error('generate-plan error:', err);
-    if (creditUsed && jobId && userId) {
+    if (jobId) {
       await serviceClient
-        .rpc('grant_credit', { p_user_id: userId, p_amount: 1, p_type: 'refund', p_related_job_id: jobId })
-        .then(() => {}, () => {}); // no propagar error del cleanup, mismo patrón que generate-meal-plan
+        .from('async_jobs')
+        .update({ status: 'failed', error: 'unexpected_error', completed_at: new Date().toISOString() })
+        .eq('id', jobId)
+        .then(() => {}, () => {}); // no propagar error del cleanup
+      if (creditUsed && userId) {
+        await serviceClient
+          .rpc('grant_credit', { p_user_id: userId, p_amount: 1, p_type: 'refund', p_related_job_id: jobId })
+          .then(() => {}, () => {}); // no propagar error del cleanup, mismo patrón que generate-meal-plan
+      }
     }
     return new Response(
       JSON.stringify({ error: 'internal_error' }),

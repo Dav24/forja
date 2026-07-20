@@ -91,9 +91,7 @@ export function useGeneratePlan(refetch: () => Promise<unknown>) {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.error === 'monthly_plan_limit_reached') {
-          Alert.alert('Límite alcanzado', 'En el plan free puedes generar 1 plan por mes. Actualiza a premium para generar más.');
-        } else if (data.error === 'no_credits_remaining') {
+        if (data.error === 'no_credits_remaining') {
           Alert.alert(
             'Sin créditos',
             'Ya usaste tu plan gratuito de este mes. Compra créditos extra para generar otro.',
