@@ -214,7 +214,7 @@ Base commit: 15ac0a7
 - [x] Task 6: stripe-webhook/packs.ts
 - [x] Task 7: Wiring stripe-webhook/index.ts
 - [x] Task 8: web/lib/checkout.ts createCreditPackCheckoutSession
-- [ ] Task 9: web/app/api/checkout/route.ts kind:credit_pack
+- [x] Task 9: web/app/api/checkout/route.ts kind:credit_pack
 - [ ] Task 10: constants/pricing.ts precio del paquete
 - [ ] Task 11: Página web de compra de créditos
 - [ ] Task 12: lib/payments.ts buildCreditPackURL
@@ -232,3 +232,4 @@ Task 5: complete (commit 93cdfc3, review approved 0 issues; premium branch verif
 Task 6: complete (commit 9eecce1, review approved 0 issues)
 Task 7: complete (commit c046bb2, review approved 0 issues; verificado con Checkout.Session falso contra Supabase local, idempotencia confirmada por ON CONFLICT)
 Task 8: complete (commit 67509dc, review approved 0 issues; 14/14 tests, tsc+eslint limpios)
+Task 9: complete (commit 62e341d, review approved 0 issues; premium path verificado sin regresión)
