@@ -216,7 +216,7 @@ Base commit: 15ac0a7
 - [x] Task 8: web/lib/checkout.ts createCreditPackCheckoutSession
 - [x] Task 9: web/app/api/checkout/route.ts kind:credit_pack
 - [x] Task 10: constants/pricing.ts precio del paquete
-- [ ] Task 11: Página web de compra de créditos
+- [x] Task 11: Página web de compra de créditos
 - [ ] Task 12: lib/payments.ts buildCreditPackURL
 - [ ] Task 13: hooks/useCreditBalance.ts
 - [ ] Task 14: useWorkoutPlan.ts no_credits_remaining
@@ -234,3 +234,4 @@ Task 7: complete (commit c046bb2, review approved 0 issues; verificado con Check
 Task 8: complete (commit 67509dc, review approved 0 issues; 14/14 tests, tsc+eslint limpios)
 Task 9: complete (commit 62e341d, review approved 0 issues; premium path verificado sin regresión)
 Task 10: complete (commit b46464f, review approved 0 issues)
+Task 11: complete (commit af4982e, review approved 0 issues; verificado con curl los 3 estados de uid)
