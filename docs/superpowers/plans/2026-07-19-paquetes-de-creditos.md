@@ -15,6 +15,7 @@
 - Cobro por reserva-y-reembolso: el crédito se descuenta ANTES de llamar a Anthropic, se reembolsa si la generación falla después.
 - Sin IAP nativo — reutilizar el patrón Stripe-web (`Linking.openURL`) igual que la suscripción premium hoy.
 - `credit_ledger` usa RLS de solo-lectura para el dueño (`FOR SELECT USING (auth.uid() = user_id)`), SIN policy de escritura — desviación deliberada del patrón `FOR ALL` que usa el resto del esquema, porque es un ledger de valor, no un dato de usuario.
+- `consume_credit`/`grant_credit` son invocables SOLO por el cliente de service role (`REVOKE EXECUTE ... FROM authenticated` en la migración) — nunca por el cliente con el JWT del usuario. Motivo: un usuario comparte el mismo JWT que la Edge Function reenvía, así que cualquier RPC alcanzable con ese JWT es alcanzable directo por PostgREST; solo el service role distingue "la Edge Function actuando en nombre del usuario" de "el usuario llamando directo". `generate-plan`/`generate-meal-plan` (Tasks 4/5) deben crear e usar un cliente de service role (mismo patrón que el `cleanupClient` que ya existe en `generate-meal-plan/index.ts`) para TODAS las llamadas a estas dos RPCs. `get_credit_balance` es la excepción: se queda callable por `authenticated` (el badge de saldo en el cliente RN la necesita) y por eso lleva su propio guard de `auth.uid() = p_user_id`.
 - Mantener la duplicación de código entre `generate-plan/index.ts` y `generate-meal-plan/index.ts` (no extraer un módulo compartido) — consistente con cómo ya están escritos hoy.
 - Toda cadena de texto nueva visible al usuario necesita clave en `locales/es/*.json` Y `locales/en/*.json` (namespace parity forzada por `scripts/check-i18n.mjs`). No usar plurales de i18next.
 - Seguir el patrón de testing ya establecido en este repo: lógica con ramas de decisión reales se extrae a un módulo pequeño con `Deno.test`/`jsr:@std/assert` (Edge Functions) o Vitest (`web/`) — ver `supabase/functions/swap-meal/logic.ts`+`logic.test.ts`, `supabase/functions/stripe-webhook/status.ts`+`status.test.ts`, `web/lib/checkout.ts`+`checkout.test.ts`. El código dentro de `Deno.serve(...)` en sí y los componentes de página no se testean directo en este repo — se verifican manualmente (curl / E2E).
@@ -82,12 +83,21 @@ CREATE POLICY "users_read_own_credits" ON credit_ledger
   FOR SELECT USING (auth.uid() = user_id);
 
 -- Devuelve el saldo actual del usuario (suma de amount en el ledger).
+-- Sigue siendo callable por `authenticated` (el cliente RN la usa para el
+-- badge de saldo) — por eso SÍ necesita su propio guard de auth.uid().
 CREATE OR REPLACE FUNCTION get_credit_balance(p_user_id UUID)
 RETURNS INTEGER AS $$
-  SELECT COALESCE(SUM(amount), 0)::INTEGER
-  FROM public.credit_ledger
-  WHERE user_id = p_user_id;
-$$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
+BEGIN
+  IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'get_credit_balance: solo puedes consultar tu propio saldo';
+  END IF;
+  RETURN (
+    SELECT COALESCE(SUM(amount), 0)::INTEGER
+    FROM public.credit_ledger
+    WHERE user_id = p_user_id
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public;
 
 -- Descuenta 1 crédito de forma atómica. pg_advisory_xact_lock por usuario
 -- porque no hay una fila de balance que lockear con FOR UPDATE (es un
@@ -95,6 +105,15 @@ $$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
 -- Devuelve el saldo nuevo, o -1 si no había saldo suficiente (no inserta
 -- nada en ese caso). Este lock es lo único que cierra la carrera entre
 -- generate-plan y generate-meal-plan compitiendo por el mismo pool.
+--
+-- SIN guard de auth.uid(): la seguridad la da el REVOKE de abajo, no un
+-- chequeo en el cuerpo. Un guard de auth.uid()=p_user_id sería insuficiente
+-- de todas formas — el usuario comparte el mismo JWT que la Edge Function
+-- usa para llamarla, así que "restringir a auth.uid() propio" no distingue
+-- "la Edge Function actuando por el usuario" de "el usuario llamando
+-- directo por PostgREST". Por eso esta función y grant_credit solo son
+-- invocables por las Edge Functions vía su cliente de SERVICE ROLE — ver
+-- Tasks 4 y 5.
 CREATE OR REPLACE FUNCTION consume_credit(p_user_id UUID, p_action TEXT, p_related_job_id UUID)
 RETURNS INTEGER AS $$
 DECLARE
@@ -117,11 +136,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
+REVOKE EXECUTE ON FUNCTION consume_credit(UUID, TEXT, UUID) FROM PUBLIC, authenticated;
+
 -- Único punto de escritura de créditos positivos (compras del webhook,
 -- reembolsos de generación fallida). ON CONFLICT en stripe_payment_intent_id
 -- hace que un reintento del webhook de Stripe sea no-op seguro en vez de
 -- duplicar el crédito (solo aplica cuando ese id no es null: los reembolsos
--- internos no lo llevan).
+-- internos no lo llevan). Mismo motivo que consume_credit para no llevar
+-- guard de auth.uid(): la protección real es el REVOKE de abajo — solo
+-- llamable vía el cliente de service role de las Edge Functions (Tasks 4/5)
+-- o del webhook de Stripe.
 CREATE OR REPLACE FUNCTION grant_credit(
   p_user_id UUID,
   p_amount INTEGER,
@@ -144,6 +168,8 @@ BEGIN
   RETURN v_balance;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+REVOKE EXECUTE ON FUNCTION grant_credit(UUID, INTEGER, TEXT, UUID, TEXT) FROM PUBLIC, authenticated;
 ```
 
 - [ ] **Step 2: Aplicar localmente**
@@ -151,7 +177,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 Run: `cd "forja" && supabase db reset`
 Expected: la migración `0015_credit_ledger.sql` corre sin error junto con las 14 anteriores.
 
-- [ ] **Step 3: Verificar las RPCs manualmente**
+- [ ] **Step 3: Verificar las RPCs manualmente (como service role — sesión psql normal, sin JWT)**
 
 Run (psql local, o SQL editor de Studio — usar un `user_id` real de `profiles` en tu DB local):
 
@@ -173,13 +199,25 @@ select grant_credit('00000000-0000-0000-0000-000000000001'::uuid, 5, 'purchase',
 -- select get_credit_balance(...) debe dar el mismo resultado que tras el primero, no el doble
 ```
 
-- [ ] **Step 4: Verificar que RLS bloquea escritura directa**
+- [ ] **Step 4: Verificar que RLS bloquea escritura directa Y que consume_credit/grant_credit no son invocables por un usuario autenticado**
 
-Run:
+RLS en la tabla:
 ```sql
 select policyname, cmd from pg_policies where tablename = 'credit_ledger';
 ```
-Expected: exactamente una fila, `cmd = 'SELECT'`. Ninguna policy de INSERT/UPDATE/DELETE — combinado con `0004_grants.sql` (que da grants amplios a `authenticated`), esto significa que un usuario autenticado que intente `insert into credit_ledger` vía PostgREST recibe `permission denied` (RLS deniega por defecto cualquier comando sin policy que lo autorice).
+Expected: exactamente una fila, `cmd = 'SELECT'`. Ninguna policy de INSERT/UPDATE/DELETE — combinado con `0004_grants.sql` (que da grants amplios a `authenticated`), esto significa que un usuario autenticado que intente `insert into credit_ledger` vía PostgREST recibe `permission denied`.
+
+Permisos de ejecución de las RPCs (simula el rol `authenticated`, que es el que PostgREST usa para requests con JWT de usuario):
+```sql
+set role authenticated;
+select consume_credit('00000000-0000-0000-0000-000000000001'::uuid, 'x', null);
+-- expect: ERROR: permission denied for function consume_credit
+select grant_credit('00000000-0000-0000-0000-000000000001'::uuid, 1, 'refund');
+-- expect: ERROR: permission denied for function grant_credit
+select get_credit_balance('00000000-0000-0000-0000-000000000001'::uuid);
+-- expect: funciona (sigue siendo callable por authenticated) — pero pasar OTRO user_id distinto al propio auth.uid() debe lanzar la excepción del guard
+reset role;
+```
 
 - [ ] **Step 5: Regenerar tipos TypeScript**
 
@@ -347,6 +385,8 @@ git commit -m "feat(creditos): decideCreditGate para generate-meal-plan"
 **Interfaces:**
 - Consumes: `decideCreditGate` de Task 2 (`./credits.ts`); RPCs `get_credit_balance`, `consume_credit`, `grant_credit` de Task 1.
 
+**IMPORTANTE — cliente de service role obligatorio para `consume_credit`/`grant_credit`:** esas dos RPCs tienen `REVOKE EXECUTE ... FROM authenticated` en la migración (Task 1) — el cliente `supabase` normal (con el JWT del usuario) NO puede llamarlas, recibirá `permission denied`. TODAS las llamadas a `consume_credit` y `grant_credit` en este archivo deben usar el `serviceClient` creado en el Step 1. `get_credit_balance` SÍ sigue siendo callable por el cliente `supabase` normal (se queda con su propio guard de `auth.uid()`), así que esa llamada no cambia.
+
 No hay test automatizado para el handler `Deno.serve` en sí (consistente con que `generate-plan/index.ts` no tiene `index.test.ts` hoy) — verificación manual al final del task.
 
 - [ ] **Step 1: Import + hoisting de variables antes del `try`**
@@ -365,6 +405,14 @@ Deno.serve(async (req) => {
   let creditUsed = false;
   let jobId: string | null = null;
   let userId: string | null = null;
+  // consume_credit/grant_credit revocan EXECUTE a `authenticated` (Task 1) —
+  // solo el service role puede llamarlas. Se crea una vez aquí, fuera del
+  // try, así también queda disponible en el catch externo (Step 6) sin
+  // necesidad de un cliente de cleanup aparte.
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
 
   try {
 ```
@@ -448,7 +496,7 @@ Agregar justo después (antes de `const prompt = buildPlanPrompt(...)`):
     jobId = job.id;
 
     if (creditGate === 'needs_credit') {
-      const { data: remaining, error: consumeErr } = await supabase.rpc('consume_credit', {
+      const { data: remaining, error: consumeErr } = await serviceClient.rpc('consume_credit', {
         p_user_id: user.id,
         p_action: 'generate_workout_plan',
         p_related_job_id: job.id,
@@ -480,7 +528,7 @@ Hay 4 bloques que marcan `async_jobs` como `failed` (errores de Anthropic ~líne
         .update({ status: 'failed', error: `Anthropic error: ${anthropicRes.status}`, completed_at: new Date().toISOString() })
         .eq('id', job.id);
       if (creditUsed) {
-        await supabase.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
       }
 
       return new Response(
@@ -490,7 +538,7 @@ Hay 4 bloques que marcan `async_jobs` como `failed` (errores de Anthropic ~líne
     }
 ```
 
-Repetir el mismo `if (creditUsed) { await supabase.rpc('grant_credit', ...); }` (con `job.id` en `p_related_job_id`) en los otros 3 bloques (truncamiento, JSON inválido, fallo de insert), cada uno justo después de su `.update({ status: 'failed', ... })` y antes del `return`.
+Repetir el mismo `if (creditUsed) { await serviceClient.rpc('grant_credit', ...); }` (con `job.id` en `p_related_job_id`) en los otros 3 bloques (truncamiento, JSON inválido, fallo de insert), cada uno justo después de su `.update({ status: 'failed', ... })` y antes del `return`. Nota: `grant_credit` valida server-side que `p_related_job_id` referencie un `async_jobs` con `status='failed'` del mismo usuario (guard agregado en Task 1 tras revisión de seguridad) — por eso el `.update({status:'failed',...})` de `async_jobs` SIEMPRE debe ejecutarse Y completarse (await) antes de la llamada a `grant_credit`, nunca después ni en paralelo, o el refund será rechazado.
 
 - [ ] **Step 6: Reembolsar también en el `catch` externo**
 
@@ -504,16 +552,12 @@ Localizar (línea 517-523):
     );
   }
 ```
-Reemplazar por (mismo patrón `cleanupClient` con service role que ya usa `generate-meal-plan/index.ts` para su catch externo, porque `supabase`/`user` fueron declarados dentro del `try` y no son visibles aquí):
+Reemplazar por (reutiliza el `serviceClient` ya creado en Step 1 — no hace falta crear un cliente de cleanup aparte, a diferencia del patrón viejo de `generate-meal-plan`):
 ```ts
   } catch (err) {
     console.error('generate-plan error:', err);
     if (creditUsed && jobId && userId) {
-      const cleanupClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      );
-      await cleanupClient
+      await serviceClient
         .rpc('grant_credit', { p_user_id: userId, p_amount: 1, p_type: 'refund', p_related_job_id: jobId })
         .then(() => {}, () => {}); // no propagar error del cleanup, mismo patrón que generate-meal-plan
     }
@@ -523,6 +567,8 @@ Reemplazar por (mismo patrón `cleanupClient` con service role que ya usa `gener
     );
   }
 ```
+
+**Nota sobre `p_related_job_id` en el catch externo:** si la excepción ocurre ANTES de que `async_jobs.status` se haya marcado `failed` (por ejemplo, un error inesperado entre el consumo del crédito y el primer punto de falla nombrado), `grant_credit` rechazará el reembolso porque el guard exige `status='failed'`. Esto es un caso borde aceptado — el crédito quedaría consumido sin reembolso automático en ese escenario específico (excepción no prevista fuera de los 4 puntos de falla ya mapeados). Documentarlo como riesgo residual menor en el reporte del task, no bloquea el task.
 
 - [ ] **Step 7: Type-check y verificación manual**
 
@@ -557,6 +603,8 @@ git commit -m "feat(creditos): generate-plan consume/reembolsa créditos cuando 
 **Interfaces:**
 - Consumes: `decideCreditGate` de Task 3 (`./credits.ts`); RPCs de Task 1.
 
+**IMPORTANTE — cliente de service role obligatorio para `consume_credit`/`grant_credit`:** igual que en Task 4, esas dos RPCs tienen `REVOKE EXECUTE ... FROM authenticated` — el cliente `supabase` normal no puede llamarlas. `get_credit_balance` sí sigue siendo callable por `supabase` normal.
+
 - [ ] **Step 1: Import + hoisting**
 
 Agregar import junto a los existentes:
@@ -572,17 +620,21 @@ Deno.serve(async (req) => {
 
   try {
 ```
-Agregar `creditUsed` y `userId` junto al `jobId` ya existente:
+Agregar `creditUsed`, `userId` y el `serviceClient` hoisted junto al `jobId` ya existente (este `serviceClient` reemplaza al `cleanupClient` que hoy se crea de forma ad-hoc solo dentro del `catch` — ver Step 6):
 ```ts
 Deno.serve(async (req) => {
   ...
   let jobId: string | null = null;
   let creditUsed = false;
   let userId: string | null = null;
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
 
   try {
 ```
-(Mantener el resto del contenido entre `Deno.serve(async (req) => {` y `let jobId` intacto — solo agregar las 2 líneas nuevas después de `let jobId: string | null = null;`.)
+(Mantener el resto del contenido entre `Deno.serve(async (req) => {` y `let jobId` intacto — solo agregar las líneas nuevas después de `let jobId: string | null = null;`. `createClient` ya está importado en este archivo — verifícalo, si no está agrégalo igual que en Task 4 Step 1.)
 
 - [ ] **Step 2: Guardar `userId` tras el chequeo de auth**
 
@@ -690,7 +742,7 @@ Agregar justo después de `jobId = job.id;`:
 ```ts
 
     if (creditGate === 'needs_credit') {
-      const { data: remaining, error: consumeErr } = await supabase.rpc('consume_credit', {
+      const { data: remaining, error: consumeErr } = await serviceClient.rpc('consume_credit', {
         p_user_id: user.id,
         p_action: 'generate_meal_plan',
         p_related_job_id: job.id,
@@ -711,7 +763,7 @@ Agregar justo después de `jobId = job.id;`:
 
 - [ ] **Step 5: Reembolsar en los 3 puntos de falla existentes**
 
-En los 3 bloques que marcan `async_jobs` como `failed` dentro del `try` (error de Anthropic ~línea 337-343, JSON inválido ~línea 359-365, fallo de insert ~línea 389-395), agregar `if (creditUsed) { await supabase.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id }); }` justo después del `.update({ status: 'failed', ... })` y antes del `return`. Ejemplo para el de Anthropic:
+En los 3 bloques que marcan `async_jobs` como `failed` dentro del `try` (error de Anthropic ~línea 337-343, JSON inválido ~línea 359-365, fallo de insert ~línea 389-395), agregar `if (creditUsed) { await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id }); }` justo después del `.update({ status: 'failed', ... })` y antes del `return`. Ejemplo para el de Anthropic:
 
 ```ts
     if (!anthropicRes.ok) {
@@ -721,7 +773,7 @@ En los 3 bloques que marcan `async_jobs` como `failed` dentro del `try` (error d
         .update({ status: 'failed', error: `Anthropic error: ${anthropicRes.status}`, completed_at: new Date().toISOString() })
         .eq('id', job.id);
       if (creditUsed) {
-        await supabase.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
       }
       return new Response(
         JSON.stringify({ error: 'ai_error', job_id: job.id }),
@@ -730,7 +782,9 @@ En los 3 bloques que marcan `async_jobs` como `failed` dentro del `try` (error d
     }
 ```
 
-- [ ] **Step 6: Reembolsar en el `catch` externo (ya existe `cleanupClient`)**
+(Recordar, igual que en Task 4: `grant_credit` valida que `p_related_job_id` apunte a un `async_jobs` ya en `status='failed'` del mismo usuario — el `.update(...)` debe completarse con `await` antes de llamar a `grant_credit`, como ya está en el orden de arriba.)
+
+- [ ] **Step 6: Reembolsar en el `catch` externo (reutiliza el `serviceClient` hoisted)**
 
 Localizar (línea ~406-418):
 ```ts
@@ -753,22 +807,18 @@ Localizar (línea ~406-418):
     );
   }
 ```
-Reemplazar por (agrega el reembolso usando el mismo `cleanupClient` ya creado):
+Reemplazar por (usa el `serviceClient` hoisted en Step 1 en vez de crear un `cleanupClient` nuevo aquí — ya no hace falta, es el mismo cliente):
 ```ts
   } catch (err) {
     console.error('generate-meal-plan error:', err);
     if (jobId) {
-      const cleanupClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      );
-      await cleanupClient
+      await serviceClient
         .from('async_jobs')
         .update({ status: 'failed', error: 'unexpected_error', completed_at: new Date().toISOString() })
         .eq('id', jobId)
         .catch(() => {}); // no propagar error del cleanup
       if (creditUsed && userId) {
-        await cleanupClient
+        await serviceClient
           .rpc('grant_credit', { p_user_id: userId, p_amount: 1, p_type: 'refund', p_related_job_id: jobId })
           .then(() => {}, () => {});
       }
