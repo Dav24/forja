@@ -221,7 +221,7 @@ Base commit: 15ac0a7
 - [x] Task 13: hooks/useCreditBalance.ts
 - [x] Task 14: useWorkoutPlan.ts no_credits_remaining
 - [x] Task 15: Plan de comida no_credits_remaining + i18n
-- [ ] Task 16: Badge de saldo de créditos en perfil
+- [x] Task 16: Badge de saldo de créditos en perfil
 
 Task 1: complete (commit 929dfd5 en worktree-creditos-consumibles — cherry-pick de 0ccdf13 que el implementador dejó por error en master; master restaurado a 15ac0a7 con git reset --hard. RPCs verificadas por psql real: grant 3→balance 3→consume 2,1,0→consume falla devuelve -1 sin insertar fila; ON CONFLICT dedup confirmado; pg_policies solo 1 SELECT, sin INSERT/UPDATE/DELETE; types regenerados)
 Task 1: FINAL — approved 0 issues tras 3 rondas de fix (commits 929dfd5..6f3ba37). Ronda 1: corrigió types/database.types.ts corrupto (log de CLI colado) + cerró el hueco de que las 3 RPCs eran invocables sin restricción (cualquier usuario podía mintear créditos vía grant_credit). Ronda 2: el guard de auth.uid() del refund en grant_credit era él mismo explotable (un usuario podía fabricar su propio async_jobs con status='failed' y reembolsarse infinito) — cerrado ligando el refund a un job real/fallido/propio/no-duplicado. Ronda 3 (decisión del usuario tras discusión): abandonar guards de auth.uid() en consume_credit/grant_credit por ser fundamentalmente insuficientes (el usuario comparte el mismo JWT que la Edge Function reenvía, no hay forma de distinguirlos a nivel RPC) — reemplazados por REVOKE EXECUTE ... FROM PUBLIC, authenticated (boundary de permisos de Postgres, no lógica de aplicación). get_credit_balance se queda callable por authenticated con su propio guard de auth.uid() (el badge del cliente RN la necesita). Plan actualizado en consecuencia: Tasks 4 y 5 ahora especifican un serviceClient hoisted para TODAS las llamadas a consume_credit/grant_credit. Verificación final incluyó queries directas a information_schema.routine_privileges y has_function_privilege() contra el stack local corriendo, no solo lectura estática del diff.
@@ -239,3 +239,4 @@ Task 12: complete (commit 861b50d, review approved 0 issues)
 Task 13: complete (commit 8a968f5, review approved 0 issues)
 Task 14: complete (commit 22c34f7, review approved 0 issues; E2E en Expo Go pendiente, diferido al humano)
 Task 15: complete (commit 2c7d4ec, review approved 0 issues; check-i18n y tsc verificados por el reviewer de forma independiente)
+Task 16: complete (commit af2b3b1, review approved 0 issues; TODAS LAS 16 TAREAS COMPLETAS)
