@@ -1,6 +1,7 @@
 import Stripe from 'npm:stripe@18';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { mapStripeStatus } from './status.ts';
+import { creditAmountForPack } from './packs.ts';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
@@ -58,6 +59,22 @@ Deno.serve(async (req) => {
           console.error('webhook: checkout.session.completed sin user_id', session.id);
           break;
         }
+        if (session.mode === 'payment') {
+          const amount = creditAmountForPack(session.metadata?.credit_pack);
+          if (!amount) {
+            console.error('webhook: credit_pack desconocido en checkout.session.completed', session.id, session.metadata?.credit_pack);
+            break;
+          }
+          const { error: creditError } = await supabase.rpc('grant_credit', {
+            p_user_id: userId,
+            p_amount: amount,
+            p_type: 'purchase',
+            p_stripe_payment_intent_id: session.payment_intent as string,
+          });
+          if (creditError) throw creditError;
+          break;
+        }
+
         if (session.mode !== 'subscription' || !session.subscription) break;
         const subId = session.subscription as string;
         const sub = await stripe.subscriptions.retrieve(subId);
