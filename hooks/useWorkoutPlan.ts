@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import { router } from 'expo-router';
+import { buildCreditPackURL } from '@/lib/payments';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
@@ -92,6 +93,15 @@ export function useGeneratePlan(refetch: () => Promise<unknown>) {
       if (!res.ok) {
         if (data.error === 'monthly_plan_limit_reached') {
           Alert.alert('Límite alcanzado', 'En el plan free puedes generar 1 plan por mes. Actualiza a premium para generar más.');
+        } else if (data.error === 'no_credits_remaining') {
+          Alert.alert(
+            'Sin créditos',
+            'Ya usaste tu plan gratuito de este mes. Compra créditos extra para generar otro.',
+            [
+              { text: 'Cancelar', style: 'cancel' },
+              { text: 'Comprar créditos', onPress: () => Linking.openURL(buildCreditPackURL(session.user.id)) },
+            ],
+          );
         } else if (data.error === 'generation_in_progress') {
           Alert.alert('En proceso', 'Ya hay un plan siendo generado. Espera un momento.');
         } else {
