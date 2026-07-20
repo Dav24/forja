@@ -212,7 +212,7 @@ Base commit: 15ac0a7
 - [x] Task 4: Wiring generate-plan/index.ts
 - [x] Task 5: Wiring generate-meal-plan/index.ts
 - [x] Task 6: stripe-webhook/packs.ts
-- [ ] Task 7: Wiring stripe-webhook/index.ts
+- [x] Task 7: Wiring stripe-webhook/index.ts
 - [ ] Task 8: web/lib/checkout.ts createCreditPackCheckoutSession
 - [ ] Task 9: web/app/api/checkout/route.ts kind:credit_pack
 - [ ] Task 10: constants/pricing.ts precio del paquete
@@ -230,3 +230,4 @@ Task 3: complete (commit 37d378b, review approved 0 issues)
 Task 4: complete (commit 759e43b, review approved 0 issues; verificado en vivo contra Supabase local: 429 no_credits_remaining a saldo 0, ciclo consumo->reembolso con ledger real, permission-denied confirmado para cliente user-JWT)
 Task 5: complete (commit 93cdfc3, review approved 0 issues; premium branch verificado byte-idéntico, rama free verificada en vivo, fix de un TS2551 preexistente evaluado y aceptado como minimal/in-scope)
 Task 6: complete (commit 9eecce1, review approved 0 issues)
+Task 7: complete (commit c046bb2, review approved 0 issues; verificado con Checkout.Session falso contra Supabase local, idempotencia confirmada por ON CONFLICT)
