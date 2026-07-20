@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,6 +12,8 @@ import { gradientsByTheme, amberShadowByTheme } from '@/constants/themes';
 import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
 import { useIsPremium } from '@/hooks/useSubscription';
+import { useAuthStore } from '@/store/auth.store';
+import { buildCreditPackURL } from '@/lib/payments';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { FREE_LIMITS } from '@/lib/limits';
 import { MacroBar } from '@/components/plans/MacroBar';
@@ -68,6 +70,7 @@ export default function MealPlansScreen() {
   const { data: activePlan, isLoading } = useActiveMealPlan();
   const { mutateAsync: generatePlan, isPending: generating } = useGenerateMealPlan();
   const isPremium = useIsPremium();
+  const { user } = useAuthStore();
   const { content: localized, isTranslating, error: translateError } = useLocalizedPlan<LocalizedMealContent>(
     activePlan ?? null,
     'meal',
@@ -94,6 +97,15 @@ export default function MealPlansScreen() {
         Alert.alert(
           t('meal.alerts.limitTitle'),
           isPremium ? t('meal.alerts.limitPremium') : t('meal.alerts.limitFree'),
+        );
+      } else if (e?.error === 'no_credits_remaining') {
+        Alert.alert(
+          t('meal.alerts.noCreditsTitle'),
+          t('meal.alerts.noCreditsBody'),
+          [
+            { text: t('meal.alerts.noCreditsCancel'), style: 'cancel' },
+            { text: t('meal.alerts.noCreditsCta'), onPress: () => user && Linking.openURL(buildCreditPackURL(user.id)) },
+          ],
         );
       } else if (e?.error === 'generation_in_progress') {
         Alert.alert(t('meal.alerts.inProgressTitle'), t('meal.alerts.inProgressBody'));

@@ -60,7 +60,11 @@
       "inProgressBody": "A plan is already being generated. Hang on a moment.",
       "noGoalTitle": "No goal",
       "noGoalBody": "Complete your profile with an active goal first.",
-      "errorBody": "The plan couldn't be generated. Try again."
+      "errorBody": "The plan couldn't be generated. Try again.",
+      "noCreditsTitle": "No credits left",
+      "noCreditsBody": "You've already used your free plan. Buy extra credits to generate another one.",
+      "noCreditsCancel": "Cancel",
+      "noCreditsCta": "Buy credits"
     },
     "regenerate": "Regenerate plan",
     "generating": "Generating plan...",
