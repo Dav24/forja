@@ -210,7 +210,7 @@ Base commit: 15ac0a7
 - [x] Task 2: generate-plan/credits.ts
 - [x] Task 3: generate-meal-plan/credits.ts
 - [x] Task 4: Wiring generate-plan/index.ts
-- [ ] Task 5: Wiring generate-meal-plan/index.ts
+- [x] Task 5: Wiring generate-meal-plan/index.ts
 - [ ] Task 6: stripe-webhook/packs.ts
 - [ ] Task 7: Wiring stripe-webhook/index.ts
 - [ ] Task 8: web/lib/checkout.ts createCreditPackCheckoutSession
@@ -228,3 +228,4 @@ Task 1: FINAL — approved 0 issues tras 3 rondas de fix (commits 929dfd5..6f3ba
 Task 2: complete (commit 18dbc2c, review approved 0 issues, TDD RED->GREEN verificado)
 Task 3: complete (commit 37d378b, review approved 0 issues)
 Task 4: complete (commit 759e43b, review approved 0 issues; verificado en vivo contra Supabase local: 429 no_credits_remaining a saldo 0, ciclo consumo->reembolso con ledger real, permission-denied confirmado para cliente user-JWT)
+Task 5: complete (commit 93cdfc3, review approved 0 issues; premium branch verificado byte-idéntico, rama free verificada en vivo, fix de un TS2551 preexistente evaluado y aceptado como minimal/in-scope)
