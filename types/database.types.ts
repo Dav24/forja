@@ -1,3 +1,4 @@
+Connecting to db 5432
 export type Json =
   | string
   | number
@@ -156,6 +157,54 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "conversations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          metadata: Json
+          related_job_id: string | null
+          stripe_payment_intent_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          metadata?: Json
+          related_job_id?: string | null
+          stripe_payment_intent_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          metadata?: Json
+          related_job_id?: string | null
+          stripe_payment_intent_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_ledger_related_job_id_fkey"
+            columns: ["related_job_id"]
+            isOneToOne: false
+            referencedRelation: "async_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_ledger_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -674,6 +723,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_credit: {
+        Args: { p_action: string; p_related_job_id: string; p_user_id: string }
+        Returns: number
+      }
+      get_credit_balance: { Args: { p_user_id: string }; Returns: number }
       get_daily_message_count: { Args: { p_user_id: string }; Returns: number }
       get_notification_targets: {
         Args: never
@@ -692,6 +746,16 @@ export type Database = {
           target_weight_kg: number
           user_id: string
         }[]
+      }
+      grant_credit: {
+        Args: {
+          p_amount: number
+          p_related_job_id?: string
+          p_stripe_payment_intent_id?: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: number
       }
       increment_daily_message_count: {
         Args: { p_date: string; p_user_id: string }
