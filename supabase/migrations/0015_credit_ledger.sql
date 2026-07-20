@@ -35,7 +35,10 @@ CREATE POLICY "users_read_own_credits" ON credit_ledger
 CREATE OR REPLACE FUNCTION get_credit_balance(p_user_id UUID)
 RETURNS INTEGER AS $$
 BEGIN
-  IF auth.uid() IS NOT NULL AND auth.uid() != p_user_id THEN
+  -- IS DISTINCT FROM (no !=) para que un p_user_id NULL también dispare la
+  -- excepción en vez de colar silenciosamente (NULL != x es NULL, que un IF
+  -- trata como falso).
+  IF auth.uid() IS NOT NULL AND auth.uid() IS DISTINCT FROM p_user_id THEN
     RAISE EXCEPTION 'No autorizado: solo puedes consultar tu propio saldo de créditos';
   END IF;
 
@@ -52,12 +55,21 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public;
 -- Devuelve el saldo nuevo, o -1 si no había saldo suficiente (no inserta
 -- nada en ese caso). Este lock es lo único que cierra la carrera entre
 -- generate-plan y generate-meal-plan compitiendo por el mismo pool.
+--
+-- A diferencia de get_credit_balance/grant_credit, esta guarda es
+-- incondicional (rechaza también las llamadas service-role, auth.uid() nulo)
+-- a propósito: en el plan actual consume_credit solo se invoca desde las
+-- edge functions con la sesión propia del usuario (nunca desde el webhook
+-- de Stripe con el cliente service-role), así que no existe un caso
+-- legítimo de llamada sin JWT de usuario que deba permitirse aquí.
 CREATE OR REPLACE FUNCTION consume_credit(p_user_id UUID, p_action TEXT, p_related_job_id UUID)
 RETURNS INTEGER AS $$
 DECLARE
   v_balance INTEGER;
 BEGIN
-  IF auth.uid() IS NULL OR auth.uid() != p_user_id THEN
+  -- IS DISTINCT FROM (no !=) para que un p_user_id NULL también dispare la
+  -- excepción en vez de colar silenciosamente.
+  IF auth.uid() IS NULL OR auth.uid() IS DISTINCT FROM p_user_id THEN
     RAISE EXCEPTION 'No autorizado: solo puedes consumir créditos de tu propia cuenta';
   END IF;
 
@@ -97,10 +109,38 @@ BEGIN
   -- auth.uid() NULL == llamada service-role (webhook de Stripe): confiable,
   -- puede otorgar cualquier monto/tipo a cualquier usuario. Si hay JWT de
   -- usuario, solo se permite el camino de reembolso de una generación
-  -- fallida propia (1 crédito, type='refund', a sí mismo).
+  -- fallida propia (1 crédito, type='refund', a sí mismo), y ese reembolso
+  -- debe estar ligado a un job real, propio y fallido, que no haya sido
+  -- reembolsado ya — de lo contrario un usuario podría acuñar créditos
+  -- gratis llamando grant_credit(propio_id, 1, 'refund') en bucle sin
+  -- job ni fallo real de por medio.
   IF auth.uid() IS NOT NULL THEN
-    IF p_type != 'refund' OR p_amount != 1 OR p_user_id != auth.uid() THEN
+    -- IS DISTINCT FROM (no !=) para que un p_type/p_amount/p_user_id NULL
+    -- también dispare la excepción en vez de colar silenciosamente (NULL !=
+    -- x es NULL, que un IF trata como falso).
+    IF p_type IS DISTINCT FROM 'refund' OR p_amount IS DISTINCT FROM 1 OR p_user_id IS DISTINCT FROM auth.uid() THEN
       RAISE EXCEPTION 'No autorizado: solo puedes otorgarte un reembolso de 1 crédito a tu propia cuenta';
+    END IF;
+
+    -- El reembolso debe referenciar un job propio que de verdad falló.
+    IF p_related_job_id IS NULL OR NOT EXISTS (
+      SELECT 1 FROM public.async_jobs
+      WHERE id = p_related_job_id
+        AND user_id = auth.uid()
+        AND status = 'failed'
+    ) THEN
+      RAISE EXCEPTION 'No autorizado: el reembolso debe referenciar un job fallido de tu propia cuenta';
+    END IF;
+
+    -- Ese mismo job no puede haber sido reembolsado ya (evita doble
+    -- reembolso si la edge function reintenta la llamada RPC tras un
+    -- corte de red).
+    IF EXISTS (
+      SELECT 1 FROM public.credit_ledger
+      WHERE related_job_id = p_related_job_id
+        AND type = 'refund'
+    ) THEN
+      RAISE EXCEPTION 'No autorizado: este job ya fue reembolsado';
     END IF;
   END IF;
 
