@@ -1,4 +1,5 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { decideCreditGate } from './credits.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
 
@@ -210,6 +211,18 @@ Deno.serve(async (req) => {
     return new Response('Method not allowed', { status: 405 });
   }
 
+  let creditUsed = false;
+  let jobId: string | null = null;
+  let userId: string | null = null;
+  // consume_credit/grant_credit revocan EXECUTE a `authenticated` (Task 1) —
+  // solo el service role puede llamarlas. Se crea una vez aquí, fuera del
+  // try, así también queda disponible en el catch externo (Step 6) sin
+  // necesidad de un cliente de cleanup aparte.
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -232,6 +245,7 @@ Deno.serve(async (req) => {
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
+    userId = user.id;
 
     // Verificar suscripción y límites del mes actual
     const monthStart = new Date();
@@ -266,9 +280,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!isPremium && plansThisMonth >= 1) {
+    const quotaExceeded = !isPremium && plansThisMonth >= 1;
+    let creditBalance = 0;
+    if (quotaExceeded) {
+      const { data: balanceData } = await supabase.rpc('get_credit_balance', { p_user_id: user.id });
+      creditBalance = balanceData ?? 0;
+    }
+    const creditGate = decideCreditGate({ isPremium, quotaExceeded, creditBalance });
+    if (creditGate === 'blocked') {
       return new Response(
-        JSON.stringify({ error: 'monthly_plan_limit_reached', plans_count: plansThisMonth }),
+        JSON.stringify({ error: 'no_credits_remaining', plans_count: plansThisMonth, credit_balance: creditBalance }),
         { status: 429, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
       );
     }
@@ -346,6 +367,27 @@ Deno.serve(async (req) => {
       );
     }
 
+    jobId = job.id;
+
+    if (creditGate === 'needs_credit') {
+      const { data: remaining, error: consumeErr } = await serviceClient.rpc('consume_credit', {
+        p_user_id: user.id,
+        p_action: 'generate_workout_plan',
+        p_related_job_id: job.id,
+      });
+      if (consumeErr || remaining == null || remaining < 0) {
+        await supabase
+          .from('async_jobs')
+          .update({ status: 'failed', error: 'no_credits_remaining', completed_at: new Date().toISOString() })
+          .eq('id', job.id);
+        return new Response(
+          JSON.stringify({ error: 'no_credits_remaining', job_id: job.id }),
+          { status: 429, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+        );
+      }
+      creditUsed = true;
+    }
+
     const prompt = buildPlanPrompt({
       goal_type: goal.type,
       fitness_level: goal.fitness_level,
@@ -399,6 +441,9 @@ Deno.serve(async (req) => {
         .from('async_jobs')
         .update({ status: 'failed', error: `Anthropic error: ${anthropicRes.status}`, completed_at: new Date().toISOString() })
         .eq('id', job.id);
+      if (creditUsed) {
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+      }
 
       return new Response(
         JSON.stringify({ error: 'ai_error', job_id: job.id }),
@@ -416,6 +461,9 @@ Deno.serve(async (req) => {
         .from('async_jobs')
         .update({ status: 'failed', error: 'AI response truncated (max_tokens)', completed_at: new Date().toISOString() })
         .eq('id', job.id);
+      if (creditUsed) {
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+      }
 
       return new Response(
         JSON.stringify({ error: 'invalid_ai_response', job_id: job.id }),
@@ -437,6 +485,9 @@ Deno.serve(async (req) => {
         .from('async_jobs')
         .update({ status: 'failed', error: 'Invalid JSON from AI', completed_at: new Date().toISOString() })
         .eq('id', job.id);
+      if (creditUsed) {
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+      }
 
       return new Response(
         JSON.stringify({ error: 'invalid_ai_response', job_id: job.id }),
@@ -488,6 +539,9 @@ Deno.serve(async (req) => {
         .from('async_jobs')
         .update({ status: 'failed', error: 'DB insert failed', completed_at: new Date().toISOString() })
         .eq('id', job.id);
+      if (creditUsed) {
+        await serviceClient.rpc('grant_credit', { p_user_id: user.id, p_amount: 1, p_type: 'refund', p_related_job_id: job.id });
+      }
 
       return new Response(
         JSON.stringify({ error: 'db_error', job_id: job.id }),
@@ -516,6 +570,11 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     console.error('generate-plan error:', err);
+    if (creditUsed && jobId && userId) {
+      await serviceClient
+        .rpc('grant_credit', { p_user_id: userId, p_amount: 1, p_type: 'refund', p_related_job_id: jobId })
+        .then(() => {}, () => {}); // no propagar error del cleanup, mismo patrón que generate-meal-plan
+    }
     return new Response(
       JSON.stringify({ error: 'internal_error' }),
       { status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
