@@ -206,7 +206,7 @@ Worktree: .claude/worktrees/creditos-consumibles (rama worktree-creditos-consumi
 Base commit: 15ac0a7
 
 ## Tasks
-- [ ] Task 1: Migración 0015 credit_ledger + RLS + RPCs
+- [x] Task 1: Migración 0015 credit_ledger + RLS + RPCs
 - [ ] Task 2: generate-plan/credits.ts
 - [ ] Task 3: generate-meal-plan/credits.ts
 - [ ] Task 4: Wiring generate-plan/index.ts
@@ -223,3 +223,4 @@ Base commit: 15ac0a7
 - [ ] Task 15: Plan de comida no_credits_remaining + i18n
 - [ ] Task 16: Badge de saldo de créditos en perfil
 
+Task 1: complete (commit 929dfd5 en worktree-creditos-consumibles — cherry-pick de 0ccdf13 que el implementador dejó por error en master; master restaurado a 15ac0a7 con git reset --hard. RPCs verificadas por psql real: grant 3→balance 3→consume 2,1,0→consume falla devuelve -1 sin insertar fila; ON CONFLICT dedup confirmado; pg_policies solo 1 SELECT, sin INSERT/UPDATE/DELETE; types regenerados)
