@@ -195,3 +195,31 @@ OD Task 9: complete (commit faf3305, review approved, 0 issues; lógica de SEGUR
 OD Task 10: complete (commit 92643d5, review approved, 0 issues; 5+/1- exactos [4 campos nuevos con ?? null], desestructuración sin perder campos existentes, user sigue en useAuthStore, handleFinish byte-idéntico fuera del insert [body_data/setGoalId/navegación/comentario AuthGuard], nombres de columna verificados contra 0014 Y 0001, tsc limpio)
 OD Task 15: complete (commit b9828e4, gates 4/5 verdes + 1 adjudicado [tsc 0, check-i18n OK, deno check generate-plan/chat limpios, generate-meal-plan con ÚNICO error TS2551 preexistente de 2026-06-26 adjudicado fuera de alcance por el controller — verificado por 2 reviewers contra commit padre], sección "Objetivos concretos por disciplina" al final de forja-docs.md, verificado directo por el controller [diff 17+ solo docs, texto exacto])
 OD Final review: complete (commits d48fb2f..295f2318, 19 commits desde 87ff2a9, READY TO MERGE — reviewer final [Opus] verificó las 7 cadenas transversales: datos onboarding store→goals→EFs con nombres consistentes, Ajustes con precarga/save simétricos y rollback intacto, 36 ids idénticos en 7 conjuntos [SQL/constants/3 EFs/i18n es/en — verificación programática], first_steps en 4 lugares, validación de seguridad con misma función/umbrales en sus 2 puntos y Alert antes de toda escritura, CERO regresión para usuarios legacy [prompt byte-idéntico sin datos nuevos], RLS sin vías nuevas. 2 Minors nuevos encontrados y corregidos en fix wave único (295f2318): Number.isFinite faltante en settings [NaN→null benigno pero asimétrico con onboarding] + GoalProgress.tsx parseaba target_date en UTC [consumidor preexistente revivido por primera vez — profile/index solo usan target_weight_kg, no tocados]. Re-review confirmó 0 parses UTC residuales y guard correcto. DIFERIDOS documentados: chequeo de dirección sin fecha [triage de Opus: sin fecha las EFs ignoran la meta, daño solo cosmético en barra de progreso — endurecimiento opcional ~2 líneas]; isCustomDate como diseño; addCalendarMonths overflow fin de mes; notas sin multiline; TS2551 preexistente en generate-meal-plan [2026-06-26]. Gates finales: tsc 0, check-i18n OK, deno check generate-plan/chat limpios. PENDIENTE: E2E humano en Expo Go [onboarding 5 pasos con meta+rama, Ajustes edición, picker nativo en dispositivo real, guardrail first_steps en uso real] → push a github+gitlab tras confirmación.)
+
+---
+
+# Paquetes de créditos consumibles — Progress Ledger
+
+Plan: docs/superpowers/plans/2026-07-19-paquetes-de-creditos.md
+Spec: docs/superpowers/specs/2026-07-19-paquetes-de-creditos.md
+Worktree: .claude/worktrees/creditos-consumibles (rama worktree-creditos-consumibles)
+Base commit: 15ac0a7
+
+## Tasks
+- [ ] Task 1: Migración 0015 credit_ledger + RLS + RPCs
+- [ ] Task 2: generate-plan/credits.ts
+- [ ] Task 3: generate-meal-plan/credits.ts
+- [ ] Task 4: Wiring generate-plan/index.ts
+- [ ] Task 5: Wiring generate-meal-plan/index.ts
+- [ ] Task 6: stripe-webhook/packs.ts
+- [ ] Task 7: Wiring stripe-webhook/index.ts
+- [ ] Task 8: web/lib/checkout.ts createCreditPackCheckoutSession
+- [ ] Task 9: web/app/api/checkout/route.ts kind:credit_pack
+- [ ] Task 10: constants/pricing.ts precio del paquete
+- [ ] Task 11: Página web de compra de créditos
+- [ ] Task 12: lib/payments.ts buildCreditPackURL
+- [ ] Task 13: hooks/useCreditBalance.ts
+- [ ] Task 14: useWorkoutPlan.ts no_credits_remaining
+- [ ] Task 15: Plan de comida no_credits_remaining + i18n
+- [ ] Task 16: Badge de saldo de créditos en perfil
+
