@@ -20,18 +20,31 @@ ALTER TABLE credit_ledger ENABLE ROW LEVEL SECURITY;
 -- este es un ledger de valor, no un dato del usuario. 0004_grants.sql ya da
 -- INSERT/UPDATE/DELETE amplios a `authenticated`; sin restringir esto, un
 -- usuario podría insertarse créditos directo vía PostgREST. Solo lectura
--- propia; toda escritura pasa por las RPCs SECURITY DEFINER de abajo o por
--- el webhook (service-role, bypassea RLS).
+-- propia (un INSERT/UPDATE/DELETE directo vía PostgREST viola esta policy
+-- de RLS y Postgres responde "new row violates row-level security policy");
+-- toda escritura pasa por las RPCs SECURITY DEFINER de abajo o por el
+-- webhook (service-role, bypassea RLS).
 CREATE POLICY "users_read_own_credits" ON credit_ledger
   FOR SELECT USING (auth.uid() = user_id);
 
 -- Devuelve el saldo actual del usuario (suma de amount en el ledger).
+-- Guard: si hay un JWT de usuario (auth.uid() no nulo), solo puede
+-- consultar su propio saldo. Las llamadas service-role (auth.uid() nulo)
+-- no están restringidas aquí, aunque en el plan actual esta función solo
+-- la llaman clientes con sesión de usuario.
 CREATE OR REPLACE FUNCTION get_credit_balance(p_user_id UUID)
 RETURNS INTEGER AS $$
-  SELECT COALESCE(SUM(amount), 0)::INTEGER
-  FROM public.credit_ledger
-  WHERE user_id = p_user_id;
-$$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
+BEGIN
+  IF auth.uid() IS NOT NULL AND auth.uid() != p_user_id THEN
+    RAISE EXCEPTION 'No autorizado: solo puedes consultar tu propio saldo de créditos';
+  END IF;
+
+  RETURN COALESCE(
+    (SELECT SUM(amount) FROM public.credit_ledger WHERE user_id = p_user_id),
+    0
+  )::INTEGER;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public;
 
 -- Descuenta 1 crédito de forma atómica. pg_advisory_xact_lock por usuario
 -- porque no hay una fila de balance que lockear con FOR UPDATE (es un
@@ -44,6 +57,10 @@ RETURNS INTEGER AS $$
 DECLARE
   v_balance INTEGER;
 BEGIN
+  IF auth.uid() IS NULL OR auth.uid() != p_user_id THEN
+    RAISE EXCEPTION 'No autorizado: solo puedes consumir créditos de tu propia cuenta';
+  END IF;
+
   PERFORM pg_advisory_xact_lock(hashtextextended(p_user_id::text, 0));
 
   SELECT COALESCE(SUM(amount), 0) INTO v_balance
@@ -77,6 +94,16 @@ RETURNS INTEGER AS $$
 DECLARE
   v_balance INTEGER;
 BEGIN
+  -- auth.uid() NULL == llamada service-role (webhook de Stripe): confiable,
+  -- puede otorgar cualquier monto/tipo a cualquier usuario. Si hay JWT de
+  -- usuario, solo se permite el camino de reembolso de una generación
+  -- fallida propia (1 crédito, type='refund', a sí mismo).
+  IF auth.uid() IS NOT NULL THEN
+    IF p_type != 'refund' OR p_amount != 1 OR p_user_id != auth.uid() THEN
+      RAISE EXCEPTION 'No autorizado: solo puedes otorgarte un reembolso de 1 crédito a tu propia cuenta';
+    END IF;
+  END IF;
+
   INSERT INTO public.credit_ledger (user_id, amount, type, related_job_id, stripe_payment_intent_id)
   VALUES (p_user_id, p_amount, p_type, p_related_job_id, p_stripe_payment_intent_id)
   ON CONFLICT (stripe_payment_intent_id) DO NOTHING;
