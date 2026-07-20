@@ -1,5 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
-import { isValidUid, priceIdFor, resolvePromo, createCheckoutSession, requestOrigin } from './checkout';
+import {
+  isValidUid,
+  priceIdFor,
+  resolvePromo,
+  createCheckoutSession,
+  createCreditPackCheckoutSession,
+  packPriceIdFor,
+  requestOrigin,
+} from './checkout';
 
 const UID = '123e4567-e89b-42d3-a456-426614174000';
 
@@ -95,5 +103,36 @@ describe('createCheckoutSession', () => {
     const arg = s.checkout.sessions.create.mock.calls[0][0];
     expect(arg.discounts).toEqual([{ promotion_code: 'promo_123' }]);
     expect(arg.allow_promotion_codes).toBeUndefined();
+  });
+});
+
+describe('packPriceIdFor', () => {
+  it('arma el nombre de env por packId', () => {
+    process.env.STRIPE_PRICE_CREDIT_PACK_3 = 'price_pack3';
+    expect(packPriceIdFor('pack_3')).toBe('price_pack3');
+  });
+  it('lanza si falta el env', () => {
+    delete process.env.STRIPE_PRICE_CREDIT_PACK_3;
+    expect(() => packPriceIdFor('pack_3')).toThrow();
+  });
+});
+
+describe('createCreditPackCheckoutSession', () => {
+  it('arma la sesión one-time con metadata y URLs correctas', async () => {
+    process.env.STRIPE_PRICE_CREDIT_PACK_3 = 'price_pack3';
+    const s = fakeStripe();
+    const { url } = await createCreditPackCheckoutSession(s, 'http://localhost:3000', {
+      packId: 'pack_3',
+      uid: UID,
+    });
+    expect(url).toBe('https://checkout.stripe.com/x');
+    const arg = s.checkout.sessions.create.mock.calls[0][0];
+    expect(arg.mode).toBe('payment');
+    expect(arg.line_items).toEqual([{ price: 'price_pack3', quantity: 1 }]);
+    expect(arg.client_reference_id).toBe(UID);
+    expect(arg.metadata.user_id).toBe(UID);
+    expect(arg.metadata.credit_pack).toBe('pack_3');
+    expect(arg.success_url).toBe('http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}');
+    expect(arg.cancel_url).toContain(`uid=${UID}`);
   });
 });

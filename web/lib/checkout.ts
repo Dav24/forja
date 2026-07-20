@@ -53,3 +53,26 @@ export async function createCheckoutSession(
   });
   return { url: session.url! };
 }
+
+export function packPriceIdFor(packId: string): string {
+  const envKey = `STRIPE_PRICE_CREDIT_PACK_${packId.replace('pack_', '')}`;
+  const id = process.env[envKey];
+  if (!id) throw new Error(`Falta ${envKey}`);
+  return id;
+}
+
+export async function createCreditPackCheckoutSession(
+  stripe: Stripe,
+  origin: string,
+  p: { packId: string; uid: string },
+): Promise<{ url: string }> {
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: [{ price: packPriceIdFor(p.packId), quantity: 1 }],
+    client_reference_id: p.uid,
+    metadata: { user_id: p.uid, credit_pack: p.packId },
+    success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}/credits/?uid=${p.uid}`,
+  });
+  return { url: session.url! };
+}
