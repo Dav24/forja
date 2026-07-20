@@ -218,7 +218,7 @@ Base commit: 15ac0a7
 - [x] Task 10: constants/pricing.ts precio del paquete
 - [x] Task 11: Página web de compra de créditos
 - [x] Task 12: lib/payments.ts buildCreditPackURL
-- [ ] Task 13: hooks/useCreditBalance.ts
+- [x] Task 13: hooks/useCreditBalance.ts
 - [ ] Task 14: useWorkoutPlan.ts no_credits_remaining
 - [ ] Task 15: Plan de comida no_credits_remaining + i18n
 - [ ] Task 16: Badge de saldo de créditos en perfil
@@ -236,3 +236,4 @@ Task 9: complete (commit 62e341d, review approved 0 issues; premium path verific
 Task 10: complete (commit b46464f, review approved 0 issues)
 Task 11: complete (commit af4982e, review approved 0 issues; verificado con curl los 3 estados de uid)
 Task 12: complete (commit 861b50d, review approved 0 issues)
+Task 13: complete (commit 8a968f5, review approved 0 issues)
