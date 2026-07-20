@@ -220,7 +220,7 @@ Base commit: 15ac0a7
 - [x] Task 12: lib/payments.ts buildCreditPackURL
 - [x] Task 13: hooks/useCreditBalance.ts
 - [x] Task 14: useWorkoutPlan.ts no_credits_remaining
-- [ ] Task 15: Plan de comida no_credits_remaining + i18n
+- [x] Task 15: Plan de comida no_credits_remaining + i18n
 - [ ] Task 16: Badge de saldo de créditos en perfil
 
 Task 1: complete (commit 929dfd5 en worktree-creditos-consumibles — cherry-pick de 0ccdf13 que el implementador dejó por error en master; master restaurado a 15ac0a7 con git reset --hard. RPCs verificadas por psql real: grant 3→balance 3→consume 2,1,0→consume falla devuelve -1 sin insertar fila; ON CONFLICT dedup confirmado; pg_policies solo 1 SELECT, sin INSERT/UPDATE/DELETE; types regenerados)
@@ -238,3 +238,4 @@ Task 11: complete (commit af4982e, review approved 0 issues; verificado con curl
 Task 12: complete (commit 861b50d, review approved 0 issues)
 Task 13: complete (commit 8a968f5, review approved 0 issues)
 Task 14: complete (commit 22c34f7, review approved 0 issues; E2E en Expo Go pendiente, diferido al humano)
+Task 15: complete (commit 2c7d4ec, review approved 0 issues; check-i18n y tsc verificados por el reviewer de forma independiente)
