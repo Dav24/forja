@@ -101,7 +101,7 @@ No hace falta ninguna RPC nueva de créditos — `consume_credit`/`get_credit_ba
 
 ### 3.1 Botón "Finalizar entrenamiento"
 
-En `app/(app)/plans/workout/[id]/day/[dayNumber].tsx`, al final del `ScrollView` (tras el `.map` de `day.exercises`, línea ~192), nuevo botón fijo — oculto si `day.is_rest`. Habilitado solo cuando existe al menos una fila en `exercise_logs` por cada `exercise_order` de `day.exercises` para `log_date = hoy` — nueva query `useQuery(['exercise_logs_today', plan.id, day.day_number])` que trae `exercise_order` distinct y compara `Set` contra `day.exercises.map(e => e.order)`. Mientras falten, el botón se muestra deshabilitado con contador ("3/5 ejercicios registrados").
+En `app/(app)/plans/workout/[id]/day/[dayNumber].tsx`, al final del `ScrollView` (tras el `.map` de `day.exercises`, línea ~192), nuevo botón fijo — oculto si `day.is_rest`. Habilitado solo cuando existe al menos una fila en `exercise_logs` por cada `exercise_order` de `day.exercises` para `log_date = hoy` — nueva query `useQuery(['exercise_logs_today', plan.id, day.day_number])` que trae `exercise_order` distinct y compara `Set` contra `day.exercises.map(e => e.order)`. Mientras falten, el botón se muestra deshabilitado con contador ("3/5 ejercicios registrados"). Confirmado en código: `ExerciseSheet.tsx:115` persiste `exerciseOrder: exercise.order` (el campo puesto por el LLM, no el índice del array) — esta comparación hereda el mismo riesgo ya aceptado en Fase C de que `order` no está garantizado único entre ejercicios del mismo día; si dos ejercicios comparten `order`, el contador podría marcar "completo" habiendo registrado solo uno de los dos. No se corrige aquí (mismo criterio de riesgo aceptado que el resto del código que ya depende de `order`).
 
 ### 3.2 `SessionFeedbackSheet` (componente nuevo)
 
@@ -121,10 +121,10 @@ Estructura de archivos igual que `swap-meal`/`generate-plan`: `index.ts` (handle
 
 ### 4.1 Gate de necesidad
 
-Corre por cada ejercicio (o a nivel sesión si no hay flag específico) cuando el patrón se sostiene `N=3` sesiones consecutivas con la misma dirección (constante ajustable, `NECESSITY_PATTERN_WINDOW = 3` en `engine.ts`).
+Corre por cada ejercicio (o a nivel sesión si no hay flag específico) cuando el patrón se sostiene `N=3` sesiones consecutivas con la misma dirección (constante ajustable, `NECESSITY_PATTERN_WINDOW = 3` en `engine.ts`). Dirección = agrupar `difficulty_rating`/flag en familia "fácil" (`muy_facil`,`facil`), familia "difícil" (`dificil`,`muy_dificil`), o **neutral** (`justo`) — una sesión `justo` rompe la racha y reinicia el conteo de las 3, no cuenta para ninguna de las dos familias.
 
 - **Excepción sin gate:** cualquier `problem_tags` con `dolor` en la sesión más reciente salta directo a §4.2, sin esperar 3 sesiones ni chequear avance.
-- **Metas con número** (`goals.target_weight_kg`/`target_date`, de [[goal_branches_feature]]): se calcula el ritmo necesario igual que `lib/weightGoalSafety.ts` (`rateKgPerWeek` esperado) contra el ritmo real medido en `body_data` de las últimas `NECESSITY_PATTERN_WINDOW` semanas. Si el ritmo real ≥ ~70% del necesario → **en ritmo, no se toca el plan**, sin importar la dirección del feedback.
+- **Metas con número** (`goals.target_weight_kg`/`target_date`, de [[goal_branches_feature]]): se calcula el ritmo necesario igual que `lib/weightGoalSafety.ts` (`rateKgPerWeek` esperado) contra el ritmo real medido en `body_data` de las últimas `NECESSITY_PATTERN_WINDOW` semanas. Si el ritmo real ≥ `NECESSITY_PACE_THRESHOLD` (constante ajustable, default `0.7` = 70% del ritmo necesario) → **en ritmo, no se toca el plan**, sin importar la dirección del feedback.
 - **Metas sin número estructurado:** proxy con `exercise_logs` — si el usuario ya viene subiendo su propia carga registrada en ese ejercicio en las últimas sesiones sin ayuda del sistema → en ritmo, se ignora un patrón "fácil" (ya se está autoprogresando). Un patrón "difícil" sostenido con carga estancada sí pasa el gate (umbral más permisivo en esta rama por ser un proxy, no una medición directa — documentado como heurística a afinar con datos reales post-lanzamiento).
 - Si el gate determina "en ritmo" → se guarda el feedback para historial, no se genera ninguna fila en `plan_adjustments`, fin del pipeline.
 - Si "rezagado" → dirección del ajuste según el feedback: `fácil` sostenido = subir intensidad; `difícil` sostenido = bajar rigor (para proteger adherencia, no solo "aguantar").
@@ -170,5 +170,5 @@ Ambos respetan el gating ya existente de `send-notifications` (`notif_updates`/`
 - `swap-exercise` (mecanismo real de sustitución, cubre el desenlace `molestia_requiere_sustitucion` de esta spec Y la nota 16 de equipo no disponible) — hilo de brainstorming propio después.
 - Fotos de progreso diarias — hilo de brainstorming propio después, sin relación mecánica con este motor.
 - Ajuste del `TrainingMode` (`flexible`/`strict`) en sí — esta spec no lo modifica ni lo lee; es una posible extensión futura (que el patrón de feedback acumulado también sugiera cambiar ese modo), no incluida aquí.
-- Afinar los umbrales (`NECESSITY_PATTERN_WINDOW=3`, el 70% de ritmo, el bump 2.5–5%) con datos reales de uso — quedan como constantes documentadas, no como configuración de producto todavía.
+- Afinar los umbrales (`NECESSITY_PATTERN_WINDOW=3`, `NECESSITY_PACE_THRESHOLD=0.7`, el bump 2.5–5%) con datos reales de uso — quedan como constantes documentadas, no como configuración de producto todavía.
 - `types/database.types.ts` se regenera como parte de la migración, mismo patrón ya usado en el repo.
