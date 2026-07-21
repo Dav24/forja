@@ -117,6 +117,15 @@ export default function WorkoutDayDetailScreen() {
 
   const { content, isTranslating } = useLocalizedPlan<LocalizedWorkoutContent>(plan ?? null, 'workout');
 
+  const schedule: WorkoutDay[] = Array.isArray(content?.schedule) ? content!.schedule : (plan?.schedule ?? []);
+  const day = schedule.find((d) => d.day_number === Number(dayNumber));
+
+  const { canFinalize, loggedCount, totalCount } = useCanFinalizeSession(
+    plan?.id ?? '',
+    Number(dayNumber),
+    (day?.exercises ?? []).map((e) => e.order),
+  );
+
   if (isLoading || (plan && isTranslating)) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
@@ -126,15 +135,6 @@ export default function WorkoutDayDetailScreen() {
       </SafeAreaView>
     );
   }
-
-  const schedule: WorkoutDay[] = Array.isArray(content?.schedule) ? content!.schedule : (plan?.schedule ?? []);
-  const day = schedule.find((d) => d.day_number === Number(dayNumber));
-
-  const { canFinalize, loggedCount, totalCount } = useCanFinalizeSession(
-    plan?.id ?? '',
-    Number(dayNumber),
-    (day?.exercises ?? []).map((e) => e.order),
-  );
 
   if (!plan || !day) {
     return (
