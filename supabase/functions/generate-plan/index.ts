@@ -351,7 +351,7 @@ Deno.serve(async (req) => {
     // de exercise_catalog permite una exclusión razonable. 'cuello' y 'otro'
     // no tienen mapeo limpio — caen a solo-prompt igual que severidad leve.
     const SEVERE_EXCLUSION_MAP: Record<string, { muscles?: string[]; patterns?: string[] }> = {
-      rodilla: { patterns: ['Squat', 'Lunge', 'Plyometric'] },
+      rodilla: { muscles: ['Quadriceps', 'Hamstrings'], patterns: ['Squat', 'Lunge', 'Plyometric'] },
       hombro: { muscles: ['Shoulders'] },
       espalda_baja: { patterns: ['Hinge'] },
       cadera: { patterns: ['Hinge', 'Squat', 'Lunge', 'Hip Abduction'] },
