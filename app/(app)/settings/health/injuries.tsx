@@ -38,6 +38,7 @@ export default function InjuriesScreen() {
 
   async function maybeAutoRegenerate() {
     if (!isPremium || !activePlan || !activeGoal?.modality) return;
+    const planIdBefore = activePlan.id;
     setRegenerating(true);
     try {
       await generate({
@@ -46,7 +47,16 @@ export default function InjuriesScreen() {
         minutes_per_session: activePlan.minutes_per_session ?? 60,
         equipment: activePlan.equipment ?? 'gym con máquinas y pesas libres',
       });
-      Alert.alert(t('health.autoRegenDoneTitle'), t('health.autoRegenDoneWorkoutBody'));
+      // generate() nunca lanza ni señala fallo — todos sus caminos de error
+      // (sin créditos, generación en curso, red) muestran su propio Alert
+      // interno y resuelven normalmente. La única forma confiable de saber
+      // si en verdad se creó un plan nuevo es comparar el id del plan activo
+      // antes/después (refetch propio, no el closure de `activePlan`, que
+      // no se actualiza dentro de esta misma ejecución síncrona).
+      const { data: freshPlan } = await refetchPlan();
+      if (freshPlan?.id && freshPlan.id !== planIdBefore) {
+        Alert.alert(t('health.autoRegenDoneTitle'), t('health.autoRegenDoneWorkoutBody'));
+      }
     } finally {
       setRegenerating(false);
     }

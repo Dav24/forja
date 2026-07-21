@@ -167,6 +167,8 @@
     "discardConfirm": "Discard",
     "autoRegenDoneTitle": "Your plan was updated!",
     "autoRegenDoneWorkoutBody": "Your workout plan was regenerated with your updated health profile.",
-    "autoRegenDoneMealBody": "Your meal plan was regenerated with your updated health profile."
+    "autoRegenDoneMealBody": "Your meal plan was regenerated with your updated health profile.",
+    "autoRegenErrorTitle": "We couldn't update your plan",
+    "autoRegenErrorBody": "We couldn't update your meal plan. Try again from the Plans tab."
   }
 }

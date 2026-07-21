@@ -100,6 +100,12 @@ export default function ConditionsScreen() {
       });
       await refetchMealPlan();
       Alert.alert(t('health.autoRegenDoneTitle'), t('health.autoRegenDoneMealBody'));
+    } catch {
+      // A diferencia de useGeneratePlan, useGenerateMealPlan.mutateAsync no
+      // muestra ningún Alert propio al fallar (no_credits_remaining,
+      // generation_in_progress, error de red) — sin este catch, el overlay
+      // de carga simplemente desaparecía sin ningún aviso al usuario.
+      Alert.alert(t('health.autoRegenErrorTitle'), t('health.autoRegenErrorBody'));
     } finally {
       setRegenerating(false);
     }

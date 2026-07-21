@@ -167,6 +167,8 @@
     "discardConfirm": "Descartar",
     "autoRegenDoneTitle": "¡Tu plan se actualizó!",
     "autoRegenDoneWorkoutBody": "Tu plan de entrenamiento se regeneró con tu perfil de salud actualizado.",
-    "autoRegenDoneMealBody": "Tu plan alimenticio se regeneró con tu perfil de salud actualizado."
+    "autoRegenDoneMealBody": "Tu plan alimenticio se regeneró con tu perfil de salud actualizado.",
+    "autoRegenErrorTitle": "No se pudo actualizar tu plan",
+    "autoRegenErrorBody": "No se pudo actualizar tu plan alimenticio. Intenta de nuevo desde la pestaña Planes."
   }
 }
