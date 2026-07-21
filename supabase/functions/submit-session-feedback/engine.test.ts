@@ -3,6 +3,8 @@ import {
   classifyDirection,
   hasSustainedPattern,
   computeDeterministicAdjustment,
+  checkNecessityGate,
+  computeExpectedRateKgPerWeek,
 } from './engine.ts';
 
 Deno.test('classifyDirection agrupa muy_facil/facil como facil', () => {
@@ -55,4 +57,48 @@ Deno.test('computeDeterministicAdjustment usa reps cuando no hay peso (bodyweigh
 Deno.test('computeDeterministicAdjustment no baja reps de 1', () => {
   const result = computeDeterministicAdjustment('dificil', { weightKg: null, reps: 1 });
   assertEquals(result, { field: 'reps', before: 1, after: 1 });
+});
+
+Deno.test('computeExpectedRateKgPerWeek calcula ritmo semanal necesario', () => {
+  // 80kg -> 74kg en 4 semanas = 1.5kg/semana
+  const rate = computeExpectedRateKgPerWeek(80, 74, '2026-08-17', new Date('2026-07-20'));
+  assertEquals(Math.round(rate * 100) / 100, 1.5);
+});
+
+Deno.test('checkNecessityGate: en ritmo (>=70%) no toca el plan', () => {
+  const result = checkNecessityGate({
+    hasNumericGoal: true,
+    expectedRateKgPerWeek: 1,
+    actualRateKgPerWeek: 0.8,
+    direction: 'facil',
+  });
+  assertEquals(result, 'on_track');
+});
+
+Deno.test('checkNecessityGate: rezagado dispara ajuste', () => {
+  const result = checkNecessityGate({
+    hasNumericGoal: true,
+    expectedRateKgPerWeek: 1,
+    actualRateKgPerWeek: 0.3,
+    direction: 'facil',
+  });
+  assertEquals(result, 'needs_adjustment');
+});
+
+Deno.test('checkNecessityGate: sin meta numerica, direccion facil con autoprogresion no toca el plan', () => {
+  const result = checkNecessityGate({
+    hasNumericGoal: false,
+    ownProgressionRecent: true,
+    direction: 'facil',
+  });
+  assertEquals(result, 'on_track');
+});
+
+Deno.test('checkNecessityGate: sin meta numerica, direccion dificil siempre pasa el gate', () => {
+  const result = checkNecessityGate({
+    hasNumericGoal: false,
+    ownProgressionRecent: true,
+    direction: 'dificil',
+  });
+  assertEquals(result, 'needs_adjustment');
 });

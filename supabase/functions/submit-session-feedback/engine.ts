@@ -40,3 +40,38 @@ export function computeDeterministicAdjustment(
   const after = Math.max(1, current.reps + delta);
   return { field: 'reps', before: current.reps, after };
 }
+
+export function computeExpectedRateKgPerWeek(
+  currentWeightKg: number,
+  targetWeightKg: number,
+  targetDate: string,
+  today: Date = new Date(),
+): number {
+  const target = new Date(targetDate);
+  const daysUntil = Math.max(1, Math.ceil((target.getTime() - today.getTime()) / 86_400_000));
+  const weeksUntil = Math.max(1, daysUntil / 7);
+  return Math.abs(targetWeightKg - currentWeightKg) / weeksUntil;
+}
+
+export const NECESSITY_PACE_THRESHOLD = 0.7;
+
+export interface NecessityGateInput {
+  hasNumericGoal: boolean;
+  expectedRateKgPerWeek?: number;
+  actualRateKgPerWeek?: number;
+  ownProgressionRecent?: boolean;
+  direction: 'facil' | 'dificil';
+}
+
+export type NecessityGateResult = 'on_track' | 'needs_adjustment';
+
+export function checkNecessityGate(input: NecessityGateInput): NecessityGateResult {
+  if (input.hasNumericGoal) {
+    const expected = input.expectedRateKgPerWeek ?? 0;
+    const actual = input.actualRateKgPerWeek ?? 0;
+    if (expected <= 0) return 'needs_adjustment';
+    return actual / expected >= NECESSITY_PACE_THRESHOLD ? 'on_track' : 'needs_adjustment';
+  }
+  if (input.direction === 'facil' && input.ownProgressionRecent) return 'on_track';
+  return 'needs_adjustment';
+}
