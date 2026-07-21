@@ -57,6 +57,12 @@ export default function InjuriesScreen() {
       if (freshPlan?.id && freshPlan.id !== planIdBefore) {
         Alert.alert(t('health.autoRegenDoneTitle'), t('health.autoRegenDoneWorkoutBody'));
       }
+    } catch {
+      // generate() ya tuvo éxito (o mostró su propio Alert de error) antes de
+      // llegar aquí — un fallo de refetchPlan() es solo el paso de verificación
+      // que no se pudo completar, no un fallo de generación. No hay nada nuevo
+      // y significativo que decirle al usuario más allá de lo que ya vio, así
+      // que se traga en silencio (mismo criterio que generate-meal-plan/conditions.tsx).
     } finally {
       setRegenerating(false);
     }
