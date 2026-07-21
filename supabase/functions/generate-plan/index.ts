@@ -360,7 +360,11 @@ Deno.serve(async (req) => {
     };
 
     const severeInjuries = injuries.filter((i) => i.severity === 'severa_estructural' && SEVERE_EXCLUSION_MAP[i.body_area]);
-    const mildInjuries = injuries.filter((i) => i.severity === 'leve_moderada' || !SEVERE_EXCLUSION_MAP[i.body_area]);
+    const mildInjuries = injuries.filter((i) => i.severity === 'leve_moderada');
+    // 'cuello' y 'otro' (u otras zonas fuera de SEVERE_EXCLUSION_MAP) no tienen
+    // exclusión mecánica posible aunque la lesión sea severa/estructural — deben
+    // seguir marcados como severos en el prompt, nunca degradados a "leve/moderada".
+    const severeUnmappedInjuries = injuries.filter((i) => i.severity === 'severa_estructural' && !SEVERE_EXCLUSION_MAP[i.body_area]);
 
     const excludedMuscles = new Set(severeInjuries.flatMap((i) => SEVERE_EXCLUSION_MAP[i.body_area].muscles ?? []));
     const excludedPatterns = new Set(severeInjuries.flatMap((i) => SEVERE_EXCLUSION_MAP[i.body_area].patterns ?? []));
@@ -421,6 +425,7 @@ Deno.serve(async (req) => {
 
     const injuriesText = [
       ...severeInjuries.map((i) => `${i.body_area} (lesión severa/estructural — YA EXCLUIDO del catálogo de ejercicios de la zona afectada): ${i.notes ?? 'sin notas adicionales'}`),
+      ...severeUnmappedInjuries.map((i) => `${i.body_area} (lesión severa/estructural SIN exclusión mecánica posible en esta zona — fuera del mapa de exclusión determinista — sé extremadamente conservador, evita cualquier ejercicio que cargue esta zona, prioriza fuertemente alternativas de bajo impacto): ${i.notes ?? 'sin notas adicionales'}`),
       ...mildInjuries.map((i) => `${i.body_area} (lesión leve/moderada — prioriza bajo impacto, evita movimientos pesados en esta zona): ${i.notes ?? 'sin notas adicionales'}`),
     ].join('; ');
 
