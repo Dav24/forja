@@ -244,5 +244,29 @@
     "title": "EL ACERO ESTÁ FORJADO",
     "subtitle": "Ya eres Maestro Forjador. Vulcano te espera.",
     "cta": "Empezar a forjar"
+  },
+  "sessionFeedback": {
+    "finalizeButton": "Finalizar entrenamiento",
+    "finalizeProgress": "{{logged}}/{{total}} ejercicios registrados",
+    "title": "¿Cómo te fue hoy?",
+    "difficultyLabel": "Dificultad",
+    "difficulty": {
+      "muy_facil": "Muy fácil",
+      "facil": "Fácil",
+      "justo": "Justo",
+      "dificil": "Difícil",
+      "muy_dificil": "Muy difícil"
+    },
+    "problemsLabel": "¿Algún problema?",
+    "problems": {
+      "ninguno": "Ninguno",
+      "dolor": "Dolor/molestia",
+      "no_completo": "No completé",
+      "otro": "Otro"
+    },
+    "commentPlaceholder": "Cuéntale a Vulcano más (opcional)",
+    "exerciseFlagsLabel": "¿Algún ejercicio en particular?",
+    "submit": "Enviar",
+    "submitSuccess": "¡Feedback guardado!"
   }
 }

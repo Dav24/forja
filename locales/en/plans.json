@@ -244,5 +244,29 @@
     "title": "THE STEEL IS FORGED",
     "subtitle": "You're now a Master Forger. Vulcano awaits.",
     "cta": "Start forging"
+  },
+  "sessionFeedback": {
+    "finalizeButton": "Finish workout",
+    "finalizeProgress": "{{logged}}/{{total}} exercises logged",
+    "title": "How did it go today?",
+    "difficultyLabel": "Difficulty",
+    "difficulty": {
+      "muy_facil": "Very easy",
+      "facil": "Easy",
+      "justo": "Just right",
+      "dificil": "Hard",
+      "muy_dificil": "Very hard"
+    },
+    "problemsLabel": "Any issues?",
+    "problems": {
+      "ninguno": "None",
+      "dolor": "Pain/discomfort",
+      "no_completo": "Didn't finish",
+      "otro": "Other"
+    },
+    "commentPlaceholder": "Tell Vulcano more (optional)",
+    "exerciseFlagsLabel": "Any specific exercise?",
+    "submit": "Submit",
+    "submitSuccess": "Feedback saved!"
   }
 }
