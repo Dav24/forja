@@ -94,8 +94,8 @@ Controlado por `profiles.seen_health_profile_hint_workout` / `..._meal` — una 
 
 **Premium:** al guardar/confirmar cambios en cualquiera de las dos pantallas, se dispara automáticamente la regeneración del plan correspondiente:
 
-- Cambios en "Lesiones" → regenera `generate-plan`.
-- Cambios en "Alergias y limitaciones" → regenera `generate-meal-plan`.
+- Guardar en la pantalla "Lesiones" → regenera `generate-plan`.
+- Guardar en la pantalla fusionada "Alergias y limitaciones" → regenera `generate-meal-plan`, sin importar si lo que cambió fue una alergia/dislike o una condición médica — es una sola pantalla con un solo botón de guardar, no se distingue qué sub-sección cambió.
 
 Se muestra una animación de espera ("trabajando en tu plan de entrenamiento/alimenticio...") y al terminar, confirmación ("¡Tu plan se actualizó!"). Sin costo de crédito: premium ya genera planes ilimitados (`PREMIUM_LIMITS`), esto no es una llamada extra fuera de ese cupo.
 
@@ -104,6 +104,7 @@ Se muestra una animación de espera ("trabajando en tu plan de entrenamiento/ali
 **`generate-plan`:** antes de construir `catalogBlock`, se lee `injuries` del usuario.
 - Si existe alguna fila con `severity='severa_estructural'`: se amplía el `select` de `exercise_catalog` para incluir `primary_muscle`/`movement_pattern`, y se filtran del catálogo (antes de armar el prompt) los ejercicios que cargan la zona afectada — ej. rodilla severa excluye ejercicios con `primary_muscle` de cuádriceps/isquiotibiales/glúteo y `movement_pattern` squat/lunge/jump. Claude no puede elegir lo que no está en la lista que recibe.
 - Si solo hay `severity='leve_moderada'`: no se filtra el catálogo; se agrega una línea de instrucción al prompt, mismo tono que alergias hoy ("prioriza bajo impacto en [zona], evita [movimientos] pesados o de alto impacto").
+- **Caso `body_area='otro'` con `severity='severa_estructural'`:** no hay una zona conocida contra la cual mapear `primary_muscle`/`movement_pattern`, así que el filtro determinista no aplica — cae a solo-prompt, igual que `leve_moderada`, pero con lenguaje más enfático ("limitación física seria, prioriza fuertemente ejercicios de bajo impacto y consulta profesional") ya que no hay garantía dura de exclusión en este caso particular.
 - El parámetro `injuries` legacy (hoy siempre `''`) se reemplaza por esta lectura real de la tabla nueva.
 
 **`generate-meal-plan`:** se agrega lectura de `medical_conditions` junto al `food_preferences` existente, inyectadas al prompt con el mismo framing de seguridad que alergias ("NUNCA sugerir/considerar alimentos o enfoques contraindicados para esta condición"). No se restringe `diet_type` en la UI — no existe un catálogo fijo de comidas que filtrar mecánicamente como en ejercicios, y restringir opciones daría la impresión de que el sistema "diagnostica" qué dieta es válida.
