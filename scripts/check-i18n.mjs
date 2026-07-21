@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 // fileURLToPath y no .pathname: la ruta del repo tiene espacios ("Physis Labs")
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const NAMESPACES = ['common', 'auth', 'onboarding', 'home', 'chat', 'plans', 'progress', 'profile', 'settings'];
+const NAMESPACES = ['common', 'auth', 'onboarding', 'home', 'chat', 'plans', 'progress', 'profile', 'settings', 'health'];
 const SRC_DIRS = ['app', 'components', 'hooks', 'constants', 'lib'];
 const allowlist = JSON.parse(readFileSync(join(ROOT, 'scripts/check-i18n-allowlist.json'), 'utf8'));
 

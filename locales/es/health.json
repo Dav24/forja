@@ -1,0 +1,30 @@
+{
+  "bodyAreas": {
+    "rodilla": "Rodilla",
+    "hombro": "Hombro",
+    "espaldaBaja": "Espalda baja",
+    "cadera": "Cadera",
+    "tobillo": "Tobillo",
+    "muneca": "Muñeca",
+    "cuello": "Cuello",
+    "otro": "Otra zona"
+  },
+  "severities": {
+    "leveModerada": {
+      "label": "Leve o moderada",
+      "description": "Ej. esguince grado 1-2, tendinitis, en recuperación"
+    },
+    "severaEstructural": {
+      "label": "Severa o estructural",
+      "description": "Ej. ruptura de ligamento, fractura, discapacidad permanente"
+    }
+  },
+  "conditions": {
+    "diabetes": "Diabetes",
+    "hipertension": "Hipertensión",
+    "bypassGastrico": "Bypass gástrico",
+    "embarazo": "Embarazo",
+    "enfermedadRenal": "Enfermedad renal",
+    "otro": "Otra condición"
+  }
+}

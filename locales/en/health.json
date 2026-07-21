@@ -1,0 +1,30 @@
+{
+  "bodyAreas": {
+    "rodilla": "Knee",
+    "hombro": "Shoulder",
+    "espaldaBaja": "Lower back",
+    "cadera": "Hip",
+    "tobillo": "Ankle",
+    "muneca": "Wrist",
+    "cuello": "Neck",
+    "otro": "Other area"
+  },
+  "severities": {
+    "leveModerada": {
+      "label": "Mild or moderate",
+      "description": "E.g. grade 1-2 sprain, tendinitis, currently recovering"
+    },
+    "severaEstructural": {
+      "label": "Severe or structural",
+      "description": "E.g. torn ligament, fracture, permanent disability"
+    }
+  },
+  "conditions": {
+    "diabetes": "Diabetes",
+    "hipertension": "Hypertension",
+    "bypassGastrico": "Gastric bypass",
+    "embarazo": "Pregnancy",
+    "enfermedadRenal": "Kidney disease",
+    "otro": "Other condition"
+  }
+}
