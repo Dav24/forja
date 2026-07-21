@@ -57,6 +57,19 @@ create table medical_conditions (
 
 `food_preferences` no cambia de esquema — solo cambia dónde vive en la UI (ver más abajo).
 
+**Hallazgo durante la escritura del plan (2026-07-20):** ni `workout_plans` ni `meal_plans` persisten los parámetros con los que se generaron (`modality`/`days_per_week`/`minutes_per_session`/`equipment` para entrenamiento; `diet_type`/`food_availability` para comida) — se eligen frescos cada vez en `GeneratePlanSheet`/`meal/index.tsx` y se descartan. Para que la auto-regeneración premium (sección de comportamiento free/premium) funcione sin volver a preguntar nada, se agregan columnas para guardar los últimos valores usados:
+
+```sql
+alter table workout_plans add column days_per_week int;
+alter table workout_plans add column minutes_per_session int;
+alter table workout_plans add column equipment text;
+
+alter table meal_plans add column diet_type text;
+alter table meal_plans add column food_availability text;
+```
+
+Se pueblan en cada generación (manual o auto-regeneración) y la auto-regeneración premium los reutiliza tal cual, sin pedir confirmación al usuario.
+
 **Por qué dos tablas y no una:** `injuries` necesita el campo `severity`, que activa el filtro determinista en `generate-plan`. `medical_conditions` no lo necesita — siempre es solo-prompt (no existe un catálogo fijo de comidas que filtrar mecánicamente, a diferencia de ejercicios). Compartir una tabla forzaría un campo `severity` sin sentido en la mitad de las filas.
 
 `notes` en ambas tablas se sanea igual que `modality_goal_notes` (`.slice(0,200).replace(/[^\w\s,áéíóúñü.]/gi,'')`) antes de entrar a cualquier prompt.
