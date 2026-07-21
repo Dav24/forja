@@ -155,6 +155,14 @@
     "injuriesButtonTitle": "Injuries & muscle problems",
     "injuriesButtonSubtitle": "Adjusts your training plan to your physical limitations",
     "conditionsButtonTitle": "Allergies & medical/food limitations",
-    "conditionsButtonSubtitle": "Allergies, dislikes, and medical conditions that affect your diet"
+    "conditionsButtonSubtitle": "Allergies, dislikes, and medical conditions that affect your diet",
+    "injuriesSubtitle": "Help Vulcano build a safe training plan for you.",
+    "addInjuryTitle": "Add injury",
+    "notesPlaceholder": "Optional notes",
+    "addButton": "Add",
+    "discardTitle": "Discard changes?",
+    "discardBody": "Anything you haven't saved will be lost.",
+    "discardCancel": "Keep editing",
+    "discardConfirm": "Discard"
   }
 }

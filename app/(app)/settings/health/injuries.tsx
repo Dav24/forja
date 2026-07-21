@@ -1,0 +1,128 @@
+import { useState } from 'react';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/lib/theme';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
+import { FieldLabel } from '@/components/ui/FieldLabel';
+import { BODY_AREAS, INJURY_SEVERITIES, type BodyArea, type InjurySeverity } from '@/constants/health';
+import { useInjuries, useAddInjury, useRemoveInjury } from '@/hooks/useInjuries';
+
+export default function InjuriesScreen() {
+  const { t } = useTranslation('settings');
+  const { colors } = useTheme();
+  const { data: injuries } = useInjuries();
+  const { mutate: addInjury, isPending: adding } = useAddInjury();
+  const { mutate: removeInjury } = useRemoveInjury();
+
+  const [bodyArea, setBodyArea] = useState<BodyArea | null>(null);
+  const [severity, setSeverity] = useState<InjurySeverity | null>(null);
+  const [notes, setNotes] = useState('');
+  const [dirty, setDirty] = useState(false);
+
+  function handleAdd() {
+    if (!bodyArea || !severity) return;
+    addInjury(
+      { body_area: bodyArea, severity, notes },
+      {
+        onSuccess: () => {
+          setBodyArea(null);
+          setSeverity(null);
+          setNotes('');
+          setDirty(false);
+        },
+      },
+    );
+  }
+
+  function handleRemove(id: string) {
+    removeInjury({ id });
+  }
+
+  function handleBack() {
+    if (dirty) {
+      Alert.alert(t('health.discardTitle'), t('health.discardBody'), [
+        { text: t('health.discardCancel'), style: 'cancel' },
+        { text: t('health.discardConfirm'), style: 'destructive', onPress: () => router.back() },
+      ]);
+      return;
+    }
+    router.back();
+  }
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
+      <View className="flex-row items-center gap-3 px-4 py-3 border-b border-border">
+        <TouchableOpacity onPress={handleBack} hitSlop={12}>
+          <Ionicons name="chevron-back" size={26} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 30, color: colors.text, letterSpacing: 1 }}>
+          {t('health.injuriesButtonTitle')}
+        </Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+        <Text style={{ fontFamily: 'Inter-Regular', fontSize: 13, color: colors.textMuted, marginBottom: 20 }}>
+          {t('health.injuriesSubtitle')}
+        </Text>
+
+        {(injuries ?? []).map((inj) => (
+          <View key={inj.id} className="flex-row items-center justify-between p-3 mb-2 rounded-xl border" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
+            <View className="flex-1">
+              <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>
+                {t(`health:bodyAreas.${inj.body_area === 'espalda_baja' ? 'espaldaBaja' : inj.body_area === 'muñeca' ? 'muneca' : inj.body_area}`, { ns: 'health' })}
+              </Text>
+              <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
+                {t(`health:severities.${inj.severity === 'leve_moderada' ? 'leveModerada' : 'severaEstructural'}.label`, { ns: 'health' })}
+                {inj.notes ? ` — ${inj.notes}` : ''}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => handleRemove(inj.id)} hitSlop={12}>
+              <Ionicons name="close-circle-outline" size={22} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+        ))}
+
+        <FieldLabel first>{t('health.addInjuryTitle')}</FieldLabel>
+        <View className="flex-row flex-wrap gap-2 mb-3">
+          {BODY_AREAS.map((a) => (
+            <Chip
+              key={a.value}
+              label={t(a.labelKey)}
+              selected={bodyArea === a.value}
+              onPress={() => { setBodyArea(a.value); setDirty(true); }}
+            />
+          ))}
+        </View>
+        {bodyArea ? (
+          <View className="gap-2 mb-3">
+            {INJURY_SEVERITIES.map((s) => {
+              const isSelected = severity === s.value;
+              return (
+                <TouchableOpacity
+                  key={s.value}
+                  onPress={() => { setSeverity(s.value); setDirty(true); }}
+                  className={`p-3 rounded-xl border ${isSelected ? 'bg-primary-dim border-primary' : 'bg-surface border-border'}`}
+                >
+                  <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: isSelected ? colors.primary : colors.text }}>{t(s.labelKey)}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        ) : null}
+        {bodyArea && severity ? (
+          <View className="flex-row gap-2 items-start mb-2">
+            <View className="flex-1">
+              <Input placeholder={t('health.notesPlaceholder')} value={notes} onChangeText={(v) => { setNotes(v); setDirty(true); }} />
+            </View>
+            <Button label={t('health.addButton')} size="sm" variant="secondary" loading={adding} onPress={handleAdd} />
+          </View>
+        ) : null}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
