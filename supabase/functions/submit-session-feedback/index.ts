@@ -53,6 +53,7 @@ interface Exercise {
   name: string;
   sets: number;
   reps: string;
+  exercise_slug?: string | null;
 }
 
 /** Muta `workout_plans.schedule` y registra el ajuste — usado tanto por el
@@ -250,18 +251,70 @@ Deno.serve(async (req) => {
 
     // 3. Determinar qué ejercicios evaluar: flags puntuales, o todos los del día
     //    gobernados por el rating de sesión si no hay flags.
-    const targets = body.exercise_flags.length > 0
-      ? body.exercise_flags.map((f) => ({ exerciseOrder: f.exercise_order, rating: null as DifficultyRating | null, flag: f.flag }))
-      : day.exercises.map((ex) => ({ exerciseOrder: ex.order, rating: body.difficulty_rating, flag: null as 'facil' | 'dificil' | null }));
-
     const hasPainTag = body.problem_tags.includes('dolor');
     let suggestion: Suggestion | null = null;
+
+    // Comentario/dolor a nivel de sesión (sin flags puntuales): el comentario
+    // es el mismo para los N ejercicios del día, así que se clasifica UNA sola
+    // vez -- clasificarlo por ejercicio desperdicia N llamadas a Haiku y N
+    // queries de historial de dolor idénticas para un único juicio de sesión.
+    const isSessionLevelFeedback = body.exercise_flags.length === 0 && (hasPainTag || body.comment) && day.exercises.length > 0;
+    if (isSessionLevelFeedback) {
+      const representativeExercise = day.exercises[0];
+      const { count: painHistory } = await supabase
+        .from('session_feedback')
+        .select('id', { count: 'exact', head: true })
+        .eq('workout_plan_id', body.workout_plan_id)
+        .contains('problem_tags', ['dolor'])
+        .order('log_date', { ascending: false })
+        .limit(NECESSITY_PATTERN_WINDOW);
+
+      let classification;
+      try {
+        classification = await classifyFeedback(ANTHROPIC_API_KEY, {
+          comment: body.comment,
+          problemTags: body.problem_tags,
+          exerciseName: representativeExercise.name,
+          hasPainHistory3Sessions: (painHistory ?? 0) >= NECESSITY_PATTERN_WINDOW,
+        });
+      } catch {
+        // Fail-safe: si Haiku falla y había dolor, no se pierde la señal.
+        classification = hasPainTag
+          ? { label: 'posible_molestia' as const, action: 'bajar_carga' as const }
+          : { label: 'flojera' as const, action: 'sin_accion' as const };
+      }
+
+      if (classification.action !== 'sin_accion') {
+        const reasonTag = classification.action === 'bajar_carga' ? 'molestia_bajar_carga'
+          : classification.action === 'pausar_ejercicio' ? 'molestia_pausar'
+          : 'molestia_requiere_sustitucion';
+        suggestion = {
+          exerciseOrder: representativeExercise.order,
+          source: 'ai',
+          reasonTag,
+          before: representativeExercise,
+          after: representativeExercise,
+        };
+      }
+    }
+
+    // Si el feedback de sesión ya se resolvió arriba (con o sin acción), no hay
+    // nada más que iterar: el camino determinista nunca debe activarse cuando
+    // hubo comentario/dolor a nivel de sesión, y ese comentario no debe
+    // reclasificarse por ejercicio. Si no hubo feedback de sesión, se recorren
+    // los flags puntuales (si los hay) o todos los ejercicios del día en modo
+    // determinista.
+    const targets = isSessionLevelFeedback
+      ? []
+      : body.exercise_flags.length > 0
+        ? body.exercise_flags.map((f) => ({ exerciseOrder: f.exercise_order, rating: null as DifficultyRating | null, flag: f.flag }))
+        : day.exercises.map((ex) => ({ exerciseOrder: ex.order, rating: body.difficulty_rating, flag: null as 'facil' | 'dificil' | null }));
 
     for (const target of targets) {
       const exercise = day.exercises.find((e) => e.order === target.exerciseOrder);
       if (!exercise) continue;
 
-      // Camino de dolor/comentario -> siempre escala a IA, sin gate de necesidad.
+      // Camino de dolor/comentario con flag puntual -> siempre escala a IA, sin gate de necesidad.
       if (hasPainTag || body.comment) {
         const { count: painHistory } = await supabase
           .from('session_feedback')
@@ -353,14 +406,17 @@ Deno.serve(async (req) => {
           direction,
         });
       } else {
-        const { data: logRows } = await supabase
-          .from('exercise_logs')
-          .select('kg, recorded_at')
-          .eq('exercise_slug', exercise.name)
-          .order('recorded_at', { ascending: false })
-          .limit(NECESSITY_PATTERN_WINDOW);
-        const weights = (logRows ?? []).map((r) => r.kg).filter((k): k is number => k != null);
-        const ownProgression = weights.length >= 2 && weights[0] > weights[weights.length - 1];
+        let ownProgression = false;
+        if (exercise.exercise_slug) {
+          const { data: logRows } = await supabase
+            .from('exercise_logs')
+            .select('kg, recorded_at')
+            .eq('exercise_slug', exercise.exercise_slug)
+            .order('recorded_at', { ascending: false })
+            .limit(NECESSITY_PATTERN_WINDOW);
+          const weights = (logRows ?? []).map((r) => r.kg).filter((k): k is number => k != null);
+          ownProgression = weights.length >= 2 && weights[0] > weights[weights.length - 1];
+        }
         gateResult = checkNecessityGate({ hasNumericGoal: false, ownProgressionRecent: ownProgression, direction });
       }
 
