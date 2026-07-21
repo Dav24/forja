@@ -20,3 +20,21 @@ Deno.test('nunca menciona a Memo', () => {
     }
   }
 });
+
+Deno.test('plan_adjustment_suggested_free devuelve texto es/en', () => {
+  const es = getNotificationText('plan_adjustment_suggested_free', 'es');
+  const en = getNotificationText('plan_adjustment_suggested_free', 'en');
+  if (!es.title || !es.body || !en.title || !en.body) throw new Error('texto incompleto');
+});
+
+Deno.test('plan_adjustment_suggested_premium devuelve texto es/en', () => {
+  const es = getNotificationText('plan_adjustment_suggested_premium', 'es');
+  const en = getNotificationText('plan_adjustment_suggested_premium', 'en');
+  if (!es.title || !es.body || !en.title || !en.body) throw new Error('texto incompleto');
+});
+
+Deno.test('plan_adjusted_premium devuelve texto es/en', () => {
+  const es = getNotificationText('plan_adjusted_premium', 'es');
+  const en = getNotificationText('plan_adjusted_premium', 'en');
+  if (!es.title || !es.body || !en.title || !en.body) throw new Error('texto incompleto');
+});

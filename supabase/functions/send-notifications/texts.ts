@@ -4,7 +4,10 @@ export type PayloadKind =
   | 'missed_workout_premium'
   | 'greeting_premium'
   | 'missed_workout_free'
-  | 'greeting_free';
+  | 'greeting_free'
+  | 'plan_adjustment_suggested_premium'
+  | 'plan_adjustment_suggested_free'
+  | 'plan_adjusted_premium';
 
 export interface NotificationParams {
   daysLeft?: number;
@@ -77,6 +80,36 @@ const TEXTS: Record<
     en: () => ({
       title: 'Hey, forger! 💪',
       body: 'Vulcano is here. What are we working on today?',
+    }),
+  },
+  plan_adjustment_suggested_premium: {
+    es: () => ({
+      title: 'Vulcano tiene una sugerencia 🔥',
+      body: 'Revisa el ajuste que propone para tu plan de entrenamiento.',
+    }),
+    en: () => ({
+      title: 'Vulcano has a suggestion 🔥',
+      body: 'Check out the adjustment proposed for your workout plan.',
+    }),
+  },
+  plan_adjustment_suggested_free: {
+    es: () => ({
+      title: 'Vulcano tiene una sugerencia 🔥',
+      body: 'Revisa el ajuste que propone para tu plan de entrenamiento.',
+    }),
+    en: () => ({
+      title: 'Vulcano has a suggestion 🔥',
+      body: 'Check out the adjustment proposed for your workout plan.',
+    }),
+  },
+  plan_adjusted_premium: {
+    es: () => ({
+      title: 'Plan ajustado ✅',
+      body: 'Vulcano ajustó tu plan según tu progreso reciente.',
+    }),
+    en: () => ({
+      title: 'Plan adjusted ✅',
+      body: 'Vulcano adjusted your plan based on your recent progress.',
     }),
   },
 };
