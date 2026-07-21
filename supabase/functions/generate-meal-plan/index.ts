@@ -73,6 +73,7 @@ function buildMealPlanPrompt(userData: {
   modalityGoalNotes: string | null;
   secondaryGoalNotes: string | null;
   modality: string | null;
+  medicalConditions: string;
 }): string {
   const goalMap: Record<string, string> = {
     weight_loss: 'pérdida de grasa',
@@ -124,6 +125,7 @@ ${userData.gender ? `- Género: ${userData.gender}` : ''}
 ${userData.activity_level ? `- Nivel de actividad: ${userData.activity_level}` : ''}
 - Alergias/intolerancias (NUNCA sugerir): ${userData.allergies.join(', ') || 'ninguna'}
 - Disgustos declarados (evitar si es posible, no es riesgo de seguridad): ${userData.dislikes.join(', ') || 'ninguno'}
+${userData.medicalConditions ? `- Condiciones médicas declaradas (RESPETAR, no evaluar ni diagnosticar — NUNCA sugerir alimentos o enfoques contraindicados para estas condiciones): ${userData.medicalConditions}` : ''}
 - Tipo de dieta: ${userData.diet_type}
 - Disponibilidad de alimentos: ${availabilityMap[userData.food_availability] ?? userData.food_availability}
 ${backgroundLine}${supplementsLine}${weightGoalLine}${orientationLine}${secondaryNotesLine}${firstStepsLine}
@@ -276,7 +278,7 @@ Deno.serve(async (req) => {
     const diet_type = VALID_DIETS.includes(String(rawDiet).toLowerCase()) ? String(rawDiet).toLowerCase() : 'omnívoro';
     const food_availability = VALID_AVAILABILITY.includes(String(rawAvailability).toLowerCase()) ? String(rawAvailability).toLowerCase() : 'media';
 
-    const [goalResult, bodyResult, profileResult, foodPrefResult] = await Promise.all([
+    const [goalResult, bodyResult, profileResult, foodPrefResult, medicalConditionsResult] = await Promise.all([
       supabase.from('goals').select('type, fitness_level, athletic_background, modality, target_weight_kg, target_date, modality_orientation, modality_goal_notes, secondary_goal_notes')
         .eq('user_id', user.id).eq('is_active', true)
         .order('created_at', { ascending: false }).limit(1).maybeSingle(),
@@ -284,10 +286,15 @@ Deno.serve(async (req) => {
         .eq('user_id', user.id).order('recorded_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('profiles').select('language, supplements, supplements_other').eq('id', user.id).maybeSingle(),
       supabase.from('food_preferences').select('item, kind').eq('user_id', user.id),
+      supabase.from('medical_conditions').select('condition, notes').eq('user_id', user.id),
     ]);
 
     const allergyItems = (foodPrefResult.data ?? []).filter((r) => r.kind === 'allergy').map((r) => r.item);
     const dislikeItems = (foodPrefResult.data ?? []).filter((r) => r.kind === 'dislike').map((r) => r.item);
+
+    const conditionsText = (medicalConditionsResult.data ?? [])
+      .map((c) => `${c.condition}${c.notes ? ` (${c.notes})` : ''}`)
+      .join(', ');
 
     const language: 'es' | 'en' = profileResult.data?.language === 'en' ? 'en' : 'es';
 
@@ -353,6 +360,7 @@ Deno.serve(async (req) => {
       modalityGoalNotes: goalResult.data.modality_goal_notes ?? null,
       secondaryGoalNotes: goalResult.data.secondary_goal_notes ?? null,
       modality: goalResult.data.modality ?? null,
+      medicalConditions: conditionsText,
     });
 
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -426,6 +434,8 @@ Deno.serve(async (req) => {
         generated_by: 'claude-sonnet-4-6',
         is_active: true,
         source_language: language,
+        diet_type,
+        food_availability,
       })
       .select('id').single();
 
