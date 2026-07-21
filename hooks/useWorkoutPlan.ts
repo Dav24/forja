@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Alert, Linking } from 'react-native';
 import { router } from 'expo-router';
+import i18next from 'i18next';
 import { buildCreditPackURL } from '@/lib/payments';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
+import { useIsPremium } from '@/hooks/useSubscription';
 import type { ModalityId } from '@/constants/modalities';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
@@ -55,6 +57,7 @@ export interface GeneratePlanParams {
 
 export function useGeneratePlan(refetch: () => Promise<unknown>) {
   const { session } = useAuthStore();
+  const isPremium = useIsPremium();
   const [generating, setGenerating] = useState(false);
 
   async function generate(params: GeneratePlanParams) {
@@ -109,6 +112,23 @@ export function useGeneratePlan(refetch: () => Promise<unknown>) {
       }
 
       await refetch();
+
+      // Aviso único a usuarios free — no se repite, controlado por profiles.seen_health_profile_hint_workout.
+      if (!isPremium) {
+        const { data: profileRow } = await supabase
+          .from('profiles')
+          .select('seen_health_profile_hint_workout')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        if (profileRow && !profileRow.seen_health_profile_hint_workout) {
+          Alert.alert('', i18next.t('plans:workoutPlan.healthProfileHint'));
+          await supabase
+            .from('profiles')
+            .update({ seen_health_profile_hint_workout: true })
+            .eq('id', session.user.id);
+        }
+      }
+
       if (data.plan_id) {
         router.push(`/(app)/plans/workout/${data.plan_id}`);
       }

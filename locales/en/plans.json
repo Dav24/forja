@@ -244,5 +244,11 @@
     "title": "THE STEEL IS FORGED",
     "subtitle": "You're now a Master Forger. Vulcano awaits.",
     "cta": "Start forging"
+  },
+  "workoutPlan": {
+    "healthProfileHint": "Plan created. You can update your injuries in Settings for your next workout plan."
+  },
+  "mealPlan": {
+    "healthProfileHint": "Plan created. You can update your medical profile in Settings for your next meal plan."
   }
 }

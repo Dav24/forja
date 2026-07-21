@@ -244,5 +244,11 @@
     "title": "EL ACERO ESTÁ FORJADO",
     "subtitle": "Ya eres Maestro Forjador. Vulcano te espera.",
     "cta": "Empezar a forjar"
+  },
+  "workoutPlan": {
+    "healthProfileHint": "Plan creado. Podrás modificar tus lesiones en Ajustes para tu próximo plan de entrenamiento."
+  },
+  "mealPlan": {
+    "healthProfileHint": "Plan creado. Podrás modificar tu perfil médico en Ajustes para tu próximo plan alimenticio."
   }
 }
