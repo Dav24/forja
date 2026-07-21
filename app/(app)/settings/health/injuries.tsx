@@ -74,10 +74,10 @@ export default function InjuriesScreen() {
           <View key={inj.id} className="flex-row items-center justify-between p-3 mb-2 rounded-xl border" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
             <View className="flex-1">
               <Text style={{ fontFamily: 'Inter-Medium', fontSize: 14, color: colors.text }}>
-                {t(`health:bodyAreas.${inj.body_area === 'espalda_baja' ? 'espaldaBaja' : inj.body_area === 'muñeca' ? 'muneca' : inj.body_area}`, { ns: 'health' })}
+                {t(BODY_AREAS.find((a) => a.value === inj.body_area)?.labelKey ?? '')}
               </Text>
               <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>
-                {t(`health:severities.${inj.severity === 'leve_moderada' ? 'leveModerada' : 'severaEstructural'}.label`, { ns: 'health' })}
+                {t(INJURY_SEVERITIES.find((s) => s.value === inj.severity)?.labelKey ?? '')}
                 {inj.notes ? ` — ${inj.notes}` : ''}
               </Text>
             </View>
