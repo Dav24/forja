@@ -161,7 +161,7 @@ export default function ConditionsScreen() {
           items={foodPrefs?.allergies ?? []}
           kind="allergy"
           onAdd={(item, kind) => { addPreference({ item, kind }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
-          onRemove={(id) => { removePreference({ id }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
+          onRemove={(id) => removePreference({ id }, { onSuccess: () => maybeAutoRegenerate() })}
           adding={addingPref}
         />
         <PreferenceGroup
@@ -169,7 +169,7 @@ export default function ConditionsScreen() {
           items={foodPrefs?.dislikes ?? []}
           kind="dislike"
           onAdd={(item, kind) => { addPreference({ item, kind }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
-          onRemove={(id) => { removePreference({ id }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
+          onRemove={(id) => removePreference({ id }, { onSuccess: () => maybeAutoRegenerate() })}
           adding={addingPref}
         />
 
@@ -182,7 +182,7 @@ export default function ConditionsScreen() {
               </Text>
               {c.notes ? <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>{c.notes}</Text> : null}
             </View>
-            <TouchableOpacity onPress={() => { removeCondition({ id: c.id }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }} hitSlop={12}>
+            <TouchableOpacity onPress={() => removeCondition({ id: c.id }, { onSuccess: () => maybeAutoRegenerate() })} hitSlop={12}>
               <Ionicons name="close-circle-outline" size={22} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
