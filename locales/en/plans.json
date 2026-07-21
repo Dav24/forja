@@ -41,6 +41,8 @@
     "restUpper": "REST",
     "todayBadge": "TODAY",
     "exercisesMeta": "{{n}} exercises · ~{{minutes}}min",
+    "finalizeButton": "Finish workout",
+    "finalizeProgress": "{{logged}}/{{total}} exercises logged",
     "empty": {
       "title": "We haven't forged your plan yet",
       "subtitle": "Tell me your goal and we'll forge it together.",
@@ -246,8 +248,6 @@
     "cta": "Start forging"
   },
   "sessionFeedback": {
-    "finalizeButton": "Finish workout",
-    "finalizeProgress": "{{logged}}/{{total}} exercises logged",
     "title": "How did it go today?",
     "difficultyLabel": "Difficulty",
     "difficulty": {

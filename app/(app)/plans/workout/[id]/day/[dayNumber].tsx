@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { supabase } from '@/lib/supabase';
@@ -14,6 +14,8 @@ import { useHideNavWhileFocused } from '@/lib/scrollNav';
 import { StaggerIn } from '@/components/ui/StaggerIn';
 import { useLocalizedPlan } from '@/hooks/useLocalizedPlan';
 import { ExerciseSheet } from '@/components/plans/ExerciseSheet';
+import { useCanFinalizeSession, useApplySuggestion, type SubmitSessionFeedbackResponse } from '@/hooks/useSessionFeedback';
+import { SessionFeedbackSheet } from '@/components/plans/SessionFeedbackSheet';
 
 type Exercise = {
   order: number;
@@ -58,9 +60,45 @@ export default function WorkoutDayDetailScreen() {
   const { colors } = useTheme();
   const { id, dayNumber } = useLocalSearchParams<{ id: string; dayNumber: string }>();
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
   const exerciseSheetRef = useRef<BottomSheet>(null);
   const [activeExercise, setActiveExercise] = useState<{ exercise: Exercise; exerciseIndex: number } | null>(null);
+  const feedbackSheetRef = useRef<BottomSheet>(null);
+  const { mutate: applySuggestion } = useApplySuggestion();
   useHideNavWhileFocused();
+
+  function handleFeedbackSubmitted(response: SubmitSessionFeedbackResponse, planId: string, dayNum: number) {
+    feedbackSheetRef.current?.close();
+    if (!response.suggestion) {
+      Alert.alert(t('sessionFeedback.submitSuccess', { defaultValue: '¡Feedback guardado!' }));
+      return;
+    }
+    if (response.applied) {
+      // Ya se auto-aplicó server-side (premium + auto_adjust_enabled) — el push ya salió, no hace falta Alert extra aquí.
+      return;
+    }
+    if (response.requires_credit) {
+      Alert.alert(
+        'Sin ajustes gratis este mes',
+        'Ya usaste tus ajustes gratuitos. ¿Quieres usar 1 crédito para aplicar este ajuste?',
+        [
+          { text: 'Ahora no', style: 'cancel' },
+          { text: 'Usar crédito', onPress: () => applySuggestion({ workoutPlanId: planId, dayNumber: dayNum, suggestion: response.suggestion! }) },
+        ],
+      );
+      return;
+    }
+    if (response.requires_approval) {
+      Alert.alert(
+        'Vulcano tiene una sugerencia',
+        'Según tu feedback reciente, conviene ajustar este ejercicio. ¿Lo aplicamos?',
+        [
+          { text: 'Ignorar', style: 'cancel' },
+          { text: 'Aplicar', onPress: () => applySuggestion({ workoutPlanId: planId, dayNumber: dayNum, suggestion: response.suggestion! }) },
+        ],
+      );
+    }
+  }
 
   const { data: plan, isLoading } = useQuery<WorkoutPlan>({
     queryKey: ['workout_plan', id],
@@ -91,6 +129,12 @@ export default function WorkoutDayDetailScreen() {
 
   const schedule: WorkoutDay[] = Array.isArray(content?.schedule) ? content!.schedule : (plan?.schedule ?? []);
   const day = schedule.find((d) => d.day_number === Number(dayNumber));
+
+  const { canFinalize, loggedCount, totalCount } = useCanFinalizeSession(
+    plan?.id ?? '',
+    Number(dayNumber),
+    (day?.exercises ?? []).map((e) => e.order),
+  );
 
   if (!plan || !day) {
     return (
@@ -190,6 +234,21 @@ export default function WorkoutDayDetailScreen() {
             </TouchableOpacity>
           </StaggerIn>
         ))}
+
+        {!day.is_rest && (
+          <TouchableOpacity
+            onPress={() => feedbackSheetRef.current?.expand()}
+            disabled={!canFinalize}
+            style={{
+              marginTop: 20, backgroundColor: canFinalize ? colors.primary : colors.surfaceElevated,
+              borderRadius: 12, paddingVertical: 14, alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: canFinalize ? colors.background : colors.textFaint, fontFamily: 'SpaceGrotesk-Bold', fontSize: 15 }}>
+              {canFinalize ? t('workout.finalizeButton', { defaultValue: 'Finalizar entrenamiento' }) : t('workout.finalizeProgress', { logged: loggedCount, total: totalCount, defaultValue: `${loggedCount}/${totalCount} ejercicios registrados` })}
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       <ExerciseSheet
@@ -199,6 +258,22 @@ export default function WorkoutDayDetailScreen() {
         dayNumber={day.day_number}
         exerciseIndex={activeExercise?.exerciseIndex ?? 0}
         isToday={isToday}
+        onChange={(index) => {
+          // Al cerrar el sheet de ejercicio, refrescamos el conteo de "Finalizar entrenamiento"
+          // (useLogExerciseSets no invalida ['exercise_logs_today', ...], así que sin esto el botón
+          // podía quedar desactualizado hasta salir y volver a entrar a la pantalla).
+          if (index === -1) {
+            queryClient.invalidateQueries({ queryKey: ['exercise_logs_today', plan.id, day.day_number] });
+          }
+        }}
+      />
+
+      <SessionFeedbackSheet
+        ref={feedbackSheetRef}
+        workoutPlanId={plan.id}
+        dayNumber={day.day_number}
+        exercises={day.exercises.map((e) => ({ order: e.order, name: e.name }))}
+        onSubmitted={(response) => handleFeedbackSubmitted(response, plan.id, day.day_number)}
       />
     </SafeAreaView>
   );

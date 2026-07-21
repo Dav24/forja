@@ -27,6 +27,7 @@ interface ExerciseSheetProps {
   dayNumber: number;
   exerciseIndex: number;
   isToday: boolean;
+  onChange?: (index: number) => void;
 }
 
 type RegisterKind = 'kg' | 'bodyweight' | 'none';
@@ -61,7 +62,7 @@ function Sparkline({ points }: { points: number[] }) {
 }
 
 export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(function ExerciseSheet(
-  { exercise, workoutPlanId, dayNumber, exerciseIndex, isToday },
+  { exercise, workoutPlanId, dayNumber, exerciseIndex, isToday, onChange },
   ref,
 ) {
   const { colors } = useTheme();
@@ -94,7 +95,7 @@ export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(functio
     return Array.from({ length: numSets }, () => ({ kg: lastKg, reps: lastReps, lastre: lastLastre }));
   }, [values, numSets, progression]);
 
-  if (!exercise) return <Sheet ref={ref} snapPoints={['1%']}>{null}</Sheet>;
+  if (!exercise) return <Sheet ref={ref} snapPoints={['1%']} onChange={onChange}>{null}</Sheet>;
 
   const sparklinePoints = (progression ?? [])
     .map((p) => (kind === 'kg' ? p.kg : kind === 'bodyweight' ? p.reps : null))
@@ -141,7 +142,7 @@ export const ExerciseSheet = forwardRef<BottomSheet, ExerciseSheetProps>(functio
   }
 
   return (
-    <Sheet ref={ref} snapPoints={['85%']} scrollable>
+    <Sheet ref={ref} snapPoints={['85%']} scrollable onChange={onChange}>
       <View style={{ paddingTop: 8 }}>
         <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: 25, color: colors.text }}>
           {catalogEntry?.name_es ?? exercise.name}
