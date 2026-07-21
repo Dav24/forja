@@ -12,7 +12,7 @@
     "groupAccount": "Cuenta",
     "rowAccount": "Cuenta",
     "rowTraining": "Mi entrenamiento",
-    "rowFoodPreferences": "Alergias y disgustos",
+    "rowHealthProfile": "Lesiones y limitaciones alimenticias",
     "groupPreferences": "Preferencias",
     "rowNotifications": "Notificaciones",
     "rowLanguage": "Idioma",
@@ -149,5 +149,12 @@
     "light": "Claro",
     "system": "Sistema",
     "dark": "Oscuro"
+  },
+  "health": {
+    "hubTitle": "Perfil de salud",
+    "injuriesButtonTitle": "Lesiones y problemas musculares",
+    "injuriesButtonSubtitle": "Ajusta tu plan de entrenamiento según tus limitaciones físicas",
+    "conditionsButtonTitle": "Alergias y limitaciones alimenticias/médicas",
+    "conditionsButtonSubtitle": "Alergias, disgustos y condiciones médicas que afectan tu dieta"
   }
 }

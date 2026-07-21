@@ -12,7 +12,7 @@
     "groupAccount": "Account",
     "rowAccount": "Account",
     "rowTraining": "My training",
-    "rowFoodPreferences": "Allergies & dislikes",
+    "rowHealthProfile": "Injuries & food limitations",
     "groupPreferences": "Preferences",
     "rowNotifications": "Notifications",
     "rowLanguage": "Language",
@@ -149,5 +149,12 @@
     "light": "Light",
     "system": "System",
     "dark": "Dark"
+  },
+  "health": {
+    "hubTitle": "Health profile",
+    "injuriesButtonTitle": "Injuries & muscle problems",
+    "injuriesButtonSubtitle": "Adjusts your training plan to your physical limitations",
+    "conditionsButtonTitle": "Allergies & medical/food limitations",
+    "conditionsButtonSubtitle": "Allergies, dislikes, and medical conditions that affect your diet"
   }
 }
