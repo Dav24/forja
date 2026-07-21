@@ -152,12 +152,14 @@ Deno.serve(async (req) => {
     }
 
     // Verificar suscripción, límite diario, goal activo y language del usuario
-    const [subResult, countResult, goalResult, planResult, profileResult] = await Promise.all([
+    const [subResult, countResult, goalResult, planResult, profileResult, injuriesResult, conditionsResult] = await Promise.all([
       supabase.from('subscriptions').select('status, plan').eq('user_id', user.id).maybeSingle(),
       supabase.rpc('get_daily_message_count', { p_user_id: user.id }),
       supabase.from('goals').select('type, fitness_level, modality, secondary_modalities, sport_type, target_weight_kg, target_date, modality_orientation, modality_goal_notes, secondary_goal_notes').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
       supabase.from('workout_plans').select('title, schedule').eq('user_id', user.id).eq('is_active', true).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('profiles').select('language').eq('id', user.id).maybeSingle(),
+      supabase.from('injuries').select('body_area, severity, notes').eq('user_id', user.id),
+      supabase.from('medical_conditions').select('condition, notes').eq('user_id', user.id),
     ]);
 
     const isPremium = subResult.data?.status === 'active' && subResult.data?.plan !== 'free';
@@ -215,6 +217,18 @@ Deno.serve(async (req) => {
       goalData?.modality === 'first_steps' ? FIRST_STEPS_EMPATHY_GUARDRAIL : '',
     ].filter(Boolean).join(' ');
 
+    const injuriesLine = (injuriesResult.data ?? [])
+      .map((i) => `${i.body_area} (${i.severity === 'severa_estructural' ? 'severa/estructural' : 'leve/moderada'})${i.notes ? ` — ${i.notes}` : ''}`)
+      .join('; ');
+    const conditionsLine = (conditionsResult.data ?? [])
+      .map((c) => `${c.condition}${c.notes ? ` (${c.notes})` : ''}`)
+      .join(', ');
+    const healthBlock = (injuriesLine || conditionsLine)
+      ? `PERFIL DE SALUD DEL USUARIO (RESPETAR como restricción, NUNCA evaluar, diagnosticar, ni sugerir tratamiento — ante cualquier duda médica real, deriva al médico):
+${injuriesLine ? `Lesiones/limitaciones: ${injuriesLine}` : ''}
+${conditionsLine ? `Condiciones médicas: ${conditionsLine}` : ''}`
+      : '';
+
     // El plan activo es la fuente de verdad: sin esto Vulcano inventa rutinas
     // que contradicen lo que generó la pestaña Planes.
     const activePlan = planResult.data;
@@ -235,7 +249,8 @@ ${TONE_BY_LEVEL[fitnessLevel] ?? TONE_BY_LEVEL.intermediate}
 ${modalityLine}
 ${goalDetailLine}
 
-${planBlock}`;
+${planBlock}
+${healthBlock}`;
 
     // Idioma del usuario (profiles.language). NULL ⇒ sin línea extra: el SYSTEM_PROMPT
     // (compartido y cacheado) ya indica responder en el idioma que use el usuario.
