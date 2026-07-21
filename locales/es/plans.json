@@ -41,6 +41,8 @@
     "restUpper": "DESCANSO",
     "todayBadge": "HOY",
     "exercisesMeta": "{{n}} ejercicios · ~{{minutes}}min",
+    "finalizeButton": "Finalizar entrenamiento",
+    "finalizeProgress": "{{logged}}/{{total}} ejercicios registrados",
     "empty": {
       "title": "Aún no forjamos tu plan",
       "subtitle": "Cuéntame tu objetivo y lo forjamos juntos.",
@@ -250,5 +252,39 @@
   },
   "mealPlan": {
     "healthProfileHint": "Plan creado. Podrás modificar tu perfil médico en Ajustes para tu próximo plan alimenticio."
+  },
+  "sessionFeedback": {
+    "title": "¿Cómo te fue hoy?",
+    "difficultyLabel": "Dificultad",
+    "difficulty": {
+      "muy_facil": "Muy fácil",
+      "facil": "Fácil",
+      "justo": "Justo",
+      "dificil": "Difícil",
+      "muy_dificil": "Muy difícil"
+    },
+    "problemsLabel": "¿Algún problema?",
+    "problems": {
+      "ninguno": "Ninguno",
+      "dolor": "Dolor/molestia",
+      "no_completo": "No completé",
+      "otro": "Otro"
+    },
+    "commentPlaceholder": "Cuéntale a Vulcano más (opcional)",
+    "exerciseFlagsLabel": "¿Algún ejercicio en particular?",
+    "submit": "Enviar",
+    "submitSuccess": "¡Feedback guardado!",
+    "requiresCredit": {
+      "title": "Sin ajustes gratis este mes",
+      "body": "Ya usaste tus ajustes gratuitos. ¿Quieres usar 1 crédito para aplicar este ajuste?",
+      "cancelButton": "Ahora no",
+      "useButton": "Usar crédito"
+    },
+    "requiresApproval": {
+      "title": "Vulcano tiene una sugerencia",
+      "body": "Según tu feedback reciente, conviene ajustar este ejercicio. ¿Lo aplicamos?",
+      "ignoreButton": "Ignorar",
+      "applyButton": "Aplicar"
+    }
   }
 }

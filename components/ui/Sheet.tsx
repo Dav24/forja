@@ -12,6 +12,7 @@ interface SheetProps {
   children: React.ReactNode;
   snapPoints?: (string | number)[];
   scrollable?: boolean;
+  onChange?: (index: number) => void;
 }
 
 export const Sheet = forwardRef<BottomSheet, SheetProps>(function Sheet(

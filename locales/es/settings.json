@@ -120,6 +120,10 @@
     "saveErrorTitle": "Error al guardar",
     "unknownError": "Error desconocido"
   },
+  "autoAdjust": {
+    "title": "Plan ajustado",
+    "description": "Vulcano ajusta tu plan automáticamente según tu progreso, sin pedirte confirmación cada vez. Siempre puedes cambiar esto."
+  },
   "foodPreferences": {
     "title": "Alergias y disgustos",
     "subtitle": "Se usan para generar y ajustar tus planes alimenticios — nunca se sugiere algo de tu lista de alergias.",

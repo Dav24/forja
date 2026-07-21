@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useActiveGoal, useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { useLatestBodyData } from '@/hooks/useBodyTracking';
+import { useIsPremium } from '@/hooks/useSubscription';
 import { GOALS, FITNESS_LEVELS, MODES, ATHLETIC_BACKGROUNDS, SUPPLEMENTS, type GoalType, type FitnessLevel, type TrainingMode, type AthleticBackground, type SupplementCode } from '@/constants/goals';
 import { MODALITIES, type ModalityId } from '@/constants/modalities';
 import { Button } from '@/components/ui/Button';
@@ -39,6 +40,7 @@ export default function TrainingScreen() {
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
   const queryClient = useQueryClient();
+  const isPremium = useIsPremium();
 
   const [goalType, setGoalType] = useState<GoalType | null>(null);
   const [level, setLevel] = useState<FitnessLevel | null>(null);
@@ -57,6 +59,7 @@ export default function TrainingScreen() {
   const [heightCm, setHeightCm] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState<Gender | null>(null);
+  const [autoAdjustEnabled, setAutoAdjustEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -80,6 +83,7 @@ export default function TrainingScreen() {
     if (profile) {
       setSupplements((profile.supplements as SupplementCode[]) ?? []);
       setSupplementsOther(profile.supplements_other ?? '');
+      setAutoAdjustEnabled(profile.auto_adjust_enabled ?? false);
     }
     if (latestBody) {
       if (latestBody.height_cm) setHeightCm(String(latestBody.height_cm));
@@ -209,6 +213,13 @@ export default function TrainingScreen() {
         );
       });
 
+      // 5. Auto-ajuste de plan: UPDATE directo del perfil (columna separada de `goals`)
+      const { error: autoAdjustErr } = await supabase
+        .from('profiles')
+        .update({ auto_adjust_enabled: autoAdjustEnabled })
+        .eq('id', user.id);
+      if (autoAdjustErr) throw autoAdjustErr;
+
       queryClient.invalidateQueries({ queryKey: ['goal'] });
       queryClient.invalidateQueries({ queryKey: ['body_data'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
@@ -270,6 +281,20 @@ export default function TrainingScreen() {
                   onChangeTargetDate={setTargetDate}
                 />
               </>
+            )}
+
+            {isPremium && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
+                <View style={{ flex: 1, marginRight: 12 }}>
+                  <Text style={{ color: colors.text, fontFamily: 'Inter-Medium', fontSize: 14 }}>{t('autoAdjust.title')}</Text>
+                  <Text style={{ color: colors.textMuted, fontFamily: 'Inter-Regular', fontSize: 12, marginTop: 2 }}>{t('autoAdjust.description')}</Text>
+                </View>
+                <Switch
+                  value={autoAdjustEnabled}
+                  onValueChange={setAutoAdjustEnabled}
+                  trackColor={{ true: colors.primary, false: colors.surfaceElevated }}
+                />
+              </View>
             )}
           </GroupCard>
         </StaggerIn>
