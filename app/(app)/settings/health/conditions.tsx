@@ -14,6 +14,9 @@ import {
   useAddFoodPreference, useFoodPreferences, useRemoveFoodPreference, type FoodPreferenceKind,
 } from '@/hooks/useFoodPreferences';
 import { useAddMedicalCondition, useMedicalConditions, useRemoveMedicalCondition } from '@/hooks/useMedicalConditions';
+import { useIsPremium } from '@/hooks/useSubscription';
+import { useActiveMealPlan, useGenerateMealPlan } from '@/hooks/useMealPlan';
+import { PlanGenerating } from '@/components/plans/PlanGenerating';
 
 function PreferenceGroup({
   title, items, kind, onAdd, onRemove, adding,
@@ -78,15 +81,42 @@ export default function ConditionsScreen() {
   const { mutate: addCondition, isPending: addingCondition } = useAddMedicalCondition();
   const { mutate: removeCondition } = useRemoveMedicalCondition();
 
+  const isPremium = useIsPremium();
+  const { data: activeMealPlan, refetch: refetchMealPlan } = useActiveMealPlan();
+  const generateMealPlan = useGenerateMealPlan();
+  const [regenerating, setRegenerating] = useState(false);
+
   const [selectedCondition, setSelectedCondition] = useState<MedicalConditionCode | null>(null);
   const [conditionNotes, setConditionNotes] = useState('');
   const [dirty, setDirty] = useState(false);
+
+  async function maybeAutoRegenerate() {
+    if (!isPremium || !activeMealPlan) return;
+    setRegenerating(true);
+    try {
+      await generateMealPlan.mutateAsync({
+        diet_type: activeMealPlan.diet_type ?? 'omnívoro',
+        food_availability: activeMealPlan.food_availability ?? 'media',
+      });
+      await refetchMealPlan();
+      Alert.alert(t('health.autoRegenDoneTitle'), t('health.autoRegenDoneMealBody'));
+    } finally {
+      setRegenerating(false);
+    }
+  }
 
   function handleAddCondition() {
     if (!selectedCondition) return;
     addCondition(
       { condition: selectedCondition, notes: conditionNotes },
-      { onSuccess: () => { setSelectedCondition(null); setConditionNotes(''); setDirty(false); } },
+      {
+        onSuccess: async () => {
+          setSelectedCondition(null);
+          setConditionNotes('');
+          setDirty(false);
+          await maybeAutoRegenerate();
+        },
+      },
     );
   }
 
@@ -99,6 +129,10 @@ export default function ConditionsScreen() {
       return;
     }
     router.back();
+  }
+
+  if (generateMealPlan.isPending || regenerating) {
+    return <PlanGenerating />;
   }
 
   return (
@@ -120,16 +154,16 @@ export default function ConditionsScreen() {
           title={t('foodPreferences.allergiesTitle')}
           items={foodPrefs?.allergies ?? []}
           kind="allergy"
-          onAdd={(item, kind) => { addPreference({ item, kind }); setDirty(true); }}
-          onRemove={(id) => { removePreference({ id }); setDirty(true); }}
+          onAdd={(item, kind) => { addPreference({ item, kind }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
+          onRemove={(id) => { removePreference({ id }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
           adding={addingPref}
         />
         <PreferenceGroup
           title={t('foodPreferences.dislikesTitle')}
           items={foodPrefs?.dislikes ?? []}
           kind="dislike"
-          onAdd={(item, kind) => { addPreference({ item, kind }); setDirty(true); }}
-          onRemove={(id) => { removePreference({ id }); setDirty(true); }}
+          onAdd={(item, kind) => { addPreference({ item, kind }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
+          onRemove={(id) => { removePreference({ id }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }}
           adding={addingPref}
         />
 
@@ -142,7 +176,7 @@ export default function ConditionsScreen() {
               </Text>
               {c.notes ? <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: colors.textMuted }}>{c.notes}</Text> : null}
             </View>
-            <TouchableOpacity onPress={() => { removeCondition({ id: c.id }); setDirty(true); }} hitSlop={12}>
+            <TouchableOpacity onPress={() => { removeCondition({ id: c.id }, { onSuccess: () => maybeAutoRegenerate() }); setDirty(true); }} hitSlop={12}>
               <Ionicons name="close-circle-outline" size={22} color={colors.textMuted} />
             </TouchableOpacity>
           </View>

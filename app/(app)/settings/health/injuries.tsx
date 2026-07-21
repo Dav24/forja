@@ -11,6 +11,11 @@ import { Chip } from '@/components/ui/Chip';
 import { FieldLabel } from '@/components/ui/FieldLabel';
 import { BODY_AREAS, INJURY_SEVERITIES, type BodyArea, type InjurySeverity } from '@/constants/health';
 import { useInjuries, useAddInjury, useRemoveInjury } from '@/hooks/useInjuries';
+import { useIsPremium } from '@/hooks/useSubscription';
+import { useActiveGoal } from '@/hooks/useProfile';
+import { useActiveWorkoutPlan, useGeneratePlan } from '@/hooks/useWorkoutPlan';
+import { PlanGenerating } from '@/components/plans/PlanGenerating';
+import type { ModalityId } from '@/constants/modalities';
 
 export default function InjuriesScreen() {
   const { t } = useTranslation('settings');
@@ -19,28 +24,52 @@ export default function InjuriesScreen() {
   const { mutate: addInjury, isPending: adding } = useAddInjury();
   const { mutate: removeInjury } = useRemoveInjury();
 
+  const isPremium = useIsPremium();
+  const { data: activePlan, refetch: refetchPlan } = useActiveWorkoutPlan();
+  // workout_plans NO tiene columna `modality` — vive en goals.modality.
+  const { data: activeGoal } = useActiveGoal();
+  const { generating, generate } = useGeneratePlan(refetchPlan);
+  const [regenerating, setRegenerating] = useState(false);
+
   const [bodyArea, setBodyArea] = useState<BodyArea | null>(null);
   const [severity, setSeverity] = useState<InjurySeverity | null>(null);
   const [notes, setNotes] = useState('');
   const [dirty, setDirty] = useState(false);
+
+  async function maybeAutoRegenerate() {
+    if (!isPremium || !activePlan || !activeGoal?.modality) return;
+    setRegenerating(true);
+    try {
+      await generate({
+        modality: activeGoal.modality as ModalityId,
+        days_per_week: activePlan.days_per_week ?? 3,
+        minutes_per_session: activePlan.minutes_per_session ?? 60,
+        equipment: activePlan.equipment ?? 'gym con máquinas y pesas libres',
+      });
+      Alert.alert(t('health.autoRegenDoneTitle'), t('health.autoRegenDoneWorkoutBody'));
+    } finally {
+      setRegenerating(false);
+    }
+  }
 
   function handleAdd() {
     if (!bodyArea || !severity) return;
     addInjury(
       { body_area: bodyArea, severity, notes },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           setBodyArea(null);
           setSeverity(null);
           setNotes('');
           setDirty(false);
+          await maybeAutoRegenerate();
         },
       },
     );
   }
 
   function handleRemove(id: string) {
-    removeInjury({ id });
+    removeInjury({ id }, { onSuccess: () => { maybeAutoRegenerate(); } });
   }
 
   function handleBack() {
@@ -52,6 +81,10 @@ export default function InjuriesScreen() {
       return;
     }
     router.back();
+  }
+
+  if (generating || regenerating) {
+    return <PlanGenerating />;
   }
 
   return (

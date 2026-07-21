@@ -164,6 +164,9 @@
     "discardTitle": "¿Quieres descartar los cambios?",
     "discardBody": "Lo que no hayas guardado se perderá.",
     "discardCancel": "Seguir editando",
-    "discardConfirm": "Descartar"
+    "discardConfirm": "Descartar",
+    "autoRegenDoneTitle": "¡Tu plan se actualizó!",
+    "autoRegenDoneWorkoutBody": "Tu plan de entrenamiento se regeneró con tu perfil de salud actualizado.",
+    "autoRegenDoneMealBody": "Tu plan alimenticio se regeneró con tu perfil de salud actualizado."
   }
 }
