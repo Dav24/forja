@@ -282,6 +282,54 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_feedback: {
+        Row: {
+          created_at: string
+          day_number: number
+          exercise_order: number
+          flag: string
+          id: string
+          log_date: string
+          user_id: string
+          workout_plan_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          exercise_order: number
+          flag: string
+          id?: string
+          log_date: string
+          user_id: string
+          workout_plan_id: string
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          exercise_order?: number
+          flag?: string
+          id?: string
+          log_date?: string
+          user_id?: string
+          workout_plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_feedback_workout_plan_id_fkey"
+            columns: ["workout_plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercise_logs: {
         Row: {
           bodyweight_lastre_kg: number | null
@@ -575,8 +623,66 @@ export type Database = {
           },
         ]
       }
+      plan_adjustments: {
+        Row: {
+          after_snapshot: Json
+          applied_by: string
+          before_snapshot: Json
+          created_at: string
+          day_number: number
+          exercise_order: number | null
+          id: string
+          reason_tag: string
+          source: string
+          user_id: string
+          workout_plan_id: string
+        }
+        Insert: {
+          after_snapshot: Json
+          applied_by: string
+          before_snapshot: Json
+          created_at?: string
+          day_number: number
+          exercise_order?: number | null
+          id?: string
+          reason_tag: string
+          source: string
+          user_id: string
+          workout_plan_id: string
+        }
+        Update: {
+          after_snapshot?: Json
+          applied_by?: string
+          before_snapshot?: Json
+          created_at?: string
+          day_number?: number
+          exercise_order?: number | null
+          id?: string
+          reason_tag?: string
+          source?: string
+          user_id?: string
+          workout_plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_adjustments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_adjustments_workout_plan_id_fkey"
+            columns: ["workout_plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          auto_adjust_enabled: boolean
           avatar_url: string | null
           created_at: string
           display_name: string | null
@@ -591,6 +697,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_adjust_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -605,6 +712,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_adjust_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -619,6 +727,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      session_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          day_number: number
+          difficulty_rating: string
+          id: string
+          log_date: string
+          problem_tags: string[]
+          user_id: string
+          workout_plan_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          day_number: number
+          difficulty_rating: string
+          id?: string
+          log_date: string
+          problem_tags?: string[]
+          user_id: string
+          workout_plan_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          day_number?: number
+          difficulty_rating?: string
+          id?: string
+          log_date?: string
+          problem_tags?: string[]
+          user_id?: string
+          workout_plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_feedback_workout_plan_id_fkey"
+            columns: ["workout_plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
