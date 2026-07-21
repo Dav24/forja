@@ -71,7 +71,7 @@
     }
   },
   "step5": {
-    "eyebrow": "Último paso (opcional)",
+    "eyebrow": "Un paso más (opcional)",
     "title": "Contexto extra para tu coach",
     "subtitle": "Esto es solo contexto para tu coach — nunca te recomendaremos ni indicaremos dosis de sustancias.",
     "backgroundQuestion": "¿Tienes trayectoria competitiva?",
@@ -97,6 +97,23 @@
     "errors": {
       "saveFailed": { "title": "Error al guardar" },
       "unknown": "Error desconocido"
+    }
+  },
+  "step6": {
+    "eyebrow": "Último paso (opcional)",
+    "title": "Tu perfil de salud",
+    "subtitle": "Esto ayuda a Vulcano a evitar ejercicios o alimentos que no te convienen. Nunca reemplaza a un profesional de salud.",
+    "injuryQuestion": "¿Tienes alguna lesión o limitación física?",
+    "severityQuestion": "¿Qué tan seria es?",
+    "injuryNotesPlaceholder": "Notas opcionales (ej. desde cuándo, qué te dijo el doctor)",
+    "conditionQuestion": "¿Alguna condición médica que debamos considerar?",
+    "conditionNotesPlaceholder": "Notas opcionales",
+    "safetyNote": "Esto es solo contexto para tu coach — nunca sustituye una valoración médica o de un profesional de salud.",
+    "finishButton": "Terminar",
+    "skipButton": "Omitir por ahora",
+    "errors": {
+      "unknown": "Ocurrió un error inesperado",
+      "saveFailed": { "title": "No se pudo guardar" }
     }
   },
   "goals": {

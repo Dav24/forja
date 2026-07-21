@@ -65,8 +65,8 @@ export default function Step3Level() {
       if (goalError || !newGoal) throw goalError ?? new Error('goal insert sin id');
 
       setGoalId(newGoal.id);
-      // onboarding_completed se marca en el paso 5 (opcional) — si se marca
-      // aquí, el AuthGuard expulsa a /(app) antes de que el paso 5 renderice
+      // onboarding_completed se marca en el paso 6 (opcional) — si se marca
+      // antes, el AuthGuard expulsa a /(app) antes de que los pasos 5/6 rendericen
       // (ver app/_layout.tsx:113, redirige tan pronto onboardingCompleted=true
       // y la ruta activa sigue en el grupo (auth)).
       router.push('/(auth)/onboarding/step-5-athletic');
@@ -89,7 +89,7 @@ export default function Step3Level() {
       >
         <View className="pt-6 pb-8">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.caption, color: colors.textMuted, marginBottom: 4 }}>
-            {t('layout.stepOf', { current: 4, total: 5 })}
+            {t('layout.stepOf', { current: 4, total: 6 })}
           </Text>
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text }}>
             {t('step4.title')}

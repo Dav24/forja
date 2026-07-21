@@ -53,7 +53,7 @@ export default function Step1Goals() {
 
         <View className="pb-8">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.caption, color: colors.textMuted, marginBottom: 4 }}>
-            {t('layout.stepOf', { current: 1, total: 5 })}
+            {t('layout.stepOf', { current: 1, total: 6 })}
           </Text>
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text }}>
             {t('step1.title')}

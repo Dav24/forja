@@ -71,7 +71,7 @@
     }
   },
   "step5": {
-    "eyebrow": "Last step (optional)",
+    "eyebrow": "One more step (optional)",
     "title": "Extra context for your coach",
     "subtitle": "This is just context for your coach — we'll never recommend or dose substances.",
     "backgroundQuestion": "Do you have a competitive background?",
@@ -97,6 +97,23 @@
     "errors": {
       "saveFailed": { "title": "Save failed" },
       "unknown": "Unknown error"
+    }
+  },
+  "step6": {
+    "eyebrow": "Last step (optional)",
+    "title": "Your health profile",
+    "subtitle": "This helps Vulcano avoid exercises or foods that aren't right for you. It never replaces a health professional.",
+    "injuryQuestion": "Do you have any injury or physical limitation?",
+    "severityQuestion": "How serious is it?",
+    "injuryNotesPlaceholder": "Optional notes (e.g. how long, what the doctor told you)",
+    "conditionQuestion": "Any medical condition we should consider?",
+    "conditionNotesPlaceholder": "Optional notes",
+    "safetyNote": "This is just context for your coach — it never replaces a medical assessment or a health professional's evaluation.",
+    "finishButton": "Finish",
+    "skipButton": "Skip for now",
+    "errors": {
+      "unknown": "An unexpected error occurred",
+      "saveFailed": { "title": "Couldn't save" }
     }
   },
   "goals": {

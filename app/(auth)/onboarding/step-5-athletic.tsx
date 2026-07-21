@@ -6,8 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/auth.store';
 import { useOnboardingStore } from '@/store/onboarding.store';
-import { useProfileStore } from '@/store/profile.store';
-import { SparkBurst } from '@/components/effects/SparkBurst';
 import { useTheme } from '@/lib/theme';
 import { typography } from '@/constants/typography';
 import { ATHLETIC_BACKGROUNDS, SUPPLEMENTS, type AthleticBackground, type SupplementCode } from '@/constants/goals';
@@ -20,11 +18,9 @@ export default function Step5Athletic() {
   const [supplements, setSupplements] = useState<SupplementCode[]>([]);
   const [supplementsOther, setSupplementsOther] = useState('');
   const [loading, setLoading] = useState(false);
-  const [celebrating, setCelebrating] = useState(false);
 
   const { user } = useAuthStore();
-  const { goalId, reset } = useOnboardingStore();
-  const { setOnboardingCompleted } = useProfileStore();
+  const { goalId } = useOnboardingStore();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -34,12 +30,6 @@ export default function Step5Athletic() {
       const without = prev.filter((s) => s !== 'none');
       return without.includes(value) ? without.filter((s) => s !== value) : [...without, value];
     });
-  }
-
-  async function finishOnboarding() {
-    const { error } = await supabase.from('profiles').update({ onboarding_completed: true }).eq('id', user!.id);
-    if (error) throw error;
-    setCelebrating(true);
   }
 
   async function handleFinish() {
@@ -58,7 +48,7 @@ export default function Step5Athletic() {
         }).eq('id', user.id);
         if (profileError) throw profileError;
       }
-      await finishOnboarding();
+      router.push('/(auth)/onboarding/step-6-health');
     } catch (err: unknown) {
       const message =
         typeof err === 'object' && err !== null && 'message' in err
@@ -71,18 +61,7 @@ export default function Step5Athletic() {
   }
 
   async function handleSkip() {
-    setLoading(true);
-    try {
-      await finishOnboarding();
-    } catch (err: unknown) {
-      const message =
-        typeof err === 'object' && err !== null && 'message' in err
-          ? String((err as { message: unknown }).message)
-          : t('step5.errors.unknown');
-      Alert.alert(t('step5.errors.saveFailed.title'), message);
-    } finally {
-      setLoading(false);
-    }
+    router.push('/(auth)/onboarding/step-6-health');
   }
 
   return (
@@ -164,7 +143,7 @@ export default function Step5Athletic() {
         <TouchableOpacity
           className="rounded-xl h-14 items-center justify-center bg-primary"
           onPress={handleFinish}
-          disabled={loading || celebrating}
+          disabled={loading}
         >
           {loading ? <ActivityIndicator color={colors.background} /> : (
             <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.body, color: colors.background }}>
@@ -172,21 +151,12 @@ export default function Step5Athletic() {
             </Text>
           )}
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleSkip} disabled={loading || celebrating} className="items-center py-2">
+        <TouchableOpacity onPress={handleSkip} disabled={loading} className="items-center py-2">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.bodySmall, color: colors.textMuted }}>
             {t('step5.skipButton')}
           </Text>
         </TouchableOpacity>
       </View>
-
-      <SparkBurst
-        trigger={celebrating}
-        onDone={() => {
-          setOnboardingCompleted(true);
-          reset();
-          router.replace('/(app)');
-        }}
-      />
     </View>
   );
 }

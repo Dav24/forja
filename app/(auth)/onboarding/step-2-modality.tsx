@@ -66,7 +66,7 @@ export default function Step2Modality() {
       >
         <View className="pt-6 pb-8">
           <Text style={{ fontFamily: 'Inter-Medium', fontSize: typography.sizes.caption, color: colors.textMuted, marginBottom: 4 }}>
-            {t('layout.stepOf', { current: 2, total: 5 })}
+            {t('layout.stepOf', { current: 2, total: 6 })}
           </Text>
           <Text style={{ fontFamily: 'BebasNeue-Regular', fontSize: typography.sizes.screenTitle, color: colors.text }}>
             {t('step2.title')}
