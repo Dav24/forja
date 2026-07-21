@@ -145,7 +145,7 @@ ${userData.height_cm ? `- Estatura: ${userData.height_cm} cm` : ''}
 ${userData.age ? `- Edad: ${userData.age} años` : ''}
 ${userData.gender ? `- Género: ${userData.gender}` : ''}
 ${userData.activity_level ? `- Nivel de actividad diaria: ${userData.activity_level}` : ''}
-${userData.injuries ? `- Lesiones o limitaciones: ${userData.injuries}` : ''}
+${userData.injuries ? `- Lesiones o limitaciones (RESPETAR, no evaluar ni diagnosticar): ${userData.injuries}` : ''}
 ${backgroundLine}${supplementsLine}${weightGoalLine}${orientationLine}${secondaryNotesLine}${firstStepsLine}
 ${userData.language === 'en'
   ? 'LANGUAGE: Write ALL content values (title, description, focus, day_name, technique_notes, weekly_schedule_summary, progression_notes, exercise names) in ENGLISH. day_name must be the English weekday name (Monday...Sunday). Keep every JSON key exactly as specified.'
@@ -300,7 +300,6 @@ Deno.serve(async (req) => {
       days_per_week = 3,
       minutes_per_session = 60,
       equipment = 'gym con máquinas y pesas libres',
-      injuries = '',
       modality = null,
       secondary_modalities = [],
     } = body;
@@ -341,10 +340,42 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { data: catalogRows } = await supabase
+    const { data: injuryRows } = await supabase
+      .from('injuries')
+      .select('body_area, severity, notes')
+      .eq('user_id', user.id);
+
+    const injuries = injuryRows ?? [];
+
+    // Mapa de exclusión determinista: solo zonas donde el vocabulario coarse
+    // de exercise_catalog permite una exclusión razonable. 'cuello' y 'otro'
+    // no tienen mapeo limpio — caen a solo-prompt igual que severidad leve.
+    const SEVERE_EXCLUSION_MAP: Record<string, { muscles?: string[]; patterns?: string[] }> = {
+      rodilla: { patterns: ['Squat', 'Lunge', 'Plyometric'] },
+      hombro: { muscles: ['Shoulders'] },
+      espalda_baja: { patterns: ['Hinge'] },
+      cadera: { patterns: ['Hinge', 'Squat', 'Lunge', 'Hip Abduction'] },
+      tobillo: { patterns: ['Plyometric', 'Lunge'] },
+      muñeca: { muscles: ['Forearms'] },
+    };
+
+    const severeInjuries = injuries.filter((i) => i.severity === 'severa_estructural' && SEVERE_EXCLUSION_MAP[i.body_area]);
+    const mildInjuries = injuries.filter((i) => i.severity === 'leve_moderada' || !SEVERE_EXCLUSION_MAP[i.body_area]);
+
+    const excludedMuscles = new Set(severeInjuries.flatMap((i) => SEVERE_EXCLUSION_MAP[i.body_area].muscles ?? []));
+    const excludedPatterns = new Set(severeInjuries.flatMap((i) => SEVERE_EXCLUSION_MAP[i.body_area].patterns ?? []));
+
+    const { data: allCatalogRows } = await supabase
       .from('exercise_catalog')
-      .select('slug, name_es, name_en, equipment');
-    const catalogBlock = (catalogRows ?? [])
+      .select('slug, name_es, name_en, equipment, primary_muscle, movement_pattern');
+
+    // Filtro determinista: excluye del catálogo (antes de armar el prompt) lo
+    // que Claude ni siquiera puede elegir. Ver docs/superpowers/specs/2026-07-20-perfil-de-salud-design.md.
+    const catalogRows = (excludedMuscles.size > 0 || excludedPatterns.size > 0)
+      ? (allCatalogRows ?? []).filter((r) => !excludedMuscles.has(r.primary_muscle) && !excludedPatterns.has(r.movement_pattern))
+      : (allCatalogRows ?? []);
+
+    const catalogBlock = catalogRows
       .map((r) => `${r.slug}|${language === 'en' ? r.name_en : r.name_es}|${r.equipment}`)
       .join('\n');
 
@@ -388,6 +419,11 @@ Deno.serve(async (req) => {
       creditUsed = true;
     }
 
+    const injuriesText = [
+      ...severeInjuries.map((i) => `${i.body_area} (lesión severa/estructural — YA EXCLUIDO del catálogo de ejercicios de la zona afectada): ${i.notes ?? 'sin notas adicionales'}`),
+      ...mildInjuries.map((i) => `${i.body_area} (lesión leve/moderada — prioriza bajo impacto, evita movimientos pesados en esta zona): ${i.notes ?? 'sin notas adicionales'}`),
+    ].join('; ');
+
     const prompt = buildPlanPrompt({
       goal_type: goal.type,
       fitness_level: goal.fitness_level,
@@ -401,7 +437,7 @@ Deno.serve(async (req) => {
       days_per_week,
       minutes_per_session,
       equipment,
-      injuries,
+      injuries: injuriesText,
       modality: safeModality,
       secondary_modalities: safeSecondary,
       language,
@@ -529,6 +565,9 @@ Deno.serve(async (req) => {
         generated_by: 'claude-sonnet-4-6',
         is_active: true,
         source_language: language,
+        days_per_week,
+        minutes_per_session,
+        equipment,
       })
       .select('id')
       .single();
