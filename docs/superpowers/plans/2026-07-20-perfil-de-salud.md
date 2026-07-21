@@ -17,10 +17,11 @@
 - El chat de Vulcano gana visibilidad de `injuries`+`medical_conditions`, pero NO gana contexto del plan de comida activo ni de ejercicios día-por-día — eso queda fuera de este plan (hilo futuro propio).
 - Mantener la duplicación de patrones entre `generate-plan/index.ts` y `generate-meal-plan/index.ts` (no extraer módulo compartido) — consistente con cómo ya están escritos.
 - **Advertencia de entorno:** `exercise_catalog` está vacío en la base local hoy (0 filas) — el script `scripts/import-exercise-catalog.mjs` nunca se corrió contra este entorno. La Task 9 (filtro determinista) no se puede verificar end-to-end sin correrlo primero; ver nota en esa tarea.
+- **La DB local de Supabase es compartida entre worktrees** (un solo stack Docker para todo el proyecto, no aislado por sesión). Otra sesión en paralelo (`feedback-adaptativo`) ya tiene su propia migración `0016_session_feedback.sql` aplicada ahí. **NUNCA correr `supabase db reset`** durante esta feature — borraría y regeneraría toda la base de datos, destruyendo el trabajo de esa sesión. Usar siempre `supabase migration up --local` (apply no-destructivo de migraciones pendientes) en su lugar.
 
 ## File Structure
 
-- `supabase/migrations/0016_health_profile.sql` — tablas `injuries`/`medical_conditions`, columnas nuevas en `profiles`/`workout_plans`/`meal_plans`.
+- `supabase/migrations/0017_health_profile.sql` — tablas `injuries`/`medical_conditions`, columnas nuevas en `profiles`/`workout_plans`/`meal_plans`.
 - `constants/health.ts` — `BODY_AREAS`, `INJURY_SEVERITIES`, `MEDICAL_CONDITIONS` (definiciones compartidas onboarding+ajustes).
 - `hooks/useInjuries.ts` — CRUD de `injuries`.
 - `hooks/useMedicalConditions.ts` — CRUD de `medical_conditions`.
@@ -40,10 +41,10 @@
 
 ---
 
-### Task 1: Migración `0016_health_profile.sql`
+### Task 1: Migración `0017_health_profile.sql`
 
 **Files:**
-- Create: `supabase/migrations/0016_health_profile.sql`
+- Create: `supabase/migrations/0017_health_profile.sql`
 - Modify: `types/database.types.ts` (regenerar, no a mano)
 
 **Interfaces:**
@@ -117,8 +118,10 @@ alter table meal_plans add column food_availability text;
 
 - [ ] **Step 2: Aplicar localmente**
 
-Run: `cd "forja" && supabase db reset`
-Expected: la migración `0016_health_profile.sql` corre sin error junto con las 15 anteriores.
+**IMPORTANTE — la DB local de Supabase es compartida entre worktrees (un solo stack Docker, no aislado por sesión).** Otra sesión en paralelo (`feedback-adaptativo`) ya aplicó su propia migración `0016_session_feedback.sql` contra esta misma DB. **NUNCA correr `supabase db reset`** en este entorno — borraría y regeneraría toda la base de datos, destruyendo el trabajo de esa sesión. Usar en su lugar el apply no-destructivo:
+
+Run: `cd "forja" && supabase migration up --local`
+Expected: aplica solo `0017_health_profile.sql` (la única migración local pendiente — `0016` ya está aplicada en la DB aunque el archivo no exista en este worktree, así que no se re-aplica ni se toca).
 
 - [ ] **Step 3: Verificar RLS manualmente**
 
@@ -147,7 +150,7 @@ Expected: el diff agrega `injuries`, `medical_conditions` a `Tables`, y las colu
 - [ ] **Step 5: Commit**
 
 ```bash
-git add supabase/migrations/0016_health_profile.sql types/database.types.ts
+git add supabase/migrations/0017_health_profile.sql types/database.types.ts
 git commit -m "feat(salud): migración injuries + medical_conditions + columnas de persistencia"
 ```
 
