@@ -267,6 +267,18 @@
     "commentPlaceholder": "Cuéntale a Vulcano más (opcional)",
     "exerciseFlagsLabel": "¿Algún ejercicio en particular?",
     "submit": "Enviar",
-    "submitSuccess": "¡Feedback guardado!"
+    "submitSuccess": "¡Feedback guardado!",
+    "requiresCredit": {
+      "title": "Sin ajustes gratis este mes",
+      "body": "Ya usaste tus ajustes gratuitos. ¿Quieres usar 1 crédito para aplicar este ajuste?",
+      "cancelButton": "Ahora no",
+      "useButton": "Usar crédito"
+    },
+    "requiresApproval": {
+      "title": "Vulcano tiene una sugerencia",
+      "body": "Según tu feedback reciente, conviene ajustar este ejercicio. ¿Lo aplicamos?",
+      "ignoreButton": "Ignorar",
+      "applyButton": "Aplicar"
+    }
   }
 }

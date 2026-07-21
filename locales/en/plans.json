@@ -267,6 +267,18 @@
     "commentPlaceholder": "Tell Vulcano more (optional)",
     "exerciseFlagsLabel": "Any specific exercise?",
     "submit": "Submit",
-    "submitSuccess": "Feedback saved!"
+    "submitSuccess": "Feedback saved!",
+    "requiresCredit": {
+      "title": "No free adjustments this month",
+      "body": "You've already used your free adjustments. Do you want to use 1 credit to apply this change?",
+      "cancelButton": "Not now",
+      "useButton": "Use credit"
+    },
+    "requiresApproval": {
+      "title": "Vulcano has a suggestion",
+      "body": "Based on your recent feedback, it's a good idea to adjust this exercise. Shall we apply it?",
+      "ignoreButton": "Ignore",
+      "applyButton": "Apply"
+    }
   }
 }

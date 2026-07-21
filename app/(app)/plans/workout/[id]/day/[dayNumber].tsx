@@ -70,7 +70,7 @@ export default function WorkoutDayDetailScreen() {
   function handleFeedbackSubmitted(response: SubmitSessionFeedbackResponse, planId: string, dayNum: number) {
     feedbackSheetRef.current?.close();
     if (!response.suggestion) {
-      Alert.alert(t('sessionFeedback.submitSuccess', { defaultValue: '¡Feedback guardado!' }));
+      Alert.alert(t('sessionFeedback.submitSuccess'));
       return;
     }
     if (response.applied) {
@@ -79,22 +79,22 @@ export default function WorkoutDayDetailScreen() {
     }
     if (response.requires_credit) {
       Alert.alert(
-        'Sin ajustes gratis este mes',
-        'Ya usaste tus ajustes gratuitos. ¿Quieres usar 1 crédito para aplicar este ajuste?',
+        t('sessionFeedback.requiresCredit.title'),
+        t('sessionFeedback.requiresCredit.body'),
         [
-          { text: 'Ahora no', style: 'cancel' },
-          { text: 'Usar crédito', onPress: () => applySuggestion({ workoutPlanId: planId, dayNumber: dayNum, suggestion: response.suggestion! }) },
+          { text: t('sessionFeedback.requiresCredit.cancelButton'), style: 'cancel' },
+          { text: t('sessionFeedback.requiresCredit.useButton'), onPress: () => applySuggestion({ workoutPlanId: planId, dayNumber: dayNum, suggestion: response.suggestion! }) },
         ],
       );
       return;
     }
     if (response.requires_approval) {
       Alert.alert(
-        'Vulcano tiene una sugerencia',
-        'Según tu feedback reciente, conviene ajustar este ejercicio. ¿Lo aplicamos?',
+        t('sessionFeedback.requiresApproval.title'),
+        t('sessionFeedback.requiresApproval.body'),
         [
-          { text: 'Ignorar', style: 'cancel' },
-          { text: 'Aplicar', onPress: () => applySuggestion({ workoutPlanId: planId, dayNumber: dayNum, suggestion: response.suggestion! }) },
+          { text: t('sessionFeedback.requiresApproval.ignoreButton'), style: 'cancel' },
+          { text: t('sessionFeedback.requiresApproval.applyButton'), onPress: () => applySuggestion({ workoutPlanId: planId, dayNumber: dayNum, suggestion: response.suggestion! }) },
         ],
       );
     }
