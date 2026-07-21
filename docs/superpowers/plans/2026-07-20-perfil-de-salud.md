@@ -1781,7 +1781,11 @@ git commit -m "feat(salud): auto-regeneración premium al editar perfil de salud
 
 ### Task 14: Review final de rama
 
-**Files:** ninguno nuevo — revisión de todo lo cambiado en Tasks 1-13.
+**Files:** ninguno nuevo — revisión de todo lo cambiado en Tasks 1-13, más la reconciliación de `types/database.types.ts` descrita en el Step 0.
+
+- [ ] **Step 0: Reconciliar `types/database.types.ts` con las migraciones reales de esta rama**
+
+Hallazgo de la revisión de Task 1: la DB local de Supabase es compartida con la sesión paralela `feedback-adaptativo`, cuya migración `0016_session_feedback.sql` no está commiteada en esta rama (solo existe como shim local sin trackear). Por eso `types/database.types.ts`, regenerado contra esa DB compartida, incluye de más `exercise_feedback`/`plan_adjustments`/`session_feedback`/`profiles.auto_adjust_enabled` — tipos que no corresponden a ninguna migración de esta rama. Nada en el código de esta rama los referencia, así que no rompe nada hoy, pero antes de mergear a `master` hay que confirmar que el `types.ts` final generado contra `master` (que si está mergeada primero la otra feature, ya tendrá su propia migración real) sea consistente. Si esta rama se mergea ANTES que `feedback-adaptativo`, regenerar `types.ts` una vez más después del merge para asegurarse de que coincide exactamente con las migraciones que master realmente tiene en ese momento (`supabase gen types typescript --local > types/database.types.ts` con la DB en el estado post-merge).
 
 - [ ] **Step 1: Correr la suite completa**
 
