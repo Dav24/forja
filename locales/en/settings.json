@@ -120,6 +120,10 @@
     "saveErrorTitle": "Error saving",
     "unknownError": "Unknown error"
   },
+  "autoAdjust": {
+    "title": "Plan adjusted",
+    "description": "Vulcano adjusts your plan automatically based on your progress, without asking each time. You can always change this."
+  },
   "foodPreferences": {
     "title": "Allergies & dislikes",
     "subtitle": "Used to generate and adjust your meal plans — anything on your allergy list is never suggested.",
